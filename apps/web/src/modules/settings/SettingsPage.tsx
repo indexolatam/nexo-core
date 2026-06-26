@@ -7,6 +7,7 @@ import type { ServiceConfig, UserConfig, BlogPostConfig } from "../../types/admi
 import type { D1Role } from "../../types/d1";
 import { blogService, servicesService, usersService } from "../../services";
 import { useAuth } from "../auth/AuthContext";
+import { usePermissions } from "../../hooks/usePermissions";
 import { PaletteGroupPanel } from "./components/PaletteGroupPanel";
 import { ConfigListItem } from "./components/ConfigListItem";
 import { BankManager } from "./components/BankManager";
@@ -36,7 +37,9 @@ const sectionLabels: Record<ConfigSection, string> = {
 export function SettingsPage() {
   const { resetPalette, theme } = useTheme();
   const { user } = useAuth();
+  const { hasPermission } = usePermissions();
   const isRootOrAdmin = user?.role === "root" || user?.role === "admin";
+  const canEditUsers = hasPermission("configuracion", "edit");
   const [openSection, setOpenSection] = useState<ConfigSection | null>("apariencia");
   const [services, setServices] = useState<ServiceConfig[]>([]);
   const [users, setUsers] = useState<UserConfig[]>([]);
@@ -175,12 +178,16 @@ export function SettingsPage() {
                 ) : null}
 
                 {section === "usuarios" ? (
-                  <div className="space-y-4">
-                    <Button icon={<PlusOutlined />} className="rounded-button" onClick={() => setUserOpen(true)}>Nuevo usuario</Button>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                      {users.map((user) => <ConfigListItem key={user.id} title={user.name} subtitle={`${user.role} · ${user.active ? "Activo" : "Inactivo"}`} />)}
+                  canEditUsers ? (
+                    <div className="space-y-4">
+                      <Button icon={<PlusOutlined />} className="rounded-button" onClick={() => setUserOpen(true)}>Nuevo usuario</Button>
+                      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                        {users.map((user) => <ConfigListItem key={user.id} title={user.name} subtitle={`${user.role} · ${user.active ? "Activo" : "Inactivo"}`} />)}
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <p className="text-sm text-surface-secondary">No tienes permiso para gestionar usuarios.</p>
+                  )
                 ) : null}
 
                 {section === "preferencias" ? (

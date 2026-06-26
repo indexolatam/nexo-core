@@ -8,20 +8,22 @@ const EMPTY: ModulePermissionsByRole = {};
 export function usePermissions() {
   const { user } = useAuth();
   const [permissions, setPermissions] = useState<ModulePermissionsByRole>(EMPTY);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const isRoot = user?.role === "root";
   const isAdmin = user?.role === "admin";
   const canManage = isRoot || isAdmin;
 
   useEffect(() => {
-    if (!canManage) return;
+    if (!user) { setLoading(false); return; }
+    let active = true;
     setLoading(true);
     permissionsService.list()
-      .then(setPermissions)
-      .catch(() => setPermissions(EMPTY))
-      .finally(() => setLoading(false));
-  }, [canManage]);
+      .then((data) => { if (active) setPermissions(data); })
+      .catch(() => { if (active) setPermissions(EMPTY); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [user]);
 
   const hasPermission = useCallback((module: string, action: "read" | "create" | "edit"): boolean => {
     if (isRoot) return true;

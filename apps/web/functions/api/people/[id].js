@@ -12,6 +12,11 @@ async function checkPermission(context, action) {
   return null;
 }
 
+function buildOwnershipFilter(user) {
+  if (user.role === "root" || user.role === "admin") return "";
+  return `AND assigned_user_id = '${user.id}'`;
+}
+
 function parseName(fullName) {
   if (!fullName) return { nombre_1: null, nombre_2: null, apellido_1: null, apellido_2: null };
   const parts = String(fullName).trim().split(/\s+/).filter(Boolean);
@@ -29,7 +34,10 @@ export async function onRequestGet(context) {
 
   const db = context.env.DB;
   await ensureAllSchemas(db);
-  const row = await db.prepare("SELECT * FROM people WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first();
+
+  const user = context.data.user;
+  const ownershipFilter = buildOwnershipFilter(user);
+  const row = await db.prepare(`SELECT * FROM people WHERE id = ? AND deleted_at IS NULL${ownershipFilter}`).bind(context.params.id).first();
   if (!row) return json(null);
   const relatedData = await fetchRelatedData(db, row.id);
   return json(mapPersonRow(row, relatedData));
@@ -42,8 +50,10 @@ export async function onRequestPatch(context) {
   const db = context.env.DB;
   await ensureAllSchemas(db);
 
-  const existing = await db.prepare("SELECT id FROM people WHERE deleted_at IS NULL").bind(context.params.id).first();
-  if (!existing) return error("Persona no encontrada", 404);
+  const user = context.data.user;
+  const ownershipFilter = buildOwnershipFilter(user);
+  const existing = await db.prepare(`SELECT id FROM people WHERE id = ? AND deleted_at IS NULL${ownershipFilter}`).bind(context.params.id).first();
+  if (!existing) return error("Usuario no encontrado o sin acceso", 404);
 
   let body = {};
   try { body = await context.request.json(); } catch { return error("JSON inválido", 400); }
@@ -83,8 +93,10 @@ export async function onRequestDelete(context) {
   const db = context.env.DB;
   await ensureAllSchemas(db);
 
-  const existing = await db.prepare("SELECT id FROM people WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first();
-  if (!existing) return error("Persona no encontrada", 404);
+  const user = context.data.user;
+  const ownershipFilter = buildOwnershipFilter(user);
+  const existing = await db.prepare(`SELECT id FROM people WHERE id = ? AND deleted_at IS NULL${ownershipFilter}`).bind(context.params.id).first();
+  if (!existing) return error("Usuario no encontrado o sin acceso", 404);
 
   await db.prepare("UPDATE people SET deleted_at = ?, updated_at = ? WHERE id = ?")
     .bind(new Date().toISOString(), new Date().toISOString(), context.params.id).run();

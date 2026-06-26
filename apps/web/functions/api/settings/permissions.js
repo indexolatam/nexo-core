@@ -1,8 +1,22 @@
 import { json, error } from "../../_core/response.js";
 import { ensureAllSchemas } from "../../_core/db.js";
-import { getMaxPermissions, canExceedMax } from "../../_core/permissions.js";
+import { getMaxPermissions, canExceedMax, getUserPermission } from "../../_core/permissions.js";
+
+async function checkPerm(context, action) {
+  const user = context.data?.user;
+  if (!user) return error("No autenticado", 401);
+  if (user.role === "root") return null;
+  if (user.role !== "admin") return error("Solo root y admin pueden gestionar permisos", 403);
+  const db = context.env.DB;
+  const perm = await getUserPermission(db, user.role, "configuracion");
+  if (!perm[`can_${action}`]) return error("Sin permiso para esta acción", 403);
+  return null;
+}
 
 export async function onRequestGet(context) {
+  const denied = await checkPerm(context, "read");
+  if (denied) return denied;
+
   const db = context.env.DB;
   if (!db) return error("D1 no configurado", 500);
   await ensureAllSchemas(db);
@@ -25,6 +39,9 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
+  const denied = await checkPerm(context, "edit");
+  if (denied) return denied;
+
   const db = context.env.DB;
   if (!db) return error("D1 no configurado", 500);
   await ensureAllSchemas(db);
