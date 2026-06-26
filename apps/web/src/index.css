@@ -1,0 +1,652 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.thin-task-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(105, 111, 85, 0.45) transparent;
+}
+
+.thin-task-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-task-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-task-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(105, 111, 85, 0.45);
+  border-radius: 999px;
+}
+
+.thin-task-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(105, 111, 85, 0.65);
+}
+
+.finance-table .ant-table-thead > tr > th {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--surface-secondary) !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  padding: 8px 12px !important;
+}
+.finance-table .ant-table-tbody > tr > td {
+  background: transparent !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 8px 12px !important;
+}
+.finance-table .ant-table-tbody > tr:hover > td {
+  background: var(--table-hover-bg) !important;
+}
+.finance-table .ant-table-tbody > tr:last-child > td {
+  border-bottom: none !important;
+}
+.finance-table-clean .ant-table-cell {
+  vertical-align: middle !important;
+}
+.finance-table-clean .ant-table-container {
+  border-radius: 1rem !important;
+}
+.ant-card {
+  background: var(--admin-card-bg) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-card-text) !important;
+}
+
+.ant-card-head,
+.ant-card-head-title {
+  background: var(--admin-section-bg) !important;
+  color: var(--admin-card-text) !important;
+  border-color: var(--admin-border-subtle) !important;
+}
+
+.ant-input,
+.ant-input-password,
+.ant-input-affix-wrapper,
+.ant-picker,
+.ant-select-selector,
+textarea.ant-input {
+  background: var(--admin-input-bg) !important;
+  border-color: var(--admin-border) !important;
+  color: var(--admin-input-text) !important;
+}
+
+.ant-input::placeholder,
+textarea.ant-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-picker-input input::placeholder,
+.ant-select-selection-placeholder {
+  color: var(--admin-input-placeholder) !important;
+  opacity: 1 !important;
+}
+
+.ant-select-dropdown,
+.ant-dropdown-menu,
+.ant-picker-dropdown .ant-picker-panel-container,
+.ant-tooltip-inner,
+.ant-popover-inner,
+.ant-popover-arrow::before,
+.ant-modal-content,
+.ant-modal-header {
+  background: var(--dropdown-bg) !important;
+  color: var(--dropdown-text) !important;
+  border-color: var(--dropdown-border) !important;
+  box-shadow: 0 16px 40px color-mix(in srgb, var(--dropdown-shadow) 18%, transparent) !important;
+}
+
+.ant-modal-content,
+.ant-modal-header {
+  background: var(--modal-bg) !important;
+  color: var(--modal-text) !important;
+}
+
+.ant-popover-inner,
+.ant-popover-title {
+  background: var(--popover-bg) !important;
+  color: var(--popover-text) !important;
+}
+
+.ant-select-item,
+.ant-dropdown-menu-item,
+.ant-picker-cell-inner,
+.ant-popover-inner-content,
+.ant-modal-title,
+.ant-modal-body {
+  color: var(--dropdown-text) !important;
+}
+
+.ant-select-item-option-active,
+.ant-select-item:hover,
+.ant-dropdown-menu-item:hover,
+.ant-picker-cell:hover .ant-picker-cell-inner {
+  background: var(--dropdown-hover-bg) !important;
+  color: var(--dropdown-text) !important;
+}
+
+.ant-select-item-option-selected,
+.ant-dropdown-menu-item-selected,
+.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--dropdown-selected-bg) !important;
+  color: var(--dropdown-selected-text) !important;
+}
+
+body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(105, 111, 85, 0.45) transparent;
+}
+.finance-table-clean .ant-table-body::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.finance-table-clean .ant-table-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.finance-table-clean .ant-table-body::-webkit-scrollbar-thumb {
+  background-color: rgba(105, 111, 85, 0.45);
+  border-radius: 999px;
+}
+.finance-table .ant-table-cell-fix-left,
+.finance-table .ant-table-cell-fix-left-last {
+  background-color: var(--surface-strong) !important;
+  z-index: 2 !important;
+}
+.finance-table .ant-table-tbody > tr:hover > .ant-table-cell-fix-left,
+.finance-table .ant-table-tbody > tr:hover > .ant-table-cell-fix-left-last {
+  background-color: var(--table-hover-bg) !important;
+}
+.finance-table .ant-table-tbody > tr:hover > td.finance-sticky-cell {
+  background-color: var(--table-hover-bg) !important;
+}
+
+@font-face {
+  font-family: "Gazpacho";
+  src: url("/fonts/gazpacho-black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/montserrat-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserrat";
+  src: url("/fonts/montserrat-medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light;
+  font-family: "Montserrat", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-title: "Gazpacho", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Montserrat", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --app-bg: #FFFBF7;
+  --section-bg: #F7FFDE;
+  --card-bg: #6F755A;
+  --elevated-bg: #FFFBF7;
+  --input-bg: #000000;
+  --warm-bg: #000000;
+  --surface-strong: #000000;
+  --surface-soft: #F2F4EA;
+  --border: #CFC4BE;
+  --border-subtle: rgba(207, 196, 190, 0.7);
+  --border-strong: #ACB984;
+  --text-main: #35382B;
+  --text-secondary: #484D3B;
+  --text-muted: #827C74;
+  --text-inverse: #434242;
+  --text-on-card: #F5EBE2;
+  --text-on-card-secondary: #E0EDAF;
+  --text-on-card-muted: #D4C9BC;
+  --text-on-accent: #FCF0E1;
+  --text-on-accent-secondary: #F5EBE2;
+  --text-on-accent-muted: #D4C9BC;
+  --surface-hover: #8F9678;
+  --surface-active: #707758;
+  --surface-disabled: #BFB7AF;
+  --title-warm: #735443;
+  --accent: #696F55;
+  --accent-hover: #585933;
+  --accent-deep: #464A37;
+  --accent-soft: #F2EEC9;
+  --accent-border: #ACB984;
+  --accent-text: #FCF0E1;
+  --link: #696F55;
+  --link-hover: #585933;
+  --footer-bg: #323313;
+  --footer-text: #F5EBE2;
+  --footer-link: #ACB984;
+  --footer-link-hover: #E0EDAF;
+  --hero-glow-1: rgba(172, 185, 132, 0.22);
+  --hero-glow-2: rgba(115, 84, 67, 0.1);
+  --hero-overlay-strong: rgba(18, 27, 24, 0.78);
+  --hero-overlay-soft: rgba(18, 27, 24, 0.22);
+  --grid-line: rgba(105, 111, 85, 0.06);
+  --surface-contrast: #FFFFFF;
+  --focus-ring: rgba(105, 111, 85, 0.2);
+  --placeholder: #827C74;
+  --table-sticky-shadow: rgba(15, 23, 42, 0.25);
+  --table-hover-bg: rgba(105, 111, 85, 0.06);
+  --footer-divider: rgba(255, 255, 255, 0.1);
+
+  background: var(--app-bg);
+}
+
+.dark {
+  color-scheme: dark;
+  --app-bg: #20211F;
+  --section-bg: #252610;
+  --card-bg: #464A37;
+  --elevated-bg: #585933;
+  --input-bg: #323313;
+  --warm-bg: #54504D;
+  --surface-strong: #464A37;
+  --border: #73715F;
+  --border-subtle: rgba(115, 113, 95, 0.7);
+  --border-strong: #ACB984;
+  --text-main: #F5EBE2;
+  --text-secondary: #F2EEC9;
+  --text-muted: #BEBF9F;
+  --text-inverse: #323309;
+  --text-on-card: #F5EBE2;
+  --text-on-card-secondary: #F2EEC9;
+  --text-on-card-muted: #BEBF9F;
+  --text-on-accent: #323309;
+  --text-on-accent-secondary: #464A37;
+  --text-on-accent-muted: #73715F;
+  --surface-hover: #585933;
+  --surface-active: #464A37;
+  --surface-disabled: #73715F;
+  --title-warm: #D4C9BC;
+  --accent: #ACB984;
+  --accent-hover: #B4BF8E;
+  --accent-deep: #E0EDAF;
+  --accent-soft: #585933;
+  --accent-border: #8B8C6C;
+  --accent-text: #323309;
+  --link: #ACB984;
+  --link-hover: #E0EDAF;
+  --footer-bg: #323309;
+  --footer-text: #F5EBE2;
+  --footer-link: #ACB984;
+  --footer-link-hover: #E0EDAF;
+  --hero-glow-1: rgba(172, 185, 132, 0.18);
+  --hero-glow-2: rgba(115, 84, 67, 0.14);
+  --hero-overlay-strong: rgba(18, 27, 24, 0.78);
+  --hero-overlay-soft: rgba(18, 27, 24, 0.22);
+  --grid-line: rgba(245, 235, 226, 0.07);
+  --surface-contrast: #464A37;
+  --focus-ring: rgba(172, 185, 132, 0.2);
+  --placeholder: #BEBF9F;
+  --table-sticky-shadow: rgba(245, 235, 226, 0.25);
+  --table-hover-bg: rgba(172, 185, 132, 0.1);
+  --footer-divider: rgba(255, 255, 255, 0.1);
+}
+
+.dark .ant-input,
+.dark .ant-input-password,
+.dark .ant-input-affix-wrapper,
+.dark .ant-picker,
+.dark .ant-select-selector,
+.dark textarea.ant-input {
+  background: var(--input-bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text-main) !important;
+}
+
+.dark .ant-input::placeholder,
+.dark textarea.ant-input::placeholder,
+.dark .ant-input-affix-wrapper input::placeholder,
+.dark .ant-picker-input input::placeholder,
+.dark .ant-select-selection-placeholder {
+  color: var(--placeholder) !important;
+  opacity: 1 !important;
+}
+
+.dark .ant-input-affix-wrapper .ant-input,
+.dark .ant-input-password .ant-input {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+.dark .ant-select-selection-item,
+.dark .ant-picker-input input,
+.dark .ant-input-prefix,
+.dark .ant-input-suffix {
+  color: var(--text-main) !important;
+}
+
+.dark .ant-table,
+.dark .ant-table-tbody > tr:hover > td {
+  background: var(--card-bg) !important;
+}
+
+.dark .ant-table-cell-row-hover {
+  background: var(--elevated-bg) !important;
+}
+
+.dark .ant-tabs-tab,
+.dark .ant-upload,
+.dark .ant-upload-hint,
+.dark .ant-upload-text {
+  color: var(--text-secondary) !important;
+}
+
+.dark .ant-btn-primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-text) !important;
+}
+
+.dark .ant-btn-primary:hover {
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: var(--accent-text) !important;
+}
+
+.dark .ant-tag,
+.dark .ant-badge-count {
+  box-shadow: none;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--app-bg);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title);
+  font-weight: 900;
+}
+
+h4,
+h5,
+h6,
+strong,
+b,
+.font-medium,
+.font-semibold {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+
+button,
+input,
+textarea,
+select,
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-typography,
+.ant-card,
+.ant-form,
+.ant-collapse,
+.ant-menu {
+  font-family: var(--font-body);
+}
+
+input,
+textarea,
+select,
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-picker,
+.ant-select-selector {
+  background: var(--input-bg);
+  color: var(--text-main);
+  border-color: var(--border);
+}
+
+input::placeholder,
+textarea::placeholder,
+.ant-input::placeholder,
+.ant-input-affix-wrapper input::placeholder,
+.ant-picker-input input::placeholder,
+.ant-select-selection-placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.ant-input:focus,
+.ant-input-affix-wrapper-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: var(--border-strong);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: none;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rounded-button {
+  border-radius: 10px !important;
+}
+
+.brand-primary {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-text) !important;
+}
+
+.brand-primary:hover {
+  background: var(--accent-hover) !important;
+  border-color: var(--accent-hover) !important;
+  color: var(--accent-text) !important;
+}
+
+.brand-outline {
+  border-color: var(--accent) !important;
+  color: var(--accent-deep) !important;
+}
+
+.dark .brand-outline {
+  background: transparent !important;
+  color: var(--accent) !important;
+}
+
+.brand-tag {
+  background: var(--accent-soft) !important;
+  border-color: var(--accent-border) !important;
+  color: var(--accent-deep) !important;
+}
+
+.surface-app {
+  background: var(--app-bg);
+  color: var(--text-main);
+}
+
+.surface-section {
+  background: var(--section-bg);
+  color: var(--text-main);
+}
+
+.surface-card {
+  background: var(--card-bg);
+  color: var(--text-on-card);
+}
+
+.surface-card-secondary {
+  color: var(--text-on-card-secondary);
+}
+
+.surface-card-muted {
+  color: var(--text-on-card-muted);
+}
+
+.surface-card-interactive {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.surface-card-interactive:hover {
+  background: var(--surface-hover);
+  color: var(--text-on-card);
+  transform: translateY(-1px);
+}
+
+.surface-card-interactive:active {
+  background: var(--surface-active);
+  transform: translateY(0);
+}
+
+.surface-accent {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.surface-accent-secondary {
+  color: var(--text-on-accent-secondary);
+}
+
+.surface-accent-muted {
+  color: var(--text-on-accent-muted);
+}
+
+.surface-accent-interactive {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.surface-accent-interactive:hover {
+  background: var(--accent-hover);
+  color: var(--text-on-accent);
+  transform: translateY(-1px);
+}
+
+.surface-accent-interactive:active {
+  background: var(--surface-active);
+  transform: translateY(0);
+}
+
+.surface-disabled {
+  color: var(--surface-disabled);
+}
+
+.surface-focus:focus-visible {
+  outline: 2px solid var(--accent-border);
+  outline-offset: 2px;
+}
+
+.text-surface-main {
+  color: var(--text-main);
+}
+
+.text-surface-secondary {
+  color: var(--text-secondary);
+}
+
+.text-surface-muted {
+  color: var(--text-muted);
+}
+
+.text-card-main {
+  color: var(--text-on-card);
+}
+
+.text-card-secondary {
+  color: var(--text-on-card-secondary);
+}
+
+.text-card-soft {
+  color: color-mix(in srgb, var(--text-on-card-secondary) 80%, transparent);
+}
+
+.text-surface-soft {
+  color: color-mix(in srgb, var(--text-secondary) 80%, transparent);
+}
+
+.text-accent-soft {
+  color: color-mix(in srgb, var(--text-on-accent-secondary) 80%, transparent);
+}
+
+.text-accent-main {
+  color: var(--text-on-accent);
+}
+
+.text-accent-secondary {
+  color: var(--text-on-accent-secondary);
+}
+
+a {
+  color: var(--link);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+.theme-toggle-button {
+  color: var(--text-secondary) !important;
+}
+
+.theme-toggle-button:hover {
+  background: var(--accent-soft) !important;
+  color: var(--accent-deep) !important;
+}
+
+.ant-card {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+.dark .ant-card {
+  background: var(--card-bg);
+  border-color: var(--border);
+}
+
+.dark .ant-card-head,
+.dark .ant-table-thead > tr > th {
+  background: var(--elevated-bg);
+  border-color: var(--border);
+}
+
+.dark .ant-card-head-title,
+.dark .ant-modal-title,
+.dark .ant-table-thead > tr > th,
+.dark .ant-table-tbody > tr > td,
+.dark .ant-statistic-title,
+.dark .ant-form-item-label > label {
+  color: var(--text-main) !important;
+}
+
+.dark .ant-modal-content,
+.dark .ant-modal-header,
+.dark .ant-drawer-content,
+.dark .ant-drawer-header,
+.dark .ant-dropdown-menu {
+  background: var(--card-bg);
+  color: var(--text-main);
+}
+
+.hero-gradient {
+  background:
+    radial-gradient(ellipse at 82% 18%, var(--hero-glow-1), transparent 48%),
+    radial-gradient(ellipse at 18% 82%, var(--hero-glow-2), transparent 42%),
+    var(--app-bg);
+}
+
+.soft-grid {
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 28px 28px;
+}

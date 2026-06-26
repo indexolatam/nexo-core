@@ -1,0 +1,13 @@
+{
+  "name": "nexo-core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx vite",
+    "dev:api": "powershell -ExecutionPolicy Bypass -File scripts/dev.ps1",
+    "build": "npx tsc -b && npx vite build",
+    "lint": "npx eslint .",
+    "preview": "npx vite preview"
+  }
+}

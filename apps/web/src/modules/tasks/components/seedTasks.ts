@@ -1,0 +1,16 @@
+import type { Task } from "../../../types/adminTasks";
+
+export const SEED_TASKS: Task[] = [
+  { id: "t1", title: "Preparar informe mensual de pacientes", description: "Recopilar datos de asistencia del mes", responsible: "Asistente", priority: "Alta", deadline: "20 jun", deadlineDate: "2026-06-20", status: "En curso", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t2", title: "Llamar a paciente para seguimiento", description: "Verificar evolución del tratamiento", responsible: "Doctora", priority: "Media", deadline: "17 jun", deadlineDate: "2026-06-17", status: "Pendiente", type: "Seguimiento", relationType: "Ninguno" },
+  { id: "t3", title: "Revisar agenda de la semana", description: "Confirmar citas y horarios", responsible: "Asistente", priority: "Alta", deadline: "16 jun", deadlineDate: "2026-06-16", status: "Completada", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t4", title: "Enviar recordatorios de citas", description: "WhatsApp y email", responsible: "Asistente", priority: "Baja", deadline: "18 jun", deadlineDate: "2026-06-18", status: "Pendiente", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t5", title: "Actualizar fichas de pacientes nuevos", description: "Digitalizar expedientes", responsible: "Asistente", priority: "Media", deadline: "22 jun", deadlineDate: "2026-06-22", status: "Pendiente", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t6", title: "Preparar material para taller", description: "Imprimir y organizar materiales", responsible: "Doctora", priority: "Alta", deadline: "25 jun", deadlineDate: "2026-06-25", status: "Pendiente", type: "Taller", relationType: "Ninguno" },
+  { id: "t7", title: "Reunión con proveedores", description: "Renovar suministros de oficina", responsible: "Doctora", priority: "Baja", deadline: "30 jun", deadlineDate: "2026-06-30", status: "Pendiente", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t8", title: "Llamada de seguimiento paciente", description: "Paciente en terapia", responsible: "Doctora", priority: "Media", deadline: "15 jun", deadlineDate: "2026-06-15", status: "Completada", type: "Seguimiento", relationType: "Ninguno" },
+  { id: "t9", title: "Publicar contenido redes sociales", description: "Post informativo sobre ansiedad", responsible: "Asistente", priority: "Baja", deadline: "19 jun", deadlineDate: "2026-06-19", status: "Cancelada", type: "Marketing", relationType: "Ninguno" },
+  { id: "t10", title: "Facturar sesiones del mes", description: "Emitir recibos a pacientes", responsible: "Asistente", priority: "Alta", deadline: "28 jun", deadlineDate: "2026-06-28", status: "Pendiente", type: "Administrativa", relationType: "Ninguno" },
+  { id: "t11", title: "Completar informe de evaluación", description: "Paciente nuevo - evaluación inicial", responsible: "Doctora", priority: "Alta", deadline: "14 may", deadlineDate: "2026-05-14", status: "Completada", type: "Seguimiento", relationType: "Ninguno" },
+  { id: "t12", title: "Taller de mindfulness", description: "Sesión grupal programada", responsible: "Doctora", priority: "Media", deadline: "10 may", deadlineDate: "2026-05-10", status: "Completada", type: "Taller", relationType: "Ninguno" },
+];

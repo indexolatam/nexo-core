@@ -1,0 +1,10 @@
+export { authService } from "./authService";
+export { peopleService } from "./peopleService";
+export { servicesService } from "./servicesService";
+export { financeService } from "./financeService";
+export { agendaService } from "./agendaService";
+export { tasksService } from "./tasksService";
+export { usersService } from "./usersService";
+export { blogService } from "./blogService";
+export { auditService } from "./auditService";
+export { contactService, type ContactService, type ContactRequestInput } from "./contactService";
