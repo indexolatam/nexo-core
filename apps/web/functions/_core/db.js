@@ -128,8 +128,9 @@ export async function ensureAllSchemas(db) {
       ['perm-asistente-configuracion','asistente','configuracion',1,0,0], ['perm-asistente-auditoria','asistente','auditoria',0,0,0],
       ['perm-asistente-blog','asistente','blog',0,0,0],
     ];
-    const stmt = await db.prepare("INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit) VALUES (?, ?, ?, ?, ?, ?)");
-    await db.batch(perms.map(p => stmt.bind(...p)));
+    for (const p of perms) {
+      await db.prepare("INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit) VALUES (?, ?, ?, ?, ?, ?)").bind(...p).run();
+    }
   }
 
   const { results } = await db.prepare("SELECT COUNT(*) as cnt FROM people").all();
