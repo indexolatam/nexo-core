@@ -108,6 +108,7 @@ export async function ensureAllSchemas(db) {
     can_read INTEGER DEFAULT 1, can_create INTEGER DEFAULT 0, can_edit INTEGER DEFAULT 0, can_delete INTEGER DEFAULT 0,
     updated_at TEXT, UNIQUE(role, module)
   )`).run();
+  try { await db.prepare("ALTER TABLE module_permissions ADD COLUMN can_delete INTEGER DEFAULT 0").run(); } catch {}
 
   const perms = [
     ['perm-root-personas','root','personas',1,1,1,1], ['perm-root-finanzas','root','finanzas',1,1,1,1],
