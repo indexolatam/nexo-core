@@ -30,3 +30,24 @@ export type BlogPostConfig = {
   image: string;
   date: string;
 };
+
+export type ModulePermission = {
+  module: string;
+  can_read: boolean;
+  can_create: boolean;
+  can_edit: boolean;
+};
+
+export type ModulePermissionsByRole = Record<string, ModulePermission[]>;
+
+export type ModuleKey = "personas" | "finanzas" | "agenda" | "tareas" | "configuracion" | "auditoria" | "blog";
+
+export const ALL_MODULES: { key: ModuleKey; label: string }[] = [
+  { key: "personas", label: "Personas" },
+  { key: "finanzas", label: "Finanzas" },
+  { key: "agenda", label: "Agenda" },
+  { key: "tareas", label: "Tareas" },
+  { key: "configuracion", label: "Configuración" },
+  { key: "auditoria", label: "Auditoría" },
+  { key: "blog", label: "Blog" },
+];

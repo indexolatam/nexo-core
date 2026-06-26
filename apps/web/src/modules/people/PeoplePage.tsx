@@ -1,7 +1,8 @@
 import { FilterOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Divider, Empty, Form, Input, Modal, Pagination, Popover, Select } from "antd";
+import { Button, Card, Checkbox, Divider, Empty, Form, Input, message, Modal, Pagination, Popover, Select } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { peopleService } from "../../services";
+import { usePermissions } from "../../hooks/usePermissions";
 import type { Person, PersonCondition, PersonQuickFilter, PersonStatus, PersonType, PeopleFilterState } from "../../types/adminPeople";
 import { personTypeOptions } from "../../types/adminPeople";
 import { PersonCard } from "./components/PersonCard";
@@ -67,6 +68,9 @@ function matchesTableFilters(person: Person, filters: TableFilterState) {
 }
 
 export function PeoplePage() {
+  const { hasPermission } = usePermissions();
+  const canCreate = hasPermission("personas", "create");
+  const canEdit = hasPermission("personas", "edit");
   const [items, setItems] = useState<Person[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 200);
@@ -123,29 +127,35 @@ export function PeoplePage() {
 
   const onCreatePerson = async () => {
     const values = await form.validateFields();
-    const newPerson = await peopleService.create({
-      nombre: values.nombre, telefono: values.telefono, email: values.email,
-      tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
-      ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
-      fuente: "Manual", responsable: "Doctora", etiquetas: [],
-      proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
-      citas: { proximas: [], historial: [] }, tareas: { pendientes: [], completadas: [] },
-      finanzas: { pagadas: [], pendientes: [], servicios: [] }, historial: [],
-    });
-    setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
+    try {
+      const newPerson = await peopleService.create({
+        nombre: values.nombre, telefono: values.telefono, email: values.email,
+        tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
+        ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
+        fuente: "Manual", responsable: "Doctora", etiquetas: [],
+        proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
+        citas: { proximas: [], historial: [] }, tareas: { pendientes: [], completadas: [] },
+        finanzas: { pagadas: [], pendientes: [], servicios: [] }, historial: [],
+      });
+      setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
+    } catch (err) { message.error("No se pudo crear la persona"); }
   };
 
   const onUpdatePerson = async () => {
     const values = await editForm.validateFields();
     if (!editPerson) return;
-    const updated = await peopleService.update(editPerson.id, { nombre: values.nombre, telefono: values.telefono, email: values.email, tipos: values.tipos, estado: values.estado, observaciones_administrativas: values.observaciones ?? "" });
-    setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
+    try {
+      const updated = await peopleService.update(editPerson.id, { nombre: values.nombre, telefono: values.telefono, email: values.email, tipos: values.tipos, estado: values.estado, observaciones_administrativas: values.observaciones ?? "" });
+      setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
+    } catch (err) { message.error("No se pudo actualizar la persona"); }
   };
 
   const handleDeletePerson = async (person: Person) => {
-    await peopleService.remove(person.id);
-    setItems((c) => c.filter((p) => p.id !== person.id));
-    if (selectedId === person.id) setSelectedId(null);
+    try {
+      await peopleService.remove(person.id);
+      setItems((c) => c.filter((p) => p.id !== person.id));
+      if (selectedId === person.id) setSelectedId(null);
+    } catch (err) { message.error("No se pudo eliminar la persona"); }
   };
 
   const filterPopover = (
@@ -176,7 +186,7 @@ export function PeoplePage() {
             <Popover open={filterOpen} onOpenChange={(o) => { if (o) setTempFilters(filters); setFilterOpen(o); }} trigger="click" placement="bottomLeft" content={filterPopover}>
               <Button icon={<FilterOutlined />} className="rounded-button">Filtro</Button>
             </Popover>
-            <Button type="primary" icon={<PlusOutlined />} className="rounded-button" onClick={() => setCreateOpen(true)}>Nueva persona</Button>
+            <Button type="primary" icon={<PlusOutlined />} className="rounded-button" disabled={!canCreate} onClick={() => setCreateOpen(true)}>Nueva persona</Button>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
             <div className="flex flex-wrap gap-2">
@@ -203,7 +213,7 @@ export function PeoplePage() {
       <div>
       {selectedPerson ? (
         <div className="grid items-stretch gap-6 transition-[height] duration-200 ease-in-out xl:h-[720px] xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)]">
-          <div><PersonDetail person={selectedPerson} onBack={() => setSelectedId(null)} onEdit={(p) => { setEditPerson(p); setEditOpen(true); }} onDelete={handleDeletePerson} /></div>
+          <div><PersonDetail person={selectedPerson} onBack={() => setSelectedId(null)} onEdit={canEdit ? (p) => { setEditPerson(p); setEditOpen(true); } : undefined} onDelete={canEdit ? handleDeletePerson : undefined} /></div>
           <div className="min-h-0 xl:h-full">
             <Card className="flex h-full flex-col rounded-3xl border-[var(--border)] [&_.ant-card-body]:flex [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-1 [&_.ant-card-body]:flex-col">
               <div className="flex shrink-0 items-start justify-between gap-3">

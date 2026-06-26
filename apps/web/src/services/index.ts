@@ -7,4 +7,5 @@ export { tasksService } from "./tasksService";
 export { usersService } from "./usersService";
 export { blogService } from "./blogService";
 export { auditService } from "./auditService";
+export { permissionsService } from "./permissionsService";
 export { contactService, type ContactService, type ContactRequestInput } from "./contactService";

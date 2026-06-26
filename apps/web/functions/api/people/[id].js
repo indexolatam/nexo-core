@@ -1,7 +1,21 @@
 import { json, error } from "../../_core/response.js";
 import { ensureAllSchemas, mapPersonRow, fetchRelatedData } from "../../_core/db.js";
+import { getUserPermission } from "../../_core/permissions.js";
+
+async function checkPermission(context, action) {
+  const user = context.data?.user;
+  if (!user) return error("No autenticado", 401);
+  if (user.role === "root") return null;
+  const db = context.env.DB;
+  const perm = await getUserPermission(db, user.role, "personas");
+  if (!perm[`can_${action}`]) return error("Sin permiso para esta acción", 403);
+  return null;
+}
 
 export async function onRequestGet(context) {
+  const denied = await checkPermission(context, "read");
+  if (denied) return denied;
+
   const db = context.env.DB;
   await ensureAllSchemas(db);
   const row = await db.prepare("SELECT * FROM people WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first();
@@ -11,6 +25,9 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPatch(context) {
+  const denied = await checkPermission(context, "edit");
+  if (denied) return denied;
+
   const db = context.env.DB;
   await ensureAllSchemas(db);
   let body = {};
@@ -37,6 +54,9 @@ export async function onRequestPatch(context) {
 }
 
 export async function onRequestDelete(context) {
+  const denied = await checkPermission(context, "edit");
+  if (denied) return denied;
+
   await ensureAllSchemas(context.env.DB);
   await context.env.DB.prepare("UPDATE people SET deleted_at = ?, updated_at = ? WHERE id = ?")
     .bind(new Date().toISOString(), new Date().toISOString(), context.params.id).run();

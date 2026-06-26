@@ -6,14 +6,16 @@ import { useTheme } from "../../context/ThemeContext";
 import type { ServiceConfig, UserConfig, BlogPostConfig } from "../../types/adminSettings";
 import type { D1Role } from "../../types/d1";
 import { blogService, servicesService, usersService } from "../../services";
+import { useAuth } from "../auth/AuthContext";
 import { PaletteGroupPanel } from "./components/PaletteGroupPanel";
 import { ConfigListItem } from "./components/ConfigListItem";
 import { BankManager } from "./components/BankManager";
+import { PermissionsManager } from "./components/PermissionsManager";
 
 const landingPaletteGroups = paletteGroups.filter((group) => group.id.startsWith("landing"));
 const adminPaletteGroups = paletteGroups.filter((group) => !group.id.startsWith("landing"));
 
-type ConfigSection = "apariencia" | "servicios" | "horarios" | "usuarios" | "preferencias" | "blog";
+type ConfigSection = "apariencia" | "servicios" | "horarios" | "usuarios" | "preferencias" | "blog" | "permisos";
 
 function toD1Role(role: string): D1Role {
   if (role === "Administrador") return "admin";
@@ -28,10 +30,13 @@ const sectionLabels: Record<ConfigSection, string> = {
   usuarios: "Usuarios",
   preferencias: "Preferencias",
   blog: "Blog",
+  permisos: "Permisos de módulos",
 };
 
 export function SettingsPage() {
   const { resetPalette, theme } = useTheme();
+  const { user } = useAuth();
+  const isRootOrAdmin = user?.role === "root" || user?.role === "admin";
   const [openSection, setOpenSection] = useState<ConfigSection | null>("apariencia");
   const [services, setServices] = useState<ServiceConfig[]>([]);
   const [users, setUsers] = useState<UserConfig[]>([]);
@@ -218,6 +223,13 @@ export function SettingsPage() {
                       ))}
                     </div>
                     {visiblePosts.length === 0 ? <p className="text-sm text-surface-muted">Sin posts para mostrar. Crea el primero.</p> : null}
+                  </div>
+                ) : null}
+
+                {section === "permisos" && isRootOrAdmin ? (
+                  <div className="space-y-4">
+                    <p className="text-sm text-surface-secondary">Define qué puede hacer cada rol en cada módulo. Los permisos solo pueden reducirse, no exceder el máximo del rol.</p>
+                    <PermissionsManager />
                   </div>
                 ) : null}
               </div>

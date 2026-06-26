@@ -11,7 +11,7 @@ function formatTypeLabel(type: string) {
   return type === "Participante Taller" ? "Taller" : type;
 }
 
-export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Person; onBack: () => void; onEdit: (person: Person) => void; onDelete: (person: Person) => void }) {
+export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Person; onBack: () => void; onEdit?: (person: Person) => void; onDelete?: (person: Person) => void }) {
   return (
     <div className="space-y-4">
       <Card className="rounded-3xl border-[var(--border)]">
@@ -31,10 +31,14 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Per
             </div>
           </div>
           <div className="flex gap-2">
-            <Popconfirm title="¿Eliminar esta persona?" description="Se marcará como eliminada pero los datos se conservan." onConfirm={() => onDelete(person)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
-              <Button icon={<DeleteOutlined />} danger className="rounded-button">Eliminar</Button>
-            </Popconfirm>
-            <Button icon={<EditOutlined />} className="rounded-button" onClick={() => onEdit(person)}>Editar</Button>
+            {onDelete ? (
+              <Popconfirm title="¿Eliminar esta persona?" description="Se marcará como eliminada pero los datos se conservan." onConfirm={() => onDelete(person)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
+                <Button icon={<DeleteOutlined />} danger className="rounded-button">Eliminar</Button>
+              </Popconfirm>
+            ) : null}
+            {onEdit ? (
+              <Button icon={<EditOutlined />} className="rounded-button" onClick={() => onEdit(person)}>Editar</Button>
+            ) : null}
             <Button icon={<ArrowLeftOutlined />} className="rounded-button" onClick={onBack}>Volver</Button>
           </div>
         </div>
