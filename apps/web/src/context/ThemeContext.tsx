@@ -109,6 +109,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { document.documentElement.classList.toggle("dark", theme === "dark"); }, [theme]);
 
   useEffect(() => {
+    const token = localStorage.getItem(`${CLIENT.id}-admin-token`);
+    if (!token) return;
+
     apiRequest<{ light?: EditablePalette; dark?: EditablePalette } | null>("/settings/palette")
       .then((result) => {
         if (result?.light && result?.dark) {

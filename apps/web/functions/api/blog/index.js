@@ -3,7 +3,11 @@ import { ensureAllSchemas } from "../../_core/db.js";
 
 export async function onRequestGet(context) {
   await ensureAllSchemas(context.env.DB);
-  const { results } = await context.env.DB.prepare("SELECT * FROM blog_posts WHERE deleted_at IS NULL ORDER BY created_at DESC").all();
+  const isAdmin = Boolean(context.data?.user);
+  const sql = isAdmin
+    ? "SELECT * FROM blog_posts WHERE deleted_at IS NULL ORDER BY created_at DESC"
+    : "SELECT * FROM blog_posts WHERE deleted_at IS NULL AND status = 'Publicado' ORDER BY created_at DESC";
+  const { results } = await context.env.DB.prepare(sql).all();
   return json(results);
 }
 

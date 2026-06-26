@@ -6,8 +6,9 @@
 
 | Documento | Contenido | Tamaño aprox. |
 |-----------|-----------|---------------|
-| [general.md](./general.md) | Arquitectura, stack, estructura, patrones, convenciones | ~200 líneas |
-| [modules/people.md](./modules/people.md) | Módulo Personas: DB, API, componentes, flujos | ~350 líneas |
+| [general.md](./general.md) | Arquitectura, stack, estructura, patrones, convenciones | ~280 líneas |
+| [modules/people.md](./modules/people.md) | Módulo Personas: DB, API, componentes, flujos | ~620 líneas |
+| [modules/people-pending.md](./modules/people-pending.md) | People: bugs, mejoras pendientes, backlog | ~180 líneas |
 
 ## Cómo Usar Esta Documentación
 
@@ -23,7 +24,7 @@
 
 ## Módulos Documentados
 
-- [x] People (Personas)
+- [x] People (Personas) — [people.md](./modules/people.md) + [people-pending.md](./modules/people-pending.md)
 - [ ] Agenda
 - [ ] Finance (Finanzas)
 - [ ] Tasks (Tareas)

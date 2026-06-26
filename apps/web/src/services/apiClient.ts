@@ -10,7 +10,9 @@ function getAuthToken(): string | null {
 
 function clearAuth(): void {
   localStorage.removeItem(TOKEN_KEY);
-  window.location.href = "/login";
+  if (window.location.pathname !== "/login") {
+    window.location.href = "/login";
+  }
 }
 
 interface RequestOptions {

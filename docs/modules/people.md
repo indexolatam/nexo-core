@@ -9,25 +9,26 @@ Gestión de personas relacionadas al consultorio: fichas, historial y contexto c
 | Archivo | Líneas | Función |
 |---------|--------|---------|
 | `apps/web/src/pages/admin/PeoplePage.tsx` | 1 | Re-export wrapper |
-| `apps/web/src/modules/people/PeoplePage.tsx` | 265 | Componente principal con toda la lógica |
-| `apps/web/src/modules/people/components/PeopleTable.tsx` | 169 | Tabla con filtros tipo Excel por columna |
-| `apps/web/src/modules/people/components/PeopleBigCounter.tsx` | 19 | Widget de conteo (activos/inactivos/total) |
-| `apps/web/src/modules/people/components/PersonCard.tsx` | 53 | Tarjeta de persona (compacta o completa) |
-| `apps/web/src/modules/people/components/PersonDetail.tsx` | 113 | Vista detalle con tabs |
+| `apps/web/src/modules/people/PeoplePage.tsx` | 320 | Componente principal con toda la lógica |
+| `apps/web/src/modules/people/components/PeopleTable.tsx` | 159 | Tabla con filtros tipo Excel por columna |
+| `apps/web/src/modules/people/components/PeopleBigCounter.tsx` | 21 | Widget de conteo (activos/pendientes/inactivos/archivados) |
+| `apps/web/src/modules/people/components/PersonCard.tsx` | 39 | Tarjeta de persona (compacta o completa) |
+| `apps/web/src/modules/people/components/PersonDetail.tsx` | 114 | Vista detalle con tabs |
 | `apps/web/src/modules/people/components/PersonSummaryLine.tsx` | 13 | Línea de resumen con icono |
 | `apps/web/src/modules/people/components/PersonAgendaList.tsx` | 23 | Lista de citas de la persona |
 | `apps/web/src/modules/people/components/PersonTasksList.tsx` | 22 | Lista de tareas de la persona |
 | `apps/web/src/modules/people/components/PersonFinanceList.tsx` | 33 | Lista de pagos pendientes + servicios |
 | `apps/web/src/modules/people/components/PersonHistoryList.tsx` | 18 | Historial de interacciones |
 
-### Servicios y Tipos
+### Servicios, Tipos y Utilidades
 
 | Archivo | Función |
 |---------|---------|
 | `apps/web/src/types/adminPeople.ts` | Tipos TypeScript (Person, PersonType, etc.) |
-| `apps/web/src/services/peopleService.ts` | Servicio REST CRUD |
+| `apps/web/src/services/peopleService.ts` | Servicio REST CRUD con tipos `CreatePersonInput`/`UpdatePersonInput` |
 | `apps/web/src/services/apiClient.ts` | Cliente HTTP base con auth |
 | `apps/web/src/services/index.ts` | Barrel export |
+| `apps/web/src/utils/formatting.tsx` | Funciones compartidas: `formatTypeLabel()`, `highlight()` |
 
 ### Backend (API)
 
@@ -194,7 +195,7 @@ type TableFilterState = {
   ultimaInteraccionFecha: string;
   proximaActividadDia: string;
   proximaActividadHora: string;
-  proximaActividadTexto: string;
+  proximaActividadTexto: string;  // ← Verificado en matchesTableFilters
   indicadores: TableIndicatorFilter[];
 };
 ```
@@ -205,19 +206,46 @@ type TableFilterState = {
 
 | Método | Endpoint | Función | Permiso | Usado en |
 |--------|----------|---------|---------|----------|
-| `GET` | `/api/people` | Listar todas | `personas → read` | `PeoplePage.tsx:90` |
-| `POST` | `/api/people` | Crear persona | `personas → create` | `PeoplePage.tsx:126` |
-| `PATCH` | `/api/people/:id` | Actualizar persona | `personas → edit` | `PeoplePage.tsx:141` |
-| `DELETE` | `/api/people/:id` | Eliminar persona | `personas → edit` | `PeoplePage.tsx:146` |
+| `GET` | `/api/people` | Listar todas | `personas → read` | `PeoplePage.tsx:102` |
+| `POST` | `/api/people` | Crear persona | `personas → create` | `PeoplePage.tsx:147` |
+| `PATCH` | `/api/people/:id` | Actualizar persona | `personas → edit` | `PeoplePage.tsx:164` |
+| `DELETE` | `/api/people/:id` | Eliminar persona | `personas → edit` | `PeoplePage.tsx:182` |
 | `GET` | `/api/people/:id` | Obtener por ID | `personas → read` | (disponible, no usado directamente) |
 
-### 4.2 Respuesta Esperada
+### 4.2 Tipos de Entrada del Servicio
+
+```typescript
+// apps/web/src/services/peopleService.ts:4-24
+interface CreatePersonInput {
+  nombre: string;
+  telefono: string;
+  email?: string;
+  tipos: PersonType[];
+  estado: PersonStatus;
+  fecha_creacion: string;
+  ultima_interaccion: string;
+  observaciones_administrativas?: string;
+  fuente?: string;
+  responsable?: string;
+  etiquetas?: string[];
+  proxima_actividad?: string;
+  proxima_actividad_detalle?: string;
+  citas?: Person["citas"];
+  tareas?: Person["tareas"];
+  finanzas?: Person["finanzas"];
+  historial?: Person["historial"];
+}
+
+type UpdatePersonInput = Partial<CreatePersonInput>;
+```
+
+### 4.3 Respuesta Esperada
 
 ```json
 { "data": Person | Person[] | null }
 ```
 
-### 4.3 Datos para Crear Persona
+### 4.4 Datos para Crear Persona
 
 ```json
 {
@@ -225,18 +253,19 @@ type TableFilterState = {
   "telefono": "string (requerido)",
   "email": "string (opcional)",
   "tipos": "PersonType[] (requerido)",
-  "estado": "PersonStatus (requerido)",
+  "estado": "PersonStatus (requerido, default: 'Activo')",
   "fecha_creacion": "YYYY-MM-DD (auto)",
   "ultima_interaccion": "YYYY-MM-DD (auto)",
-  "observaciones_administrativas": "string",
-  "fuente": "Manual (default)",
-  "responsable": "Doctora (default)",
-  "etiquetas": "[] (default)",
-  "proxima_actividad": "Sin actividad (default)",
-  "citas": "{ proximas: [], historial: [] }",
-  "tareas": "{ pendientes: [], completadas: [] }",
-  "finanzas": "{ pagadas: [], pendientes: [], servicios: [] }",
-  "historial": "[]"
+  "observaciones_administrativas": "string (opcional)",
+  "fuente": "string (default: 'Manual')",
+  "responsable": "string (opcional, user.id)",
+  "etiquetas": "string[] (opcional)",
+  "proxima_actividad": "string (default: 'Sin actividad')",
+  "proxima_actividad_detalle": "string (default: 'Pendiente de asignación')",
+  "citas": "{ proximas: [], historial: [] } (auto)",
+  "tareas": "{ pendientes: [], completadas: [] } (auto)",
+  "finanzas": "{ pagadas: [], pendientes: [], servicios: [] } (auto)",
+  "historial": "[] (auto)"
 }
 ```
 
@@ -249,44 +278,53 @@ PeoplePage (PeoplePage.tsx)
 ├── Header Section (Card)
 │   ├── Título "Personas"
 │   └── Descripción
-├── Toolbar Section (Card)
-│   ├── Input (búsqueda)
-│   ├── Popover (filtro avanzado)
-│   ├── Button "Nueva persona"
-│   ├── Quick Filters (botones)
-│   ├── Toggle "Ver inactivos"
-│   └── Counter ( PeopleBigCounter )
-├── Active Chips (condicional)
 │
-├── [Si selectedPerson]
-│   ├── PersonDetail (layout izquierda)
-│   │   ├── Card (info + avatar + acciones)
-│   │   ├── Tabs (Resumen, Agenda, Tareas, Finanzas, Historial)
-│   │   │   ├── PersonSummaryLine (×3)
-│   │   │   ├── PersonAgendaList
-│   │   │   ├── PersonTasksList
-│   │   │   ├── PersonFinanceList
-│   │   │   └── PersonHistoryList
-│   │   └── Card (info general)
-│   └── Lista compacta (derecha)
-│       ├── PeopleBigCounter
-│       └── PersonCard (×n, compact)
+├── [Si !canRead]
+│   └── Empty "No tienes permiso para ver este módulo"
 │
-├── [Si no selectedPerson]
-│   └── PeopleTable
-│       ├── thead (filtros por columna)
-│       └── tbody (filas clickeables)
+├── [Si loading]
+│   └── Spin (centrado, min-h-[300px])
 │
-├── Modal "Nueva persona"
-│   └── Form (nombre, teléfono, email, tipos, estado, observaciones)
-│
-└── Modal "Editar persona"
-    └── Form (mismos campos, pre-llenado)
+├── [Si canRead && !loading]
+│   ├── Toolbar Section (Card)
+│   │   ├── Input (búsqueda)
+│   │   ├── Popover (filtro avanzado)
+│   │   ├── Button "Nueva persona" (disabled si !canCreate)
+│   │   ├── Quick Filters (botones)
+│   │   ├── Toggle "Ver inactivos"
+│   │   └── Counter ( PeopleBigCounter )
+│   ├── Active Chips (condicional)
+│   │
+│   ├── [Si selectedPerson]
+│   │   ├── PersonDetail (layout izquierda)
+│   │   │   ├── Card (info + avatar + acciones condicionales a canEdit)
+│   │   │   ├── Tabs (Resumen, Agenda, Tareas, Finanzas, Historial)
+│   │   │   │   ├── PersonSummaryLine (×3)
+│   │   │   │   ├── PersonAgendaList
+│   │   │   │   ├── PersonTasksList
+│   │   │   │   ├── PersonFinanceList
+│   │   │   │   └── PersonHistoryList
+│   │   │   └── Card (info general)
+│   │   └── Lista compacta (derecha)
+│   │       ├── PeopleBigCounter
+│   │       └── PersonCard (×n, compact)
+│   │
+│   ├── [Si no selectedPerson]
+│   │   └── PeopleTable (con prop allFilteredPeople)
+│   │       ├── thead (filtros por columna)
+│   │       └── tbody (filas clickeables)
+│   │
+│   ├── Modal "Nueva persona"
+│   │   └── Form (nombre, teléfono, email, tipos, estado, fuente, etiquetas, observaciones)
+│   │
+│   └── Modal "Editar persona"
+│       └── Form (nombre, teléfono, email, tipos, estado, fuente, etiquetas, responsable,
+│                  última interacción, próxima actividad, detalle actividad, observaciones)
 ```
 
 ### 5.2 PeopleTable (PeopleTable.tsx)
 
-Tabla con filtros tipo Excel por columna:
+Tabla con filtros tipo Excel por columna. Recibe `allFilteredPeople` como prop para calcular opciones de horas correctamente (no solo la página actual).
 
 | Columna | Filtro | Tipo |
 |---------|--------|------|
@@ -304,6 +342,10 @@ Layout de 2 columnas:
 - **Izquierda**: Tarjeta de info + Tabs con sub-componentes
 - **Derecha**: Lista compacta de personas (seleccionable)
 
+Props: `person`, `onBack`, `onEdit?` (opcional), `onDelete?` (opcional)
+- `onEdit` y `onDelete` son opcionales: si no se pasan, los botones no se renderizan
+- Importa `formatTypeLabel` desde `utils/formatting.tsx`
+
 Tabs disponibles:
 1. **Resumen**: Próxima cita, tareas pendientes, pagos pendientes
 2. **Agenda**: Lista de citas (próximas + historial)
@@ -315,9 +357,11 @@ Tabs disponibles:
 
 Props: `person`, `compact?`, `selected?`, `onClick`, `query?`
 
+Importa `formatTypeLabel` y `highlight` desde `utils/formatting.tsx`.
+
 Modos:
-- **Completo**: Muestra todos los detalles
-- **Compacto**: Solo nombre, email, tipos, estado
+- **Completo**: Muestra todos los detalles (última interacción, próxima actividad, tareas pendientes)
+- **Compacto**: Solo nombre, email, tipos, estado, fecha, próxima actividad
 
 ## 6. Flujos Principales
 
@@ -325,14 +369,17 @@ Modos:
 
 ```
 1. PeoplePage monta
-2. useEffect llama a peopleService.list()
-3. GET /api/people
-4. Respuesta: Person[]
-5. setItems(records) → estado local
-6. Todo el filtrado es client-side
+2. Verifica canRead → si no, muestra Empty y return
+3. useEffect llama Promise.all([peopleService.list(), usersService.list()])
+4. GET /api/people + GET /api/users (en paralelo)
+5. Respuesta: Person[] + User[]
+6. setItems(records), setUsers(userRecords)
+7. setLoading(false)
+8. Muestra Spin mientras carga
+9. Todo el filtrado es client-side
 ```
 
-**Ubicación**: `PeoplePage.tsx:90`
+**Ubicación**: `PeoplePage.tsx:99-110`
 
 ### 6.2 Búsqueda con Debounce
 
@@ -346,8 +393,8 @@ Modos:
 ```
 
 **Funciones clave**:
-- `useDebouncedValue()` - `PeoplePage.tsx:26-30`
-- `matchesText()` - `PeoplePage.tsx:34-38`
+- `useDebouncedValue()` - `PeoplePage.tsx:29-33`
+- `matchesText()` - `PeoplePage.tsx:35-39`
 
 ### 6.3 Filtrado Rápido (Quick Filters)
 
@@ -359,7 +406,7 @@ Modos:
 | Con tareas | `conditions = ["Con tareas"]` |
 | Pagos | `conditions = ["Con pagos pendientes"]` |
 
-**Ubicación**: `PeoplePage.tsx:110-119`
+**Ubicación**: `PeoplePage.tsx:130-139`
 
 ### 6.4 Filtrado Avanzado (Popover)
 
@@ -369,68 +416,89 @@ Filtros por:
 - Condición (checkbox)
 
 Patrón: `tempFilters` → `applyAdvancedFilters()` para evitar aplicar en tiempo real.
+`clearAdvancedFilters()` solo resetea `tempFilters`, no `filters` (se aplican solo al hacer click en "Aplicar").
 
-**Ubicación**: `PeoplePage.tsx:121-122, 151-158`
+**Ubicación**: `PeoplePage.tsx:141-142, 188-195`
 
 ### 6.5 Filtrado de Tabla (Excel-style)
 
-Cada columna de `PeopleTable` tiene su propio Popover con filtro.
+Cada columna de `PeopleTable` tiene su propio Popover con filtro. Recibe `allFilteredPeople` para que el dropdown de horas muestre todas las opciones disponibles (no solo las de la página actual).
 
-**Función**: `matchesTableFilters()` - `PeoplePage.tsx:51-67`
+**Función**: `matchesTableFilters()` - `PeoplePage.tsx:52-70`
+**Prop**: `allFilteredPeople` - `PeopleTable.tsx:33, 43`
 
 ### 6.6 Crear Persona
 
 ```
-1. Click "Nueva persona"
+1. Click "Nueva persona" (verificado canCreate)
 2. setCreateOpen(true)
-3. Modal abre con Form
-4. Usuario llena campos (nombre, teléfono, email, tipos, estado)
+3. Modal abre con Form (initialValues: estado="Activo", tipos=["Paciente"], fuente="Manual")
+4. Usuario llena campos:
+   - nombre* (requerido)
+   - teléfono* (requerido)
+   - email (validación de tipo)
+   - tipos* (requerido, multi-select)
+   - estado* (requerido)
+   - fuente (select: Manual, Referido, Red social, Web, Otro)
+   - etiquetas (mode="tags")
+   - observaciones (textarea)
 5. Click "Guardar"
-6. form.validateFields()
+6. form.validateFields() (dentro de try/catch)
 7. peopleService.create({...})
 8. POST /api/people
-9. Respuesta: Person
-10. setItems([newPerson, ...items])
-11. setSelectedId(newPerson.id)
-12. setCreateOpen(false)
+9. Backend: parsea nombre en nombre_1/apellido_1, crea registros relacionados vacíos
+10. Respuesta: Person con datos completos (incluye relatedData vacío)
+11. setItems([newPerson, ...items])
+12. setSelectedId(newPerson.id)
+13. setCreateOpen(false)
+14. form.resetFields()
 ```
 
-**Ubicación**: `PeoplePage.tsx:124-136`
+**Ubicación**: `PeoplePage.tsx:144-158`
 
 ### 6.7 Editar Persona
 
 ```
-1. Click "Editar" en PersonDetail
+1. Click "Editar" en PersonDetail (solo visible si canEdit)
 2. setEditPerson(person), setEditOpen(true)
-3. Modal abre con Form pre-llenado
-4. afterOpenChange → editForm.setFieldsValue(...)
-5. Usuario modifica campos
+3. Modal abre con Form pre-llenado (afterOpenChange → editForm.setFieldsValue)
+4. Usuarios cargados desde usersService para selector de responsable
+5. Usuario modifica campos:
+   - nombre*, teléfono*, email, tipos*, estado*
+   - fuente, etiquetas
+   - responsable (select de usuarios)
+   - última interacción (DatePicker)
+   - próxima actividad, detalle de actividad
+   - observaciones
 6. Click "Guardar cambios"
-7. editForm.validateFields()
+7. editForm.validateFields() (dentro de try/catch)
 8. peopleService.update(id, {...})
 9. PATCH /api/people/:id
-10. Respuesta: Person actualizada
-11. setItems(c.map(p => p.id === id ? updated : p))
-12. setSelectedId(updated.id)
-13. setEditOpen(false)
+10. Backend: parsea nombre, actualiza campos con COALESCE
+11. Respuesta: Person actualizada con relatedData
+12. setItems(c.map(p => p.id === id ? updated : p))
+13. setSelectedId(updated.id)
+14. setEditOpen(false), setEditPerson(null)
+15. editForm.resetFields()
 ```
 
-**Ubicación**: `PeoplePage.tsx:138-143`
+**Ubicación**: `PeoplePage.tsx:160-178`
 
 ### 6.8 Eliminar Persona
 
 ```
-1. Click "Eliminar" en PersonDetail
-2. Popconfirm aparece
+1. Click "Eliminar" en PersonDetail (solo visible si canEdit)
+2. Popconfirm aparece ("¿Eliminar esta persona?")
 3. Click "Eliminar" en Popconfirm
 4. onDelete(person)
 5. peopleService.remove(person.id)
 6. DELETE /api/people/:id
-7. setItems(c.filter(p => p.id !== person.id))
-8. Si selectedId === person.id → setSelectedId(null)
+7. Backend: soft delete (deleted_at = now)
+8. setItems(c.filter(p => p.id !== person.id))
+9. Si selectedId === person.id → setSelectedId(null)
 ```
 
-**Ubicación**: `PeoplePage.tsx:145-149`
+**Ubicación**: `PeoplePage.tsx:180-186`
 
 ### 6.9 Paginación Client-side
 
@@ -443,7 +511,7 @@ const paginatedPeople = tableFilteredPeople.slice(
 
 Opciones: 10, 20, 50, 100 items por página.
 
-**Ubicación**: `PeoplePage.tsx:86, 161`
+**Ubicación**: `PeoplePage.tsx:93-94, 198`
 
 ## 7. Wireframe / Layout
 
@@ -510,7 +578,7 @@ Opciones: 10, 20, 50, 100 items por página.
 └────────────────────────────────┴────────────────────────┘
 ```
 
-### 7.3 Modal "Nueva/Editar persona"
+### 7.3 Modal "Nueva persona"
 
 ```
 ┌─────────────────────────────────────┐
@@ -532,11 +600,65 @@ Opciones: 10, 20, 50, 100 items por página.
 │  Estado *                           │
 │  [Activo v]                         │
 │                                     │
+│  Fuente                             │
+│  [Manual v]                         │
+│                                     │
+│  Etiquetas                          │
+│  [escribe y presiona Enter]         │
+│                                     │
 │  Observaciones                      │
 │  [____________________________]     │
 │  [____________________________]     │
 │                                     │
 │         [Cancelar] [Guardar]        │
+└─────────────────────────────────────┘
+```
+
+### 7.4 Modal "Editar persona"
+
+```
+┌─────────────────────────────────────┐
+│  Editar persona                [X]  │
+│  ───────────────────────────────    │
+│                                     │
+│  Nombre *                           │
+│  [____________________________]     │
+│                                     │
+│  Teléfono *                         │
+│  [+505 _____________________]       │
+│                                     │
+│  Email                              │
+│  [correo@email.com ___________]     │
+│                                     │
+│  Tipos *                            │
+│  [Paciente | Contacto | ... v]      │
+│                                     │
+│  Estado *                           │
+│  [Activo v]                         │
+│                                     │
+│  Fuente                             │
+│  [Manual v]                         │
+│                                     │
+│  Etiquetas                          │
+│  [escribe y presiona Enter]         │
+│                                     │
+│  Responsable                        │
+│  [Seleccionar usuario v]            │
+│                                     │
+│  Última interacción                 │
+│  [📅 2026-06-26]                    │
+│                                     │
+│  Próxima actividad                  │
+│  [Título de la actividad]           │
+│                                     │
+│  Detalle de actividad               │
+│  [Descripción]                      │
+│                                     │
+│  Observaciones                      │
+│  [____________________________]     │
+│  [____________________________]     │
+│                                     │
+│      [Cancelar] [Guardar cambios]   │
 └─────────────────────────────────────┘
 ```
 
@@ -546,18 +668,23 @@ Opciones: 10, 20, 50, 100 items por página.
 
 | Función | Línea | Descripción |
 |---------|-------|-------------|
-| `useDebouncedValue<T>()` | 26-30 | Hook de debounce genérico |
-| `formatTypeLabel()` | 32 | Acorta "Participante Taller" a "Taller" |
-| `matchesText()` | 34-38 | Busca texto en campos de persona |
-| `matchesAdvancedFilters()` | 40-49 | Aplica filtros de tipo/estado/condición |
-| `matchesTableFilters()` | 51-67 | Aplica filtros de tabla Excel-style |
+| `useDebouncedValue<T>()` | 29-33 | Hook de debounce genérico |
+| `matchesText()` | 35-39 | Busca texto en campos de persona |
+| `matchesAdvancedFilters()` | 41-50 | Aplica filtros de tipo/estado/condición |
+| `matchesTableFilters()` | 52-70 | Aplica filtros de tabla Excel-style (incluye proximaActividadTexto) |
 
 ### 8.2 En PeopleTable.tsx
 
 | Función | Línea | Descripción |
 |---------|-------|-------------|
-| `highlight()` | 11-19 | Resalta texto coincidente con búsqueda |
-| `HeaderFilterButton()` | 33-40 | Botón de filtro de columna |
+| `HeaderFilterButton()` | 22-29 | Botón de filtro de columna |
+
+### 8.3 En utils/formatting.tsx (compartido)
+
+| Función | Línea | Descripción | Usado en |
+|---------|-------|-------------|----------|
+| `formatTypeLabel()` | 3-5 | Acorta "Participante Taller" a "Taller" | PeoplePage, PeopleTable, PersonCard, PersonDetail |
+| `highlight()` | 7-15 | Resalta texto coincidente con búsqueda | PeopleTable, PersonCard |
 
 ## 9. Observaciones Técnicas
 
@@ -577,23 +704,36 @@ Se descargan TODAS las personas al montar. No hay búsqueda server-side ni pagin
 ### 9.3 Patrón de Modal Dual
 
 Dos instancias de `Form.useForm()`:
-- `form` → Modal de crear
-- `editForm` → Modal de editar
+- `form` → Modal de crear (initialValues: estado="Activo", tipos=["Paciente"], fuente="Manual")
+- `editForm` → Modal de editar (pre-llenado con `afterOpenChange`)
 
 ### 9.4 Hooks Concentrados
 
 A diferencia de otros módulos, People concentra toda la lógica de hooks en `PeoplePage.tsx` (no hay archivos de hooks separados).
 
-### 9.5 Consumidores Externos
+### 9.5 Funciones Compartidas
+
+`formatTypeLabel()` y `highlight()` están centralizadas en `utils/formatting.tsx` e importadas por PeoplePage, PeopleTable, PersonCard y PersonDetail.
+
+### 9.6 Consumidores Externos
 
 - `apps/web/src/main.tsx` - Define ruta `/admin/personas`
-- `apps/web/src/modules/dashboard/DashboardPage.tsx` - Usa `peopleService.list()` para contar personas activas
+- `apps/web/src/modules/dashboard/DashboardPage.tsx` - Usa `peopleService.list()` con `Promise.allSettled`
 
-### 9.6 Control de Permisos
+### 9.7 Control de Permisos
 
 El módulo usa `usePermissions()` para controlar visibilidad de botones:
-- **Botón "Nueva persona"**: Solo visible si `hasPermission("personas", "create")`
+- **Botón "Nueva persona"**: Solo habilitado si `hasPermission("personas", "create")`
 - **Botón "Editar"**: Solo visible si `hasPermission("personas", "edit")`
 - **Botón "Eliminar"**: Solo visible si `hasPermission("personas", "edit")`
+- **Página completa**: Muestra Empty si `!canRead`
 
 Los permisos se gestionan desde **Configuración → Permisos de módulos** (solo root/admin).
+
+### 9.8 Loading State
+
+La página muestra un `<Spin>` centrado mientras carga los datos iniciales (people + users). Si no tiene permiso de lectura, muestra un `<Empty>` con mensaje de "Sin permiso".
+
+### 9.9 Selector de Responsable
+
+El modal de editar incluye un selector de responsable cargado desde `usersService.list()`. El valor se envía como `responsable` y se almacena en la columna `assigned_user_id` de la DB.
