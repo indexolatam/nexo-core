@@ -1,6 +1,6 @@
-# People - Pendientes y Backlog
+# Usuarios - Pendientes y Backlog
 
-Estado de bugs, mejoras pendientes y backlog del módulo Personas.
+Estado de bugs, mejoras pendientes y backlog del módulo Usuarios.
 
 ## 1. Estado de Bugs
 
@@ -42,11 +42,10 @@ Estado de bugs, mejoras pendientes y backlog del módulo Personas.
 
 | # | Bug | Prioridad | Archivo | Notas |
 |---|-----|-----------|---------|-------|
-| P3 | Crear persona no asigna responsable por defecto | Media | `PeoplePage.tsx:147-153` | El modal crear no tiene campo de responsable. Opcional: agregar selector o asignar "Sin asignar" por defecto. |
-| P4 | Sin indicador visual de persona sin responsable en tabla | Baja | `PeopleTable.tsx` | No hay forma de ver rápidamente qué personas no tienen responsable asignado. |
-| P5 | `requireAuth.js` no incluye `/api/settings/palette`, `/api/services`, `/api/blog` como rutas públicas | Alta | `requireAuth.js` | El landing page y blog público no cargan colores ni servicios. Agregar `publicReadPaths` para estos endpoints. |
-| P6 | N+1 query: `fetchRelatedData` ejecuta 3 queries por persona en listado | Media | `api/people/index.js:25-30` | Para 100 personas = 301 queries. Mejorar con batch o joins. |
-| P7 | Error `err?.errorFields` silencia mensajes reales de la API | Baja | `PeoplePage.tsx:153,165` | El catch muestra "No se pudo crear/actualizar" en vez del mensaje de error real de la API. |
+| P3 | Crear usuario no asigna responsable por defecto | Media | `PeoplePage.tsx:147-153` | El modal crear no tiene campo de responsable. Opcional: agregar selector o asignar "Sin asignar" por defecto. |
+| P4 | Sin indicador visual de usuario sin responsable en tabla | Baja | `PeopleTable.tsx` | No hay forma de ver rápidamente qué usuarios no tienen responsable asignado. |
+| P5 | N+1 query: `fetchRelatedData` ejecuta 3 queries por usuario en listado | Media | `api/people/index.js:25-30` | Para 100 usuarios = 301 queries. Mejorar con batch o joins. |
+| P6 | Error `err?.errorFields` silencia mensajes reales de la API | Baja | `PeoplePage.tsx:153,165` | El catch muestra "No se pudo crear/actualizar" en vez del mensaje de error real de la API. |
 
 ## 2. Backlog de Mejoras
 
@@ -64,8 +63,6 @@ Estado de bugs, mejoras pendientes y backlog del módulo Personas.
 | U2 | Operaciones batch | Selección múltiple para editar/eliminar en lote | `PeopleTable.tsx`, `PeoplePage.tsx` |
 | U3 | Undo para eliminaciones | Deshacer eliminación (soft delete con ventana de 30s) | `PeoplePage.tsx` |
 | U4 | Guardar preset de filtros | Guardar combinaciones de filtros frecuentes | `PeoplePage.tsx` |
-| U5 | Agregar binding DB_AUDIT al dev.ps1 | Auditoría rota en desarrollo local | `scripts/dev.ps1:84` |
-| U6 | Unificar seeds de usuarios | `client.sql` usa IDs `'root'`, `'admin'` vs `ensureAllSchemas` usa `'usr-root'`, `'usr-admin'` con hashes distintos | `db.js:145`, `client.sql:259` |
 
 ### 2.3 Prioridad Baja
 
@@ -141,6 +138,6 @@ apps/web/functions/api/people/
 
 - **Fecha**: 2026-06-26
 - **Bugs corregidos**: 29 (incluye mejoras de auditoría completa)
-- **Bugs pendientes**: 5 (1 alta, 2 media, 2 baja)
+- **Bugs pendientes**: 4 (2 media, 2 baja)
 - **Mejoras pendientes**: 11
 - **Ideas backlog**: 10

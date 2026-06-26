@@ -82,7 +82,8 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TEXT,
   deleted_at TEXT,
   created_by_user_id TEXT,
-  updated_by_user_id TEXT
+  updated_by_user_id TEXT,
+  allowed_types TEXT DEFAULT '[]'
 );
 
 CREATE TABLE IF NOT EXISTS auth_sessions (

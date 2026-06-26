@@ -2,7 +2,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Input, Popover, Select, Tooltip } from "antd";
 import { useMemo, type ReactNode } from "react";
 import { personTypeOptions } from "../../../types/adminPeople";
-import type { Person, PersonStatus, PersonType, TableIndicatorFilter } from "../../../types/adminPeople";
+import type { Person, PersonStatus, PersonType } from "../../../types/adminPeople";
 import { formatTypeLabel, highlight } from "../../../utils/formatting";
 
 const statusOptions: PersonStatus[] = ["Activo", "Inactivo", "Pendiente", "Archivado"];
@@ -16,7 +16,6 @@ export type TableFilterState = {
   proximaActividadDia: string;
   proximaActividadHora: string;
   proximaActividadTexto: string;
-  indicadores: TableIndicatorFilter[];
 };
 
 function HeaderFilterButton({ active, children }: { active: boolean; children: ReactNode }) {
@@ -53,7 +52,7 @@ export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters
 
   return (
     <div className="max-h-[620px] overflow-auto rounded-2xl border border-[var(--border-subtle)]">
-      <table className="min-w-[980px] w-full border-collapse text-left text-sm">
+      <table className="min-w-[800px] w-full border-collapse text-left text-sm">
         <thead className="sticky top-0 z-20 bg-[var(--surface-strong)] text-xs uppercase tracking-[0.14em] text-surface-muted">
           <tr className="border-b border-[var(--border-subtle)]">
             <th className="sticky left-0 z-30 min-w-[240px] bg-[var(--surface-strong)] px-4 py-3 font-semibold shadow-[8px_0_12px_-12px_var(--table-sticky-shadow)]">
@@ -106,15 +105,6 @@ export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters
                 </div>
               ))}
             </th>
-            <th className="px-4 py-3 font-semibold">
-              {columnHeader("Indicadores", filters.indicadores.length > 0, (
-                <div className="w-64 space-y-3 p-1">
-                  <Checkbox.Group className="flex flex-col gap-2" value={filters.indicadores} onChange={(v) => setFilter("indicadores", v as TableIndicatorFilter[])}
-                    options={[{ label: "Con citas próximas", value: "Con citas próximas" }, { label: "Con tareas pendientes", value: "Con tareas pendientes" }, { label: "Con pagos pendientes", value: "Con pagos pendientes" }]} />
-                  <Button size="small" className="rounded-button w-full" onClick={() => setFilter("indicadores", [])}>Limpiar</Button>
-                </div>
-              ))}
-            </th>
           </tr>
         </thead>
         <tbody>
@@ -138,13 +128,6 @@ export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters
               <td className="max-w-[220px] px-4 py-4">
                 <p className="truncate whitespace-nowrap text-surface-main">{person.proxima_actividad}</p>
                 <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{person.proxima_actividad_detalle}</p>
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex flex-wrap gap-2 text-[11px] font-medium">
-                  <span className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-surface-secondary">{person.citas.proximas.length} cita(s)</span>
-                  <span className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-surface-secondary">{person.tareas.pendientes.length} tarea(s)</span>
-                  <span className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-surface-secondary">{person.finanzas.pendientes.length} pago(s)</span>
-                </div>
               </td>
             </tr>
           ))}

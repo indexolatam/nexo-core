@@ -12,6 +12,16 @@ async function checkPermission(context, action) {
   return null;
 }
 
+function buildRoleFilter(user) {
+  if (user.role === "root") return "";
+  if (user.role === "admin") return "";
+  if (user.role === "doctor") return `AND (assigned_user_id = '${user.id}')`;
+  if (user.role === "asistente") {
+    return `AND (assigned_user_id = '${user.id}')`;
+  }
+  return "AND 1=0";
+}
+
 export async function onRequestGet(context) {
   const denied = await checkPermission(context, "read");
   if (denied) return denied;
@@ -20,7 +30,20 @@ export async function onRequestGet(context) {
   if (!db) return error("D1 no configurado", 500);
   await ensureAllSchemas(db);
 
-  const { results } = await db.prepare("SELECT * FROM people WHERE deleted_at IS NULL ORDER BY created_at DESC").all();
+  const user = context.data.user;
+  const url = new URL(context.request.url);
+  const showInactive = url.searchParams.get("showInactive") === "true";
+  const showArchived = url.searchParams.get("showArchived") === "true";
+
+  let statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente')";
+  if (showInactive) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo')";
+  if (showArchived) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo' || estado = 'Archivado')";
+
+  const roleFilter = buildRoleFilter(user);
+
+  const query = `SELECT * FROM people WHERE deleted_at IS NULL ${statusFilter} ${roleFilter} ORDER BY created_at DESC`;
+  const { results } = await db.prepare(query).all();
+
   const persons = [];
   for (const row of results) {
     const relatedData = await fetchRelatedData(db, row.id);
@@ -46,7 +69,8 @@ export async function onRequestPost(context) {
   const nombre_1 = nombreParts[0] || body.nombre || "Sin nombre";
   const nombre_2 = nombreParts.length > 3 ? nombreParts[1] : null;
   const apellido_1 = nombreParts.length >= 3 ? nombreParts.slice(2).join(" ") : nombreParts[1] || "";
-  const apellido_2 = nombreParts.length > 4 ? nombreParts[nombreParts.length - 1] : null;  const tipos = body.tipos ? JSON.stringify(body.tipos) : '[]';
+  const apellido_2 = nombreParts.length > 4 ? nombreParts[nombreParts.length - 1] : null;
+  const tipos = body.tipos ? JSON.stringify(body.tipos) : '[]';
   const etiquetas = body.etiquetas ? JSON.stringify(body.etiquetas) : '[]';
 
   await db.prepare(

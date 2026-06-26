@@ -31,7 +31,8 @@ export async function ensureAllSchemas(db) {
     role TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1,
     username TEXT NOT NULL UNIQUE, email TEXT, password_hash TEXT NOT NULL,
     display_label TEXT, last_login_at TEXT, created_at TEXT NOT NULL,
-    updated_at TEXT, deleted_at TEXT, created_by_user_id TEXT, updated_by_user_id TEXT
+    updated_at TEXT, deleted_at TEXT, created_by_user_id TEXT, updated_by_user_id TEXT,
+    allowed_types TEXT DEFAULT '[]'
   )`).run();
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS auth_sessions (

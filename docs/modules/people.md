@@ -1,6 +1,6 @@
-# Módulo Personas (People)
+# Módulo Usuarios
 
-Gestión de personas relacionadas al consultorio: fichas, historial y contexto centralizado.
+Gestión de las relaciones externas del negocio: clientes, empresas, freelancers y proveedores. Fichas, historial y contexto centralizado.
 
 ## 1. Archivos del Módulo
 
@@ -147,10 +147,9 @@ type Person = {
 ### 3.2 Tipos Derivados
 
 ```typescript
-type PersonType = "Paciente" | "Contacto" | "Participante Taller" | "Empresa" | "Contacto Empresarial";
+type PersonType = "Cliente" | "Empresa" | "Freelancer" | "Proveedor";
 type PersonStatus = "Activo" | "Inactivo" | "Pendiente" | "Archivado";
-type PersonCondition = "Con citas" | "Con tareas" | "Con pagos pendientes";
-type PersonQuickFilter = "Todos" | "Pacientes" | "Empresas" | "Con tareas" | "Pagos";
+type PersonQuickFilter = "Todos" | "Clientes" | "Empresas" | "Freelancers" | "Proveedores" | "Con tareas" | "Pendientes de pago";
 ```
 
 ### 3.3 Subtipos de Entradas
@@ -181,12 +180,6 @@ type PersonHistoryEntry = {
 ### 3.4 Estado de Filtros
 
 ```typescript
-type PeopleFilterState = {
-  types: PersonType[];
-  statuses: PersonStatus[];
-  conditions: PersonCondition[];
-};
-
 type TableFilterState = {
   nombre: string;
   tipos: PersonType[];
@@ -195,8 +188,7 @@ type TableFilterState = {
   ultimaInteraccionFecha: string;
   proximaActividadDia: string;
   proximaActividadHora: string;
-  proximaActividadTexto: string;  // ← Verificado en matchesTableFilters
-  indicadores: TableIndicatorFilter[];
+  proximaActividadTexto: string;
 };
 ```
 
@@ -334,7 +326,6 @@ Tabla con filtros tipo Excel por columna. Recibe `allFilteredPeople` como prop p
 | Teléfono | Búsqueda por texto | Input |
 | Última interacción | Selector de fecha | DatePicker |
 | Próxima actividad | Fecha + Hora + Texto | DatePicker + Select + Input |
-| Indicadores | Selección múltiple | Checkbox.Group |
 
 ### 5.3 PersonDetail (PersonDetail.tsx)
 
@@ -400,25 +391,32 @@ Modos:
 
 | Filtro | Comportamiento |
 |--------||
-| Todos | Limpia todos los filtros |
-| Pacientes | `types = ["Paciente"]` |
-| Empresas | `types = ["Empresa", "Contacto Empresarial"]` |
-| Con tareas | `conditions = ["Con tareas"]` |
-| Pagos | `conditions = ["Con pagos pendientes"]` |
+| Todos | Muestra todos los usuarios (según estado) |
+| Clientes | `tipos.includes("Cliente")` |
+| Empresas | `tipos.includes("Empresa")` |
+| Freelancers | `tipos.includes("Freelancer")` |
+| Proveedores | `tipos.includes("Proveedor")` |
+| Con tareas | `tareas.pendientes.length > 0` |
+| Pendientes de pago | `finanzas.pendientes.length > 0` |
 
-**Ubicación**: `PeoplePage.tsx:130-139`
+**Ubicación**: `PeoplePage.tsx:14-18`
 
-### 6.4 Filtrado Avanzado (Popover)
+### 6.4 Filtrado por Rol (Backend)
 
-Filtros por:
-- Tipos (checkbox)
-- Estado (checkbox)
-- Condición (checkbox)
+El backend aplica filtros según el rol del usuario logueado:
 
-Patrón: `tempFilters` → `applyAdvancedFilters()` para evitar aplicar en tiempo real.
-`clearAdvancedFilters()` solo resetea `tempFilters`, no `filters` (se aplican solo al hacer click en "Aplicar").
+| Rol | Lógica |
+|-----|--------|
+| **Root** | Sin filtro, ve todos los usuarios |
+| **Admin** | Ve activos + pendientes, puede solicitar inactivos |
+| **Doctor** | Solo usuarios asignados a él (`assigned_user_id` = su ID), activos + pendientes por defecto |
+| **Asistente** | Usuarios asignados a él, activos + pendientes por defecto |
 
-**Ubicación**: `PeoplePage.tsx:141-142, 188-195`
+**Parámetros query**: `showInactive=true` (muestra Inactivo), `showArchived=true` (muestra Archivado)
+
+**Campo `allowed_types`** en tabla `users`: JSON array que define qué tipos puede ver cada asistente. Ej: `["Cliente", "Empresa"]`
+
+**Ubicación**: `api/people/index.js:24-52`
 
 ### 6.5 Filtrado de Tabla (Excel-style)
 
@@ -519,27 +517,27 @@ Opciones: 10, 20, 50, 100 items por página.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  RESUMEN DE PERSONAS                                    │
+│  RESUMEN DE USUARIOS                                    │
 │  ════════════════════                                   │
-│  Personas                                               │
-│  Gestión de personas relacionadas al consultorio...     │
+│  Usuarios                                               │
+│  Gestión de las relaciones externas del negocio...      │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
-│  [🔍 Buscar persona...] [🔽 Filtro] [+ Nueva persona]  │
-│  [Todos] [Pacientes] [Empresas] [Con tareas] [Pagos]   │
+│  [🔍 Buscar usuario...] [🔽 Filtro] [+ Nuevo usuario]  │
+│  [Todos] [Clientes] [Empresas] [Freelancers] [...]     │
 │                                        [Ver inactivos] [3]│
-│  [Buscar: xxx ×] [Paciente ×] [Limpiar filtros]        │
+│  [Buscar: xxx ×] [Cliente ×] [Limpiar filtros]         │
 └─────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────┐
 │  LISTADO                                               │
-│  Personas registradas                                  │
+│  Usuarios registrados                                  │
 │  ─────────────────────────────────────────────────────  │
 │  ┌─────────────────────────────────────────────────┐   │
 │  │ NOMBRE ▼ │ TIPOS │ ESTADO │ TEL │ ÚLTIMA │ ... │   │
 │  ├─────────────────────────────────────────────────┤   │
-│  │ Ana Pé  │ Pacie │ Activo │ 888 │ 2026-06│ ... │   │
+│  │ Ana Pé  │ Clie  │ Activo │ 888 │ 2026-06│ ... │   │
 │  │ Empres  │ Empre │ Activo │ 888 │ 2026-06│ ... │   │
 │  └─────────────────────────────────────────────────┘   │
 │                                      1-20 de 42        │
@@ -550,17 +548,17 @@ Opciones: 10, 20, 50, 100 items por página.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  [🔍 Buscar...] [🔽 Filtro] [+ Nueva persona]          │
-│  [Todos] [Pacientes] [Empresas] [Con tareas] [Pagos]   │
+│  [🔍 Buscar...] [🔽 Filtro] [+ Nuevo usuario]          │
+│  [Todos] [Clientes] [Empresas] [Freelancers] [...]     │
 └─────────────────────────────────────────────────────────┘
 
 ┌────────────────────────────────┬────────────────────────┐
 │  ┌──────────────────────────┐  │  LISTA COMPACTA        │
-│  │ [👤] Ana Pérez           │  │  Personas              │
-│  │ [Paciente] [Activo]      │  │  ────────────────────  │
+│  │ [👤] Ana Pérez           │  │  Usuarios              │
+│  │ [Cliente] [Activo]       │  │  ────────────────────  │
 │  │                          │  │  ┌──────────────────┐  │
 │  │ 📞 +505 8888 1001        │  │  │ 👤 Ana Pérez     │  │
-│  │ 📧 ana@email.com         │  │  │ Paciente · Activo│  │
+│  │ 📧 ana@email.com         │  │  │ Cliente · Activo │  │
 │  │ 📅 2026-06-12            │  │  ├──────────────────┤  │
 │  └──────────────────────────┘  │  │ 👤 Empresa ABC   │  │
 │                                │  │ Empresa · Activo │  │
@@ -578,11 +576,11 @@ Opciones: 10, 20, 50, 100 items por página.
 └────────────────────────────────┴────────────────────────┘
 ```
 
-### 7.3 Modal "Nueva persona"
+### 7.3 Modal "Nuevo usuario"
 
 ```
 ┌─────────────────────────────────────┐
-│  Nueva persona                  [X] │
+│  Nuevo usuario                  [X] │
 │  ───────────────────────────────    │
 │                                     │
 │  Nombre *                           │
@@ -595,7 +593,7 @@ Opciones: 10, 20, 50, 100 items por página.
 │  [correo@email.com ___________]     │
 │                                     │
 │  Tipos *                            │
-│  [Paciente | Contacto | ... v]      │
+│  [Cliente | Empresa | ... v]        │
 │                                     │
 │  Estado *                           │
 │  [Activo v]                         │
@@ -614,11 +612,11 @@ Opciones: 10, 20, 50, 100 items por página.
 └─────────────────────────────────────┘
 ```
 
-### 7.4 Modal "Editar persona"
+### 7.4 Modal "Editar usuario"
 
 ```
 ┌─────────────────────────────────────┐
-│  Editar persona                [X]  │
+│  Editar usuario                [X]  │
 │  ───────────────────────────────    │
 │                                     │
 │  Nombre *                           │
@@ -669,9 +667,8 @@ Opciones: 10, 20, 50, 100 items por página.
 | Función | Línea | Descripción |
 |---------|-------|-------------|
 | `useDebouncedValue<T>()` | 29-33 | Hook de debounce genérico |
-| `matchesText()` | 35-39 | Busca texto en campos de persona |
-| `matchesAdvancedFilters()` | 41-50 | Aplica filtros de tipo/estado/condición |
-| `matchesTableFilters()` | 52-70 | Aplica filtros de tabla Excel-style (incluye proximaActividadTexto) |
+| `matchesText()` | 35-39 | Busca texto en campos de usuario |
+| `matchesTableFilters()` | 52-64 | Aplica filtros de tabla Excel-style (incluye proximaActividadTexto) |
 
 ### 8.2 En PeopleTable.tsx
 

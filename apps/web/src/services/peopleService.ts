@@ -24,7 +24,13 @@ export interface CreatePersonInput {
 export type UpdatePersonInput = Partial<CreatePersonInput>;
 
 class PeopleApiService {
-  async list() { return apiRequest<Person[]>("/people"); }
+  async list(options?: { showInactive?: boolean; showArchived?: boolean }) {
+    const params = new URLSearchParams();
+    if (options?.showInactive) params.set("showInactive", "true");
+    if (options?.showArchived) params.set("showArchived", "true");
+    const qs = params.toString();
+    return apiRequest<Person[]>("/people" + (qs ? `?${qs}` : ""));
+  }
   async getById(id: string) { return apiRequest<Person | null>("/people/" + id); }
   async create(data: CreatePersonInput) { return apiRequest<Person>("/people", { method: "POST", body: data }); }
   async update(id: string, data: UpdatePersonInput) { return apiRequest<Person>("/people/" + id, { method: "PATCH", body: data }); }

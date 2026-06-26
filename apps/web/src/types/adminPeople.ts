@@ -1,12 +1,10 @@
-export type PersonType = "Paciente" | "Contacto" | "Participante Taller" | "Empresa" | "Contacto Empresarial";
+export type PersonType = "Cliente" | "Empresa" | "Freelancer" | "Proveedor";
 
 export type PersonStatus = "Activo" | "Inactivo" | "Pendiente" | "Archivado";
 
-export type PersonCondition = "Con citas" | "Con tareas" | "Con pagos pendientes";
+export type PersonQuickFilter = "Todos" | "Clientes" | "Empresas" | "Freelancers" | "Proveedores" | "Con tareas" | "Pendientes de pago";
 
-export type PersonQuickFilter = "Todos" | "Pacientes" | "Empresas" | "Con tareas" | "Pagos";
-
-export const personTypeOptions: PersonType[] = ["Paciente", "Contacto", "Participante Taller", "Empresa", "Contacto Empresarial"];
+export const personTypeOptions: PersonType[] = ["Cliente", "Empresa", "Freelancer", "Proveedor"];
 
 export type PersonAgendaEntry = {
   id: string;
@@ -68,12 +66,4 @@ export type Person = {
     servicios: string[];
   };
   historial: PersonHistoryEntry[];
-};
-
-export type TableIndicatorFilter = "Con citas próximas" | "Con tareas pendientes" | "Con pagos pendientes";
-
-export type PeopleFilterState = {
-  types: PersonType[];
-  statuses: PersonStatus[];
-  conditions: PersonCondition[];
 };
