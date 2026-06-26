@@ -1,10 +1,11 @@
 import { FilterOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Divider, Empty, Form, Input, message, Modal, Pagination, Popover, Select } from "antd";
+import { Button, Card, Checkbox, Divider, Empty, Form, Input, message, Modal, Pagination, Popover, Select, Spin } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { peopleService } from "../../services";
 import { usePermissions } from "../../hooks/usePermissions";
 import type { Person, PersonCondition, PersonQuickFilter, PersonStatus, PersonType, PeopleFilterState } from "../../types/adminPeople";
 import { personTypeOptions } from "../../types/adminPeople";
+import { formatTypeLabel } from "../../utils/formatting";
 import { PersonCard } from "./components/PersonCard";
 import { PeopleBigCounter } from "./components/PeopleBigCounter";
 import { PersonDetail } from "./components/PersonDetail";
@@ -30,8 +31,6 @@ function useDebouncedValue<T>(value: T, delay = 200) {
   return debounced;
 }
 
-function formatTypeLabel(type: PersonType) { return type === "Participante Taller" ? "Taller" : type; }
-
 function matchesText(person: Person, search: string) {
   if (!search.trim()) return true;
   const q = search.trim().toLowerCase();
@@ -53,11 +52,13 @@ function matchesTableFilters(person: Person, filters: TableFilterState) {
   const q = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
   const nombre = q(filters.nombre), telefono = q(filters.telefono);
   const nextAppt = person.citas.proximas[0];
+  const proxActividad = q(filters.proximaActividadTexto);
   return (!nombre || q(person.nombre).includes(nombre) || q(person.email ?? "").includes(nombre))
     && (!telefono || q(person.telefono).includes(telefono))
     && (!filters.ultimaInteraccionFecha || person.ultima_interaccion.slice(0, 10) === filters.ultimaInteraccionFecha)
     && (!filters.proximaActividadDia || nextAppt?.date === filters.proximaActividadDia)
     && (!filters.proximaActividadHora || nextAppt?.time === filters.proximaActividadHora)
+    && (!proxActividad || q(person.proxima_actividad).includes(proxActividad) || q(person.proxima_actividad_detalle).includes(proxActividad))
     && (filters.tipos.length === 0 || filters.tipos.some((t) => person.tipos.includes(t)))
     && (filters.estado.length === 0 || filters.estado.includes(person.estado))
     && (filters.indicadores.length === 0 || filters.indicadores.every((ind) => {
@@ -69,9 +70,11 @@ function matchesTableFilters(person: Person, filters: TableFilterState) {
 
 export function PeoplePage() {
   const { hasPermission } = usePermissions();
+  const canRead = hasPermission("personas", "read");
   const canCreate = hasPermission("personas", "create");
   const canEdit = hasPermission("personas", "edit");
   const [items, setItems] = useState<Person[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 200);
   const [quickFilter, setQuickFilter] = useState<PersonQuickFilter>("Todos");
@@ -91,7 +94,15 @@ export function PeoplePage() {
 
   const selectedPerson = items.find((p) => p.id === selectedId) ?? null;
 
-  useEffect(() => { let active = true; peopleService.list().then((records) => { if (active) setItems(records); }).catch(console.error); return () => { active = false; }; }, []);
+  useEffect(() => {
+    if (!canRead) { setLoading(false); return; }
+    let active = true;
+    peopleService.list()
+      .then((records) => { if (active) setItems(records); })
+      .catch(() => message.error("No se pudieron cargar las personas"))
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [canRead]);
 
   const filteredPeople = useMemo(() => items.filter((p) => {
     if (!showInactive && p.estado !== "Activo" && p.estado !== "Pendiente") return false;
@@ -123,31 +134,35 @@ export function PeoplePage() {
   };
 
   const applyAdvancedFilters = () => { setFilters(tempFilters); setQuickFilter("Todos"); setFilterOpen(false); };
-  const clearAdvancedFilters = () => { setTempFilters(defaultFilters); setFilters(defaultFilters); setQuickFilter("Todos"); };
+  const clearAdvancedFilters = () => { setTempFilters(defaultFilters); };
 
   const onCreatePerson = async () => {
-    const values = await form.validateFields();
     try {
+      const values = await form.validateFields();
       const newPerson = await peopleService.create({
         nombre: values.nombre, telefono: values.telefono, email: values.email,
         tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
         ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
-        fuente: "Manual", responsable: "Doctora", etiquetas: [],
+        fuente: "Manual", etiquetas: [],
         proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
         citas: { proximas: [], historial: [] }, tareas: { pendientes: [], completadas: [] },
         finanzas: { pagadas: [], pendientes: [], servicios: [] }, historial: [],
       });
       setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
-    } catch (err) { message.error("No se pudo crear la persona"); }
+    } catch (err: any) {
+      if (!err?.errorFields) message.error("No se pudo crear la persona");
+    }
   };
 
   const onUpdatePerson = async () => {
-    const values = await editForm.validateFields();
     if (!editPerson) return;
     try {
+      const values = await editForm.validateFields();
       const updated = await peopleService.update(editPerson.id, { nombre: values.nombre, telefono: values.telefono, email: values.email, tipos: values.tipos, estado: values.estado, observaciones_administrativas: values.observaciones ?? "" });
       setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
-    } catch (err) { message.error("No se pudo actualizar la persona"); }
+    } catch (err: any) {
+      if (!err?.errorFields) message.error("No se pudo actualizar la persona");
+    }
   };
 
   const handleDeletePerson = async (person: Person) => {
@@ -178,6 +193,14 @@ export function PeoplePage() {
           <div><h1 className="text-2xl font-bold text-surface-main sm:text-4xl">Personas</h1><p className="mt-2 max-w-3xl text-sm text-surface-secondary">Gestión de personas relacionadas al consultorio. Fichas, historial y contexto centralizado.</p></div>
         </div>
       </section>
+
+      {!canRead ? (
+        <Card className="rounded-3xl border-[var(--border)]">
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No tienes permiso para ver este módulo" />
+        </Card>
+      ) : loading ? (
+        <div className="flex min-h-[300px] items-center justify-center"><Spin size="large" /></div>
+      ) : (<>
 
       <Card className="rounded-3xl border-[var(--border)] border-b border-b-[var(--border-subtle)] bg-[var(--surface-strong)] shadow-sm">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -235,7 +258,7 @@ export function PeoplePage() {
           </div>
           <Divider />
           {tableFilteredPeople.length > 0 ? (
-            <PeopleTable items={paginatedPeople} onSelect={(person) => setSelectedId(person.id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
+            <PeopleTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
           ) : (
             <div className="py-6"><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No se encontraron personas"><Button onClick={clearAllFilters}>Limpiar filtros</Button></Empty></div>
           )}
@@ -270,6 +293,8 @@ export function PeoplePage() {
           <Form.Item label="Observaciones" name="observaciones"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
         </Form>
       </Modal>
+      </>
+      )}
     </div>
   );
 }

@@ -3,20 +3,9 @@ import { Button, Checkbox, DatePicker, Input, Popover, Select, Tooltip } from "a
 import { useMemo, type ReactNode } from "react";
 import { personTypeOptions } from "../../../types/adminPeople";
 import type { Person, PersonStatus, PersonType, TableIndicatorFilter } from "../../../types/adminPeople";
+import { formatTypeLabel, highlight } from "../../../utils/formatting";
 
 const statusOptions: PersonStatus[] = ["Activo", "Inactivo", "Pendiente", "Archivado"];
-
-function formatTypeLabel(type: string) { return type === "Participante Taller" ? "Taller" : type; }
-
-function highlight(text: string, query: string) {
-  if (!query.trim()) return text;
-  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return text.split(new RegExp(`(${escaped})`, "ig")).map((part, i) =>
-    part.toLowerCase() === query.trim().toLowerCase()
-      ? <mark key={i} className="rounded bg-[var(--accent-soft)] px-0.5 text-[var(--accent-deep)]">{part}</mark>
-      : <span key={i}>{part}</span>
-  );
-}
 
 export type TableFilterState = {
   nombre: string;
@@ -39,8 +28,9 @@ function HeaderFilterButton({ active, children }: { active: boolean; children: R
   );
 }
 
-export function PeopleTable({ items, onSelect, query, filters, onChangeFilters, onClearFilters }: {
+export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters, onChangeFilters, onClearFilters }: {
   items: Person[];
+  allFilteredPeople: Person[];
   onSelect: (person: Person) => void;
   query: string;
   filters: TableFilterState;
@@ -50,7 +40,7 @@ export function PeopleTable({ items, onSelect, query, filters, onChangeFilters, 
   const setFilter = <K extends keyof TableFilterState>(key: K, value: TableFilterState[K]) => onChangeFilters({ ...filters, [key]: value });
 
   const upcomingHourOptions = useMemo(() =>
-    Array.from(new Set(items.flatMap((p) => p.citas.proximas.map((e) => e.time)))).sort().map((t) => ({ value: t, label: t })), [items]);
+    Array.from(new Set(allFilteredPeople.flatMap((p) => p.citas.proximas.map((e) => e.time)))).sort().map((t) => ({ value: t, label: t })), [allFilteredPeople]);
 
   const columnHeader = (label: string, active: boolean, content: ReactNode) => (
     <div className="flex items-center justify-between gap-2">

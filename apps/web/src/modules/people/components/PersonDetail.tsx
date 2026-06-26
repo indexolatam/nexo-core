@@ -1,15 +1,12 @@
 import { ArrowLeftOutlined, CalendarOutlined, DeleteOutlined, EditOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Button, Card, Divider, Popconfirm, Tabs } from "antd";
 import type { Person } from "../../../types/adminPeople";
+import { formatTypeLabel } from "../../../utils/formatting";
 import { PersonSummaryLine } from "./PersonSummaryLine";
 import { PersonAgendaList } from "./PersonAgendaList";
 import { PersonTasksList } from "./PersonTasksList";
 import { PersonFinanceList } from "./PersonFinanceList";
 import { PersonHistoryList } from "./PersonHistoryList";
-
-function formatTypeLabel(type: string) {
-  return type === "Participante Taller" ? "Taller" : type;
-}
 
 export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Person; onBack: () => void; onEdit?: (person: Person) => void; onDelete?: (person: Person) => void }) {
   return (

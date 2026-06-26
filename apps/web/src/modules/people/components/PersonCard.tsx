@@ -1,21 +1,7 @@
 import { UnorderedListOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
 import type { Person } from "../../../types/adminPeople";
-
-function formatTypeLabel(type: string) {
-  return type === "Participante Taller" ? "Taller" : type;
-}
-
-function highlight(text: string, query: string) {
-  if (!query.trim()) return text;
-  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const parts = text.split(new RegExp(`(${escaped})`, "ig"));
-  return parts.map((part, index) =>
-    part.toLowerCase() === query.trim().toLowerCase()
-      ? <mark key={index} className="rounded bg-[var(--accent-soft)] px-0.5 text-[var(--accent-deep)]">{part}</mark>
-      : <span key={index}>{part}</span>
-  );
-}
+import { formatTypeLabel, highlight } from "../../../utils/formatting";
 
 export function PersonCard({ person, compact, selected, onClick, query }: { person: Person; compact?: boolean; selected?: boolean; onClick: (person: Person) => void; query: string }) {
   return (

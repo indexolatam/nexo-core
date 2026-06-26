@@ -30,6 +30,13 @@ function inferEventType(category: string): DayEvent["type"] {
   return EVENT_TYPE_MAP[category] || "consulta";
 }
 
+function toLocalDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [peopleCount, setPeopleCount] = useState(0);
@@ -47,7 +54,7 @@ export function DashboardPage() {
   useEffect(() => {
     let active = true;
     const now = new Date();
-    const today = now.toISOString().slice(0, 10);
+    const today = toLocalDateStr(now);
     const dayOfWeek = now.getDay();
     const hour = String(now.getHours()).padStart(2, "0");
     const minute = String(now.getMinutes()).padStart(2, "0");
@@ -56,13 +63,18 @@ export function DashboardPage() {
     const dayNames = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     setNowLabel(`${dayNames[dayOfWeek]} ${now.getDate()} ${monthNames[now.getMonth()]} · ${timeStr}`);
 
-    Promise.all([
+    Promise.allSettled([
       peopleService.list(),
       agendaService.list(),
       tasksService.list(),
       financeService.list(),
-    ]).then(([people, events, tasks, finances]) => {
+    ]).then((results) => {
       if (!active) return;
+
+      const people = results[0].status === "fulfilled" ? results[0].value : [];
+      const events = results[1].status === "fulfilled" ? results[1].value : [];
+      const tasks = results[2].status === "fulfilled" ? results[2].value : [];
+      const finances = results[3].status === "fulfilled" ? results[3].value : [];
 
       const activePeople = people.filter((p) => p.estado === "Activo").length;
       setPeopleCount(activePeople);
@@ -123,7 +135,7 @@ export function DashboardPage() {
       for (let i = 0; i < 7; i++) {
         const d = new Date(startOfWeek);
         d.setDate(startOfWeek.getDate() + i);
-        const dateStr = d.toISOString().slice(0, 10);
+        const dateStr = toLocalDateStr(d);
         const isToday = dateStr === today;
 
         const dayEvts = events.filter((evt) => evt.starts_at?.slice(0, 10) === dateStr && !evt.starts_at?.startsWith("Sin"));
@@ -154,7 +166,7 @@ export function DashboardPage() {
   function getEndOfWeek(dateStr: string): string {
     const d = new Date(dateStr);
     d.setDate(d.getDate() + (7 - d.getDay()));
-    return d.toISOString().slice(0, 10);
+    return toLocalDateStr(d);
   }
 
   const quickActions = [

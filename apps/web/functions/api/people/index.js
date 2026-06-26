@@ -42,8 +42,11 @@ export async function onRequestPost(context) {
 
   const id = `per-${crypto.randomUUID()}`;
   const now = new Date().toISOString();
-  const [nombre_1 = "", nombre_2 = "", apellido_1 = "", apellido_2 = ""] = String(body.nombre || "").trim().split(" ");
-  const tipos = body.tipos ? JSON.stringify(body.tipos) : '[]';
+  const nombreParts = String(body.nombre || "").trim().split(/\s+/).filter(Boolean);
+  const nombre_1 = nombreParts[0] || body.nombre || "Sin nombre";
+  const nombre_2 = nombreParts.length > 3 ? nombreParts[1] : null;
+  const apellido_1 = nombreParts.length >= 3 ? nombreParts.slice(2).join(" ") : nombreParts[1] || "";
+  const apellido_2 = nombreParts.length > 4 ? nombreParts[nombreParts.length - 1] : null;  const tipos = body.tipos ? JSON.stringify(body.tipos) : '[]';
   const etiquetas = body.etiquetas ? JSON.stringify(body.etiquetas) : '[]';
 
   await db.prepare(
@@ -58,5 +61,6 @@ export async function onRequestPost(context) {
   ).run();
 
   const created = await db.prepare("SELECT * FROM people WHERE id = ?").bind(id).first();
-  return json(mapPersonRow(created), 201);
+  const relatedData = await fetchRelatedData(db, id);
+  return json(mapPersonRow(created, relatedData), 201);
 }

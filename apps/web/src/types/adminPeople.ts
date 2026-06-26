@@ -8,13 +8,6 @@ export type PersonQuickFilter = "Todos" | "Pacientes" | "Empresas" | "Con tareas
 
 export const personTypeOptions: PersonType[] = ["Paciente", "Contacto", "Participante Taller", "Empresa", "Contacto Empresarial"];
 
-export const personTypeFilterMap: Record<"Pacientes" | "Contactos" | "Empresas" | "Talleres", PersonType[]> = {
-  Pacientes: ["Paciente"],
-  Contactos: ["Contacto"],
-  Empresas: ["Empresa", "Contacto Empresarial"],
-  Talleres: ["Participante Taller"],
-};
-
 export type PersonAgendaEntry = {
   id: string;
   date: string;

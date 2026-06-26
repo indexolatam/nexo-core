@@ -34,14 +34,21 @@ export async function onRequestPatch(context) {
   try { body = await context.request.json(); } catch { return error("JSON inválido", 400); }
 
   const now = new Date().toISOString();
+  const nombreParts = body.nombre ? String(body.nombre).trim().split(/\s+/) : null;
+  const nombre_1 = nombreParts ? nombreParts[0] : null;
+  const apellido_1 = nombreParts && nombreParts.length > 1 ? nombreParts.slice(1).join(" ") : null;
+
   await db.prepare(
-    `UPDATE people SET telefono = COALESCE(?, telefono), email = COALESCE(?, email), estado = COALESCE(?, estado),
+    `UPDATE people SET
+     nombre_1 = COALESCE(?, nombre_1), apellido_1 = COALESCE(?, apellido_1),
+     telefono = COALESCE(?, telefono), email = COALESCE(?, email), estado = COALESCE(?, estado),
      fuente = COALESCE(?, fuente), ultima_interaccion = COALESCE(?, ultima_interaccion),
      proxima_actividad = COALESCE(?, proxima_actividad), proxima_actividad_detalle = COALESCE(?, proxima_actividad_detalle),
      tipos = COALESCE(?, tipos), etiquetas = COALESCE(?, etiquetas),
      observaciones_administrativas = COALESCE(?, observaciones_administrativas), updated_at = ?
      WHERE id = ?`
   ).bind(
+    nombre_1, apellido_1,
     body.telefono ?? null, body.email ?? null, body.estado ?? null, body.fuente ?? null,
     body.ultima_interaccion ?? null, body.proxima_actividad ?? null, body.proxima_actividad_detalle ?? null,
     body.tipos ? JSON.stringify(body.tipos) : null, body.etiquetas ? JSON.stringify(body.etiquetas) : null,
