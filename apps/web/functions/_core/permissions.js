@@ -1,4 +1,4 @@
-import { forbidden, unauthorized } from "./response.js";
+import { forbidden, unauthorized } from "./errors.js";
 import { ensureAllSchemas } from "./db.js";
 
 const ROLE_MAX_PERMISSIONS = {
