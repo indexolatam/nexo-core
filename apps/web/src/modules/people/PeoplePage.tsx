@@ -1,5 +1,6 @@
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Empty, Form, Input, message, Modal, Pagination, Select, Spin, DatePicker } from "antd";
+import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { peopleService, usersService } from "../../services";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -251,7 +252,7 @@ export function PeoplePage() {
       </Modal>
 
       <Modal title="Editar usuario" open={editOpen} onCancel={() => { setEditOpen(false); setEditPerson(null); editForm.resetFields(); }} onOk={onUpdatePerson} okText="Guardar cambios" cancelText="Cancelar" centered destroyOnClose
-        afterOpenChange={(open) => { if (open && editPerson) editForm.setFieldsValue({ nombre: editPerson.nombre, telefono: editPerson.telefono, email: editPerson.email, tipos: editPerson.tipos, estado: editPerson.estado, observaciones: editPerson.observaciones_administrativas, fuente: editPerson.fuente, etiquetas: editPerson.etiquetas, responsable: editPerson.responsable, ultima_interaccion: editPerson.ultima_interaccion, proxima_actividad: editPerson.proxima_actividad, proxima_actividad_detalle: editPerson.proxima_actividad_detalle }); }}>
+        afterOpenChange={(open) => { if (open && editPerson) editForm.setFieldsValue({ nombre: editPerson.nombre, telefono: editPerson.telefono, email: editPerson.email, tipos: editPerson.tipos, estado: editPerson.estado, observaciones: editPerson.observaciones_administrativas, fuente: editPerson.fuente, etiquetas: editPerson.etiquetas, responsable: editPerson.responsable, ultima_interaccion: editPerson.ultima_interaccion ? dayjs(editPerson.ultima_interaccion) : null, proxima_actividad: editPerson.proxima_actividad, proxima_actividad_detalle: editPerson.proxima_actividad_detalle }); }}>
         <Form form={editForm} layout="vertical" initialValues={{ estado: "Activo", tipos: ["Cliente"], fuente: "Manual" }}>
           <Form.Item label="Nombre" name="nombre" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="telefono" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>
