@@ -35,9 +35,12 @@ export async function onRequestGet(context) {
   const showInactive = url.searchParams.get("showInactive") === "true";
   const showArchived = url.searchParams.get("showArchived") === "true";
 
-  let statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente')";
-  if (showInactive) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo')";
-  if (showArchived) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo' || estado = 'Archivado')";
+  let statusFilter = "";
+  if (user.role !== "root") {
+    statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente')";
+    if (showInactive) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo')";
+    if (showArchived) statusFilter = "AND (estado = 'Activo' || estado = 'Pendiente' || estado = 'Inactivo' || estado = 'Archivado')";
+  }
 
   const roleFilter = buildRoleFilter(user);
 
