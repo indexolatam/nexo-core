@@ -55,9 +55,9 @@ export function canExceedMax(role, module, permissions) {
 export async function getUserPermission(db, role, module) {
   await ensureAllSchemas(db);
   const perm = await db.prepare(
-    "SELECT can_read, can_create, can_edit FROM module_permissions WHERE role = ? AND module = ?"
+    "SELECT can_read, can_create, can_edit, can_delete FROM module_permissions WHERE role = ? AND module = ?"
   ).bind(role, module).first();
-  return perm || { can_read: 0, can_create: 0, can_edit: 0 };
+  return perm || { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 };
 }
 
 export function requirePermission(module, action) {
@@ -67,7 +67,7 @@ export function requirePermission(module, action) {
     if (user.role === "root") return context.next();
     const db = context.env.DB;
     const perm = await db.prepare(
-      "SELECT can_read, can_create, can_edit FROM module_permissions WHERE role = ? AND module = ?"
+      "SELECT can_read, can_create, can_edit, can_delete FROM module_permissions WHERE role = ? AND module = ?"
     ).bind(user.role, module).first();
     const key = `can_${action}`;
     if (!perm || !perm[key]) return forbidden(`Sin permiso: ${module} → ${action}`);

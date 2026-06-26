@@ -13,13 +13,9 @@ async function checkPermission(context, action) {
 }
 
 function buildRoleFilter(user) {
-  if (user.role === "root") return "";
-  if (user.role === "admin") return "";
-  if (user.role === "doctor") return `AND (assigned_user_id = '${user.id}')`;
-  if (user.role === "asistente") {
-    return `AND (assigned_user_id = '${user.id}')`;
-  }
-  return "AND 1=0";
+  if (user.role === "root" || user.role === "admin") return { sql: "", params: [] };
+  if (user.role === "doctor" || user.role === "asistente") return { sql: "AND assigned_user_id = ?", params: [user.id] };
+  return { sql: "AND 1=0", params: [] };
 }
 
 export async function onRequestGet(context) {
@@ -44,8 +40,8 @@ export async function onRequestGet(context) {
 
   const roleFilter = buildRoleFilter(user);
 
-  const query = `SELECT * FROM people WHERE deleted_at IS NULL ${statusFilter} ${roleFilter} ORDER BY created_at DESC`;
-  const { results } = await db.prepare(query).all();
+  const query = `SELECT * FROM people WHERE deleted_at IS NULL ${statusFilter} ${roleFilter.sql} ORDER BY created_at DESC`;
+  const { results } = await db.prepare(query).bind(...roleFilter.params).all();
 
   const personIds = results.map((r) => r.id);
   const batchData = await fetchBatchRelatedData(db, personIds);

@@ -25,14 +25,14 @@ export function usePermissions() {
     return () => { active = false; };
   }, [user]);
 
-  const hasPermission = useCallback((module: string, action: "read" | "create" | "edit"): boolean => {
+  const hasPermission = useCallback((module: string, action: "read" | "create" | "edit" | "delete"): boolean => {
     if (isRoot) return true;
     if (!user) return false;
     const rolePerms = permissions[user.role];
     if (!rolePerms) return false;
     const mod = rolePerms.find((p) => p.module === module);
     if (!mod) return false;
-    return action === "read" ? mod.can_read : action === "create" ? mod.can_create : mod.can_edit;
+    return action === "read" ? mod.can_read : action === "create" ? mod.can_create : action === "edit" ? mod.can_edit : mod.can_delete;
   }, [isRoot, user, permissions]);
 
   const updatePermissions = useCallback(async (next: ModulePermissionsByRole) => {

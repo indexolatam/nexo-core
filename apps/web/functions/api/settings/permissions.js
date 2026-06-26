@@ -22,7 +22,7 @@ export async function onRequestGet(context) {
   await ensureAllSchemas(db);
 
   const { results } = await db.prepare(
-    "SELECT id, role, module, can_read, can_create, can_edit FROM module_permissions ORDER BY role, module"
+    "SELECT id, role, module, can_read, can_create, can_edit, can_delete FROM module_permissions ORDER BY role, module"
   ).all();
 
   const grouped = {};
@@ -33,6 +33,7 @@ export async function onRequestGet(context) {
       can_read: !!row.can_read,
       can_create: !!row.can_create,
       can_edit: !!row.can_edit,
+      can_delete: !!row.can_delete,
     });
   }
   return json(grouped);
@@ -54,7 +55,7 @@ export async function onRequestPut(context) {
 
   const now = new Date().toISOString();
   const stmt = await db.prepare(
-    "UPDATE module_permissions SET can_read = ?, can_create = ?, can_edit = ?, updated_at = ? WHERE role = ? AND module = ?"
+    "UPDATE module_permissions SET can_read = ?, can_create = ?, can_edit = ?, can_delete = ?, updated_at = ? WHERE role = ? AND module = ?"
   );
 
   const batch = [];
@@ -67,13 +68,14 @@ export async function onRequestPut(context) {
         can_read: perms.can_read ? 1 : 0,
         can_create: perms.can_create ? 1 : 0,
         can_edit: perms.can_edit ? 1 : 0,
+        can_delete: perms.can_delete ? 1 : 0,
       };
 
       if (canExceedMax(role, module, requested)) {
         return error(`Permiso excede el máximo para ${role} en ${module}`, 400);
       }
 
-      batch.push(stmt.bind(requested.can_read, requested.can_create, requested.can_edit, now, role, module));
+      batch.push(stmt.bind(requested.can_read, requested.can_create, requested.can_edit, requested.can_delete, now, role, module));
     }
   }
 

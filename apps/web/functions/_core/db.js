@@ -105,30 +105,30 @@ export async function ensureAllSchemas(db) {
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS module_permissions (
     id TEXT PRIMARY KEY, role TEXT NOT NULL, module TEXT NOT NULL,
-    can_read INTEGER DEFAULT 1, can_create INTEGER DEFAULT 0, can_edit INTEGER DEFAULT 0,
+    can_read INTEGER DEFAULT 1, can_create INTEGER DEFAULT 0, can_edit INTEGER DEFAULT 0, can_delete INTEGER DEFAULT 0,
     updated_at TEXT, UNIQUE(role, module)
   )`).run();
 
   const perms = [
-    ['perm-root-personas','root','personas',1,1,1], ['perm-root-finanzas','root','finanzas',1,1,1],
-    ['perm-root-agenda','root','agenda',1,1,1], ['perm-root-tareas','root','tareas',1,1,1],
-    ['perm-root-configuracion','root','configuracion',1,1,1], ['perm-root-auditoria','root','auditoria',1,1,1],
-    ['perm-root-blog','root','blog',1,1,1],
-    ['perm-admin-personas','admin','personas',1,1,1], ['perm-admin-finanzas','admin','finanzas',1,1,1],
-    ['perm-admin-agenda','admin','agenda',1,1,1], ['perm-admin-tareas','admin','tareas',1,1,1],
-    ['perm-admin-configuracion','admin','configuracion',1,1,1], ['perm-admin-auditoria','admin','auditoria',0,0,0],
-    ['perm-admin-blog','admin','blog',0,0,0],
-    ['perm-doctor-personas','doctor','personas',0,0,0], ['perm-doctor-finanzas','doctor','finanzas',0,0,0],
-    ['perm-doctor-agenda','doctor','agenda',1,1,1], ['perm-doctor-tareas','doctor','tareas',1,1,1],
-    ['perm-doctor-configuracion','doctor','configuracion',0,0,0], ['perm-doctor-auditoria','doctor','auditoria',0,0,0],
-    ['perm-doctor-blog','doctor','blog',0,0,0],
-    ['perm-asistente-personas','asistente','personas',1,1,1], ['perm-asistente-finanzas','asistente','finanzas',1,1,1],
-    ['perm-asistente-agenda','asistente','agenda',1,1,1], ['perm-asistente-tareas','asistente','tareas',1,1,1],
-    ['perm-asistente-configuracion','asistente','configuracion',1,0,0], ['perm-asistente-auditoria','asistente','auditoria',0,0,0],
-    ['perm-asistente-blog','asistente','blog',0,0,0],
+    ['perm-root-personas','root','personas',1,1,1,1], ['perm-root-finanzas','root','finanzas',1,1,1,1],
+    ['perm-root-agenda','root','agenda',1,1,1,1], ['perm-root-tareas','root','tareas',1,1,1,1],
+    ['perm-root-configuracion','root','configuracion',1,1,1,1], ['perm-root-auditoria','root','auditoria',1,1,1,1],
+    ['perm-root-blog','root','blog',1,1,1,1],
+    ['perm-admin-personas','admin','personas',1,1,1,1], ['perm-admin-finanzas','admin','finanzas',1,1,1,1],
+    ['perm-admin-agenda','admin','agenda',1,1,1,1], ['perm-admin-tareas','admin','tareas',1,1,1,1],
+    ['perm-admin-configuracion','admin','configuracion',1,1,1,1], ['perm-admin-auditoria','admin','auditoria',0,0,0,0],
+    ['perm-admin-blog','admin','blog',0,0,0,0],
+    ['perm-doctor-personas','doctor','personas',0,0,0,0], ['perm-doctor-finanzas','doctor','finanzas',0,0,0,0],
+    ['perm-doctor-agenda','doctor','agenda',1,1,1,1], ['perm-doctor-tareas','doctor','tareas',1,1,1,1],
+    ['perm-doctor-configuracion','doctor','configuracion',0,0,0,0], ['perm-doctor-auditoria','doctor','auditoria',0,0,0,0],
+    ['perm-doctor-blog','doctor','blog',0,0,0,0],
+    ['perm-asistente-personas','asistente','personas',1,1,1,1], ['perm-asistente-finanzas','asistente','finanzas',1,1,1,1],
+    ['perm-asistente-agenda','asistente','agenda',1,1,1,1], ['perm-asistente-tareas','asistente','tareas',1,1,1,1],
+    ['perm-asistente-configuracion','asistente','configuracion',1,0,0,0], ['perm-asistente-auditoria','asistente','auditoria',0,0,0,0],
+    ['perm-asistente-blog','asistente','blog',0,0,0,0],
   ];
   for (const p of perms) {
-    await db.prepare("INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit) VALUES (?, ?, ?, ?, ?, ?)").bind(...p).run();
+    await db.prepare("INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit, can_delete) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(...p).run();
   }
 
   const { results } = await db.prepare("SELECT COUNT(*) as cnt FROM people").all();

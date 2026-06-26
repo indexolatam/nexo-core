@@ -36,6 +36,7 @@ export type ModulePermission = {
   can_read: boolean;
   can_create: boolean;
   can_edit: boolean;
+  can_delete: boolean;
 };
 
 export type ModulePermissionsByRole = Record<string, ModulePermission[]>;

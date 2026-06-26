@@ -5,6 +5,7 @@ import "antd/dist/reset.css";
 import "./index.css";
 import App from "./App";
 import { RequireAuth } from "./shared/components/RequireAuth";
+import { RequireRole } from "./shared/components/RequireRole";
 import { AuthProvider } from "./modules/auth/AuthContext";
 import { BankConfigProvider } from "./context/BankConfigContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -44,13 +45,13 @@ const router = createBrowserRouter([
         ),
         children: [
           { index: true, element: <DashboardPage /> },
-          { path: "agenda", element: <AgendaPage /> },
-          { path: "personas", element: <PeoplePage /> },
-          { path: "finanzas", element: <FinancePage /> },
-          { path: "tareas", element: <TasksPage /> },
-          { path: "configuracion", element: <SettingsPage /> },
-          { path: "logs", element: <AuditLogsPage /> },
-          { path: "blog", element: <BlogPage /> },
+          { path: "agenda", element: <RequireRole module="agenda" action="read"><AgendaPage /></RequireRole> },
+          { path: "personas", element: <RequireRole module="personas" action="read"><PeoplePage /></RequireRole> },
+          { path: "finanzas", element: <RequireRole module="finanzas" action="read"><FinancePage /></RequireRole> },
+          { path: "tareas", element: <RequireRole module="tareas" action="read"><TasksPage /></RequireRole> },
+          { path: "configuracion", element: <RequireRole module="configuracion" action="read"><SettingsPage /></RequireRole> },
+          { path: "logs", element: <RequireRole module="auditoria" action="read"><AuditLogsPage /></RequireRole> },
+          { path: "blog", element: <RequireRole module="blog" action="read"><BlogPage /></RequireRole> },
         ],
       },
       {
