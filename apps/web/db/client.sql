@@ -49,11 +49,17 @@ CREATE TABLE IF NOT EXISTS services (
   description TEXT,
   category TEXT,
   color TEXT,
+  max_participants INTEGER,
+  is_online INTEGER DEFAULT 0,
   active INTEGER DEFAULT 1,
   landing_visible INTEGER DEFAULT 1,
+  landing_description TEXT,
+  landing_image TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT,
-  deleted_at TEXT
+  deleted_at TEXT,
+  created_by_user_id TEXT,
+  updated_by_user_id TEXT
 );
 
 -- 0003_users_auth: users + auth_sessions
@@ -100,6 +106,7 @@ CREATE TABLE IF NOT EXISTS finance_movements (
   hora TEXT,
   banco_id TEXT,
   referencia_transaccion TEXT,
+  observaciones TEXT,
   tipo_movimiento TEXT DEFAULT 'ingreso',
   moneda TEXT DEFAULT 'USD',
   notes TEXT,
@@ -108,7 +115,10 @@ CREATE TABLE IF NOT EXISTS finance_movements (
   deleted_at TEXT,
   fecha_vencimiento TEXT,
   pagado_en TEXT,
+  pagado_por_user_id TEXT,
+  comprobante_url TEXT,
   created_by_user_id TEXT,
+  updated_by_user_id TEXT,
   FOREIGN KEY (persona_id) REFERENCES people(id),
   FOREIGN KEY (service_id) REFERENCES services(id),
   FOREIGN KEY (banco_id) REFERENCES bank_configs(id)
@@ -140,7 +150,6 @@ CREATE TABLE IF NOT EXISTS agenda_events (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT,
   deleted_at TEXT,
-  deleted_at TEXT,
   created_by_user_id TEXT,
   FOREIGN KEY (person_id) REFERENCES people(id),
   FOREIGN KEY (service_id) REFERENCES services(id),
@@ -168,6 +177,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   due_at TEXT,
   status TEXT DEFAULT 'Pendiente',
   category TEXT DEFAULT 'Administrativa',
+  related_entity_type TEXT,
+  related_entity_id TEXT,
   person_id TEXT,
   event_id TEXT,
   service_id TEXT,
@@ -176,6 +187,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   deleted_at TEXT,
   created_by_user_id TEXT,
   completed_at TEXT,
+  completed_by_user_id TEXT,
+  updated_by_user_id TEXT,
   FOREIGN KEY (assigned_user_id) REFERENCES users(id),
   FOREIGN KEY (person_id) REFERENCES people(id),
   FOREIGN KEY (event_id) REFERENCES agenda_events(id),
@@ -213,17 +226,25 @@ CREATE TABLE IF NOT EXISTS palette_settings (
 -- seed_people
 INSERT OR IGNORE INTO people (id, nombre_1, apellido_1, telefono, email, estado, fecha_creacion, created_at)
 VALUES
-  ('per-demo-1', 'Juan', 'Pérez', '+50588880001', 'juan@demo.local', 'Activo', datetime('now'), datetime('now')),
-  ('per-demo-2', 'María', 'García', '+50588880002', 'maria@demo.local', 'Activo', datetime('now'), datetime('now'));
+  ('per-001', 'Ana', 'Pérez', '+505 8888 1001', 'ana.perez@email.com', 'Activo', '2026-06-01', '2026-06-01T00:00:00.000Z'),
+  ('per-002', 'Empresa', 'ABC', '+505 8888 1002', 'rrhh@empresaabc.com', 'Activo', '2026-05-20', '2026-05-20T00:00:00.000Z');
 
 -- seed_services_landing
 INSERT OR IGNORE INTO services (id, name, duration, price, description, category, active, landing_visible)
 VALUES
-  ('svc-demo-1', 'Servicio Demo 1', 60, 50.00, 'Descripción del servicio demo 1.', 'Categoría Demo', 1, 1),
-  ('svc-demo-2', 'Servicio Demo 2', 45, 35.00, 'Descripción del servicio demo 2.', 'Categoría Demo', 1, 1);
+  ('consulta-individual', 'Consulta individual', 60, 30.00, 'Atención psicológica individual con modalidad a coordinar.', 'Terapia individual', 1, 1),
+  ('terapia-familiar', 'Terapia familiar', 90, 50.00, 'Espacio de acompañamiento terapéutico para familias.', 'Terapia familiar', 1, 1);
+
+-- seed_bank_configs
+INSERT OR IGNORE INTO bank_configs (id, name, active, display_order, created_at)
+VALUES
+  ('bank-bac', 'BAC', 1, 1, '2026-06-14T00:00:00.000Z'),
+  ('bank-lafise', 'LAFISE', 1, 2, '2026-06-14T00:00:00.000Z');
 
 -- seed_users_credentials (password: admin123)
 INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at)
 VALUES
-  ('usr-root', 'Root', 'Admin', 'root', 'root', 'root@nexo.local', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Root Admin', 1, datetime('now')),
-  ('usr-admin', 'Admin', 'User', 'admin', 'admin', 'admin@nexo.local', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Admin User', 1, datetime('now'));
+  ('root', 'Root', 'Admin', 'root', 'root', 'root@clinica.com', '4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2', 'root', 1, datetime('now')),
+  ('admin', 'Admin', 'Clínica', 'admin', 'admin', 'admin@clinica.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'admin', 1, datetime('now')),
+  ('doctor', 'Doctor', 'Principal', 'doctor', 'doc', 'doc@clinica.com', '139d544b821b13ebea14f1b0fe18577222e415c2966e3a3511c4196055232202', 'doctor', 1, datetime('now')),
+  ('asistente', 'Asistente', 'Administrativo', 'asistente', 'asis', 'asis@clinica.com', '105f495d894006d1dd5a432123573c88bdc64b58949d98af4c26e238f8be28a4', 'asistente', 1, datetime('now'));
