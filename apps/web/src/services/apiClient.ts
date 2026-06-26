@@ -8,6 +8,11 @@ function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+function clearAuth(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  window.location.href = "/login";
+}
+
 interface RequestOptions {
   method?: string;
   body?: unknown;
@@ -21,11 +26,20 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...options,
-    headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-  });
+  let response;
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...options,
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+    });
+  } catch (err) {
+    throw new Error("Error de conexión con el servidor");
+  }
+  if (response.status === 401) {
+    clearAuth();
+    throw new Error("Sesión expirada. Redirigiendo al login...");
+  }
   if (!response.ok) {
     const bodyText = await response.text();
     let message = `Error API ${response.status}`;

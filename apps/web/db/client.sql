@@ -26,8 +26,12 @@ CREATE TABLE IF NOT EXISTS people (
   assigned_user_id TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT,
+  deleted_at TEXT,
   created_by_user_id TEXT,
-  updated_by_user_id TEXT
+  updated_by_user_id TEXT,
+  tipos TEXT DEFAULT '[]',
+  etiquetas TEXT DEFAULT '[]',
+  observaciones_administrativas TEXT DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS bank_configs (
