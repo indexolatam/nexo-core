@@ -224,3 +224,64 @@ export async function fetchRelatedData(db, personId) {
     historial: [],
   };
 }
+
+export async function fetchBatchRelatedData(db, personIds) {
+  if (personIds.length === 0) return new Map();
+  const now = new Date().toISOString();
+  const nowDate = now.slice(0, 10);
+  const placeholders = personIds.map(() => "?").join(",");
+
+  const events = await db.prepare(`SELECT ae.*, aei.starts_at AS instance_starts_at, aei.ends_at AS instance_ends_at,
+    aei.status AS instance_status, aei.notes AS instance_notes
+    FROM agenda_events ae LEFT JOIN agenda_event_instances aei ON aei.event_id = ae.id
+    WHERE ae.person_id IN (${placeholders}) AND ae.deleted_at IS NULL
+    ORDER BY ae.person_id, COALESCE(aei.starts_at, ae.starts_at) DESC`).bind(...personIds).all();
+
+  const tasks = await db.prepare(`SELECT * FROM tasks WHERE person_id IN (${placeholders}) AND deleted_at IS NULL ORDER BY person_id, created_at DESC`).bind(...personIds).all();
+  const finances = await db.prepare(`SELECT * FROM finance_movements WHERE persona_id IN (${placeholders}) ORDER BY persona_id, fecha DESC`).bind(...personIds).all();
+
+  const map = new Map();
+  for (const id of personIds) map.set(id, { events: [], tasks: [], finances: [] });
+
+  for (const evt of events.results || []) {
+    const arr = map.get(evt.person_id);
+    if (arr) arr.events.push(evt);
+  }
+  for (const t of tasks.results || []) {
+    const arr = map.get(t.person_id);
+    if (arr) arr.tasks.push(t);
+  }
+  for (const f of finances.results || []) {
+    const arr = map.get(f.persona_id);
+    if (arr) arr.finances.push(f);
+  }
+
+  const result = new Map();
+  for (const id of personIds) {
+    const d = map.get(id);
+    const upcomingEvents = [], pastEvents = [];
+    for (const evt of d.events) {
+      const entry = { id: evt.id, date: (evt.instance_starts_at || evt.starts_at).slice(0, 10), time: (evt.instance_starts_at || evt.starts_at).slice(11, 16), title: evt.title, status: evt.instance_status || evt.status, note: evt.instance_notes || evt.meta || null };
+      if (entry.date >= nowDate && entry.status !== 'Cancelada' && entry.status !== 'Atendida') upcomingEvents.push(entry);
+      else pastEvents.push(entry);
+    }
+    const pendingTasks = [], completedTasks = [];
+    for (const t of d.tasks) {
+      if (t.status === 'Completada' || t.status === 'Cancelada') completedTasks.push({ id: t.id, title: t.title, status: t.status, priority: t.priority });
+      else pendingTasks.push({ id: t.id, title: t.title, status: t.status, priority: t.priority });
+    }
+    const paidPayments = [], pendingPayments = []; const servicesSet = new Set();
+    for (const f of d.finances) {
+      const entry = { id: f.id, service: f.servicio || 'Sin servicio', amount: f.moneda === 'USD' ? `$${Number(f.monto).toFixed(2)}` : `C$${Number(f.monto).toFixed(2)}`, status: f.estado === 'Pagado' ? 'Pagado' : 'Pendiente', dueDate: f.fecha_vencimiento || f.fecha };
+      if (f.estado === 'Pagado') paidPayments.push(entry); else pendingPayments.push(entry);
+      if (f.servicio) servicesSet.add(f.servicio);
+    }
+    result.set(id, {
+      citas: { proximas: upcomingEvents, historial: pastEvents },
+      tareas: { pendientes: pendingTasks, completadas: completedTasks },
+      finanzas: { pagadas: paidPayments, pendientes: pendingPayments, servicios: Array.from(servicesSet) },
+      historial: [],
+    });
+  }
+  return result;
+}

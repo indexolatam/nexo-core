@@ -122,11 +122,13 @@ export function PeoplePage() {
         tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
         ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
         fuente: values.fuente || "Manual", etiquetas: values.etiquetas || [],
+        responsable: values.responsable,
         proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
       });
       setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
     } catch (err: any) {
-      if (!err?.errorFields) message.error("No se pudo crear el usuario");
+      if (err?.errorFields) return;
+      message.error(err?.message || "No se pudo crear el usuario");
     }
   };
 
@@ -146,7 +148,8 @@ export function PeoplePage() {
       });
       setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
     } catch (err: any) {
-      if (!err?.errorFields) message.error("No se pudo actualizar el usuario");
+      if (err?.errorFields) return;
+      message.error(err?.message || "No se pudo actualizar el usuario");
     }
   };
 
@@ -155,7 +158,7 @@ export function PeoplePage() {
       await peopleService.remove(person.id);
       setItems((c) => c.filter((p) => p.id !== person.id));
       if (selectedId === person.id) setSelectedId(null);
-    } catch (err) { message.error("No se pudo eliminar el usuario"); }
+    } catch (err: any) { message.error(err?.message || "No se pudo eliminar el usuario"); }
   };
 
   const rightList = selectedPerson ? [selectedPerson, ...tableFilteredPeople.filter((p) => p.id !== selectedPerson.id)] : tableFilteredPeople;
@@ -247,6 +250,7 @@ export function PeoplePage() {
           <Form.Item label="Estado" name="estado" rules={[{ required: true }]}><Select options={statusOptions.map((s) => ({ value: s, label: s }))} /></Form.Item>
           <Form.Item label="Fuente" name="fuente"><Select options={fuenteOptions.map((f) => ({ value: f, label: f }))} /></Form.Item>
           <Form.Item label="Etiquetas" name="etiquetas"><Select mode="tags" placeholder="Escribe etiquetas" /></Form.Item>
+          <Form.Item label="Responsable" name="responsable"><Select allowClear placeholder="Asignar responsable" options={users.map((u) => ({ value: u.id, label: u.display_label || u.name }))} /></Form.Item>
           <Form.Item label="Observaciones" name="observaciones"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
         </Form>
       </Modal>

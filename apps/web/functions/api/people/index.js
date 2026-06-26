@@ -1,5 +1,5 @@
 import { json, error } from "../../_core/response.js";
-import { ensureAllSchemas, mapPersonRow, fetchRelatedData } from "../../_core/db.js";
+import { ensureAllSchemas, mapPersonRow, fetchBatchRelatedData } from "../../_core/db.js";
 import { getUserPermission } from "../../_core/permissions.js";
 
 async function checkPermission(context, action) {
@@ -47,9 +47,12 @@ export async function onRequestGet(context) {
   const query = `SELECT * FROM people WHERE deleted_at IS NULL ${statusFilter} ${roleFilter} ORDER BY created_at DESC`;
   const { results } = await db.prepare(query).all();
 
+  const personIds = results.map((r) => r.id);
+  const batchData = await fetchBatchRelatedData(db, personIds);
+
   const persons = [];
   for (const row of results) {
-    const relatedData = await fetchRelatedData(db, row.id);
+    const relatedData = batchData.get(row.id) || { citas: { proximas: [], historial: [] }, tareas: { pendientes: [], completadas: [] }, finanzas: { pagadas: [], pendientes: [], servicios: [] }, historial: [] };
     persons.push(mapPersonRow(row, relatedData));
   }
   return json(persons);

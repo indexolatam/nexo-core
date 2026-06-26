@@ -116,6 +116,7 @@ export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters
                   <p className="truncate whitespace-nowrap font-semibold text-surface-main">{highlight(person.nombre, query)}</p>
                 </Tooltip>
                 <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{person.email ?? "Sin correo"}</p>
+                {!person.responsable ? <p className="mt-0.5 text-[10px] text-[var(--status-attention)]">Sin asignar</p> : null}
               </td>
               <td className="px-4 py-4">
                 <div className="flex max-w-[220px] flex-wrap gap-1.5">
