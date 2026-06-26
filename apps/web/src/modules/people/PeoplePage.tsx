@@ -1,7 +1,7 @@
 import { FilterOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Divider, Empty, Form, Input, message, Modal, Pagination, Popover, Select, Spin } from "antd";
+import { Button, Card, Checkbox, Divider, Empty, Form, Input, message, Modal, Pagination, Popover, Select, Spin, DatePicker } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { peopleService } from "../../services";
+import { peopleService, usersService } from "../../services";
 import { usePermissions } from "../../hooks/usePermissions";
 import type { Person, PersonCondition, PersonQuickFilter, PersonStatus, PersonType, PeopleFilterState } from "../../types/adminPeople";
 import { personTypeOptions } from "../../types/adminPeople";
@@ -18,6 +18,7 @@ const quickFilterLabels: { value: PersonQuickFilter; label: string }[] = [
 
 const statusOptions: PersonStatus[] = ["Activo", "Inactivo", "Pendiente", "Archivado"];
 const conditionOptions: PersonCondition[] = ["Con citas", "Con tareas", "Con pagos pendientes"];
+const fuenteOptions = ["Manual", "Referido", "Red social", "Web", "Otro"];
 
 const defaultFilters: PeopleFilterState = { types: [], statuses: [], conditions: [] };
 const defaultTableFilters: TableFilterState = {
@@ -91,15 +92,19 @@ export function PeoplePage() {
   const [editForm] = Form.useForm();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [users, setUsers] = useState<{ id: string; name: string; display_label?: string }[]>([]);
 
   const selectedPerson = items.find((p) => p.id === selectedId) ?? null;
 
   useEffect(() => {
     if (!canRead) { setLoading(false); return; }
     let active = true;
-    peopleService.list()
-      .then((records) => { if (active) setItems(records); })
-      .catch(() => message.error("No se pudieron cargar las personas"))
+    Promise.all([
+      peopleService.list(),
+      usersService.list(),
+    ]).then(([records, userRecords]) => {
+      if (active) { setItems(records); setUsers(userRecords as { id: string; name: string; display_label?: string }[]); }
+    }).catch(() => message.error("No se pudieron cargar los datos"))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [canRead]);
@@ -143,10 +148,8 @@ export function PeoplePage() {
         nombre: values.nombre, telefono: values.telefono, email: values.email,
         tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
         ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
-        fuente: "Manual", etiquetas: [],
+        fuente: values.fuente || "Manual", etiquetas: values.etiquetas || [],
         proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
-        citas: { proximas: [], historial: [] }, tareas: { pendientes: [], completadas: [] },
-        finanzas: { pagadas: [], pendientes: [], servicios: [] }, historial: [],
       });
       setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
     } catch (err: any) {
@@ -158,7 +161,16 @@ export function PeoplePage() {
     if (!editPerson) return;
     try {
       const values = await editForm.validateFields();
-      const updated = await peopleService.update(editPerson.id, { nombre: values.nombre, telefono: values.telefono, email: values.email, tipos: values.tipos, estado: values.estado, observaciones_administrativas: values.observaciones ?? "" });
+      const updated = await peopleService.update(editPerson.id, {
+        nombre: values.nombre, telefono: values.telefono, email: values.email,
+        tipos: values.tipos, estado: values.estado,
+        observaciones_administrativas: values.observaciones ?? "",
+        fuente: values.fuente, etiquetas: values.etiquetas,
+        responsable: values.responsable,
+        ultima_interaccion: values.ultima_interaccion || new Date().toISOString().slice(0, 10),
+        proxima_actividad: values.proxima_actividad,
+        proxima_actividad_detalle: values.proxima_actividad_detalle,
+      });
       setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
     } catch (err: any) {
       if (!err?.errorFields) message.error("No se pudo actualizar la persona");
@@ -272,24 +284,32 @@ export function PeoplePage() {
       </div>
 
       <Modal title="Nueva persona" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={onCreatePerson} okText="Guardar" cancelText="Cancelar" centered destroyOnClose>
-        <Form form={form} layout="vertical" initialValues={{ estado: "Activo", tipos: ["Paciente"] }}>
+        <Form form={form} layout="vertical" initialValues={{ estado: "Activo", tipos: ["Paciente"], fuente: "Manual" }}>
           <Form.Item label="Nombre" name="nombre" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="telefono" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>
           <Form.Item label="Email" name="email" rules={[{ type: "email", message: "Email inválido" }]}><Input placeholder="correo@email.com" /></Form.Item>
           <Form.Item label="Tipos" name="tipos" rules={[{ required: true, message: "Selecciona al menos un tipo" }]}><Select mode="multiple" options={personTypeOptions.map((t) => ({ value: t, label: t }))} placeholder="Selecciona tipos" /></Form.Item>
           <Form.Item label="Estado" name="estado" rules={[{ required: true }]}><Select options={statusOptions.map((s) => ({ value: s, label: s }))} /></Form.Item>
+          <Form.Item label="Fuente" name="fuente"><Select options={fuenteOptions.map((f) => ({ value: f, label: f }))} /></Form.Item>
+          <Form.Item label="Etiquetas" name="etiquetas"><Select mode="tags" placeholder="Escribe etiquetas" /></Form.Item>
           <Form.Item label="Observaciones" name="observaciones"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
         </Form>
       </Modal>
 
       <Modal title="Editar persona" open={editOpen} onCancel={() => { setEditOpen(false); setEditPerson(null); editForm.resetFields(); }} onOk={onUpdatePerson} okText="Guardar cambios" cancelText="Cancelar" centered destroyOnClose
-        afterOpenChange={(open) => { if (open && editPerson) editForm.setFieldsValue({ nombre: editPerson.nombre, telefono: editPerson.telefono, email: editPerson.email, tipos: editPerson.tipos, estado: editPerson.estado, observaciones: editPerson.observaciones_administrativas }); }}>
-        <Form form={editForm} layout="vertical" initialValues={{ estado: "Activo", tipos: ["Paciente"] }}>
+        afterOpenChange={(open) => { if (open && editPerson) editForm.setFieldsValue({ nombre: editPerson.nombre, telefono: editPerson.telefono, email: editPerson.email, tipos: editPerson.tipos, estado: editPerson.estado, observaciones: editPerson.observaciones_administrativas, fuente: editPerson.fuente, etiquetas: editPerson.etiquetas, responsable: editPerson.responsable, ultima_interaccion: editPerson.ultima_interaccion, proxima_actividad: editPerson.proxima_actividad, proxima_actividad_detalle: editPerson.proxima_actividad_detalle }); }}>
+        <Form form={editForm} layout="vertical" initialValues={{ estado: "Activo", tipos: ["Paciente"], fuente: "Manual" }}>
           <Form.Item label="Nombre" name="nombre" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="telefono" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>
           <Form.Item label="Email" name="email" rules={[{ type: "email", message: "Email inválido" }]}><Input placeholder="correo@email.com" /></Form.Item>
           <Form.Item label="Tipos" name="tipos" rules={[{ required: true, message: "Selecciona al menos un tipo" }]}><Select mode="multiple" options={personTypeOptions.map((t) => ({ value: t, label: t }))} placeholder="Selecciona tipos" /></Form.Item>
           <Form.Item label="Estado" name="estado" rules={[{ required: true }]}><Select options={statusOptions.map((s) => ({ value: s, label: s }))} /></Form.Item>
+          <Form.Item label="Fuente" name="fuente"><Select options={fuenteOptions.map((f) => ({ value: f, label: f }))} /></Form.Item>
+          <Form.Item label="Etiquetas" name="etiquetas"><Select mode="tags" placeholder="Escribe etiquetas" /></Form.Item>
+          <Form.Item label="Responsable" name="responsable"><Select allowClear placeholder="Asignar responsable" options={users.map((u) => ({ value: u.id, label: u.display_label || u.name }))} /></Form.Item>
+          <Form.Item label="Última interacción" name="ultima_interaccion"><DatePicker className="w-full" format="YYYY-MM-DD" /></Form.Item>
+          <Form.Item label="Próxima actividad" name="proxima_actividad"><Input placeholder="Título de la actividad" /></Form.Item>
+          <Form.Item label="Detalle de actividad" name="proxima_actividad_detalle"><Input placeholder="Descripción" /></Form.Item>
           <Form.Item label="Observaciones" name="observaciones"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
         </Form>
       </Modal>

@@ -11,6 +11,7 @@ export interface CreatePersonInput {
   ultima_interaccion: string;
   observaciones_administrativas?: string;
   fuente?: string;
+  responsable?: string;
   etiquetas?: string[];
   proxima_actividad?: string;
   proxima_actividad_detalle?: string;
