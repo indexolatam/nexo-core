@@ -26,13 +26,27 @@ Estado de bugs, mejoras pendientes y backlog del módulo Personas.
 | 16 | `highlight` duplicado en PeopleTable y PersonCard | 2 archivos | CORREGIDO — centralizado en `utils/formatting.tsx` |
 | 17 | Servicio usa `Record<string, unknown>` sin tipos de entrada | `peopleService.ts:7-8` | CORREGIDO — usa `CreatePersonInput`/`UpdatePersonInput` |
 | 18 | Backend: espacios dobles en nombre producen partes vacías | `index.js:45` | CORREGIDO — `split(/\s+/).filter(Boolean)` |
+| 19 | PATCH crashea con null si la persona no existe | `[id].js:58-59` | CORREGIDO — check existencia + 404 |
+| 20 | DELETE devuelve 200 aunque la persona no exista | `[id].js:63-70` | CORREGIDO — check existencia + 404 |
+| 21 | Middleware de auth no se ejecutaba (archivos huérfanos en _middleware/) | `functions/_middleware.js` | CORREGIDO — creado `_middleware.js` que encadena los 3 middlewares |
+| 22 | Token expirado causa loop de errores sin forma de recuperarse | `apiClient.ts:29-33` | CORREGIDO — 401 auto-logout + redirect a /login |
+| 23 | Login loop: middleware aplicaba auth al propio endpoint de login | `requireAuth.js` | CORREGIDO — skip para `/api/auth/login` y `/api/health` |
+| 24 | Schema desincronizado entre `client.sql` y `ensureAllSchemas` | `db/client.sql` | CORREGIDO — agregados `deleted_at`, `tipos`, `etiquetas`, `observaciones_administrativas` |
+| 25 | Seed de `module_permissions` fallaba por `db.batch` con statement mutado | `db.js:131-132` | CORREGIDO — loop individual con `.bind().run()` |
+| 26 | PATCH pierde nombre_2/apellido_2 en nombres de 4+ palabras | `[id].js:37-39` | CORREGIDO — parseName() extrae las 4 partes |
+| 27 | PATCH no puede actualizar assigned_user_id (responsable) | `[id].js:41-49` | CORREGIDO — UPDATE incluye `assigned_user_id` |
+| 28 | Create form no permite elegir fuente ni etiquetas | `PeoplePage.tsx:274-282` | CORREGIDO — agrega campos `fuente` y `etiquetas` |
+| 29 | Edit form no permite editar fuente, etiquetas, responsable, últ. interacción, próxima actividad | `PeoplePage.tsx:285-298` | CORREGIDO — agrega todos los campos faltantes |
 
 ### 1.2 Bugs Pendientes
 
 | # | Bug | Prioridad | Archivo | Notas |
 |---|-----|-----------|---------|-------|
-| P3 | Crear persona no asigna responsable por defecto | Media | `PeoplePage.tsx:147-153` | El POST envía `body.responsable \|\| null` a `assigned_user_id`. El modal crear no tiene campo de responsable. Opcional: agregar selector o asignar "Sin asignar" por defecto. |
+| P3 | Crear persona no asigna responsable por defecto | Media | `PeoplePage.tsx:147-153` | El modal crear no tiene campo de responsable. Opcional: agregar selector o asignar "Sin asignar" por defecto. |
 | P4 | Sin indicador visual de persona sin responsable en tabla | Baja | `PeopleTable.tsx` | No hay forma de ver rápidamente qué personas no tienen responsable asignado. |
+| P5 | `requireAuth.js` no incluye `/api/settings/palette`, `/api/services`, `/api/blog` como rutas públicas | Alta | `requireAuth.js` | El landing page y blog público no cargan colores ni servicios. Agregar `publicReadPaths` para estos endpoints. |
+| P6 | N+1 query: `fetchRelatedData` ejecuta 3 queries por persona en listado | Media | `api/people/index.js:25-30` | Para 100 personas = 301 queries. Mejorar con batch o joins. |
+| P7 | Error `err?.errorFields` silencia mensajes reales de la API | Baja | `PeoplePage.tsx:153,165` | El catch muestra "No se pudo crear/actualizar" en vez del mensaje de error real de la API. |
 
 ## 2. Backlog de Mejoras
 
@@ -40,8 +54,7 @@ Estado de bugs, mejoras pendientes y backlog del módulo Personas.
 
 | # | Mejora | Descripción | Archivos |
 |---|--------|-------------|----------|
-| D1 | Actualizar people.md | Documentación desactualizada vs código actual | `docs/modules/people.md` |
-| D2 | Actualizar general.md | Agregar `utils/formatting.tsx` y otros cambios | `docs/general.md` |
+| D2 | Actualizar general.md | Agregar `utils/formatting.tsx`, sección de middleware, permisos actualizados | `docs/general.md` |
 
 ### 2.2 Prioridad Media
 
@@ -50,7 +63,9 @@ Estado de bugs, mejoras pendientes y backlog del módulo Personas.
 | U1 | Exportación CSV/Excel | Botón para exportar el listado filtrado de personas | `PeoplePage.tsx`, nuevo componente |
 | U2 | Operaciones batch | Selección múltiple para editar/eliminar en lote | `PeopleTable.tsx`, `PeoplePage.tsx` |
 | U3 | Undo para eliminaciones | Deshacer eliminación (soft delete con ventana de 30s) | `PeoplePage.tsx` |
-| U4 | Guardar preset de filtros | Guardar combinaciones de filtros frecuentes (ej: "Pacientes activos con tareas") | `PeoplePage.tsx` |
+| U4 | Guardar preset de filtros | Guardar combinaciones de filtros frecuentes | `PeoplePage.tsx` |
+| U5 | Agregar binding DB_AUDIT al dev.ps1 | Auditoría rota en desarrollo local | `scripts/dev.ps1:84` |
+| U6 | Unificar seeds de usuarios | `client.sql` usa IDs `'root'`, `'admin'` vs `ensureAllSchemas` usa `'usr-root'`, `'usr-admin'` con hashes distintos | `db.js:145`, `client.sql:259` |
 
 ### 2.3 Prioridad Baja
 
@@ -125,7 +140,7 @@ apps/web/functions/api/people/
 ### Última revisión
 
 - **Fecha**: 2026-06-26
-- **Bugs corregidos**: 17/18 (89%)
-- **Bugs pendientes**: 2
+- **Bugs corregidos**: 29 (incluye mejoras de auditoría completa)
+- **Bugs pendientes**: 5 (1 alta, 2 media, 2 baja)
 - **Mejoras pendientes**: 11
 - **Ideas backlog**: 10
