@@ -43,24 +43,24 @@ function useDebouncedValue<T>(value: T, delay = 200) {
   return debounced;
 }
 
-function matchesText(person: User, search: string) {
+function matchesText(user: User, search: string) {
   if (!search.trim()) return true;
   const q = search.trim().toLowerCase();
-  return [person.user_name, person.user_phone, person.user_email ?? "", person.user_types.join(" "), person.user_tags.join(" ")].some((v) => v.toLowerCase().includes(q));
+  return [user.user_name, user.user_phone, user.user_email ?? "", user.user_types.join(" "), user.user_tags.join(" ")].some((v) => v.toLowerCase().includes(q));
 }
 
-function matchesTableFilters(person: User, filters: TableFilterState) {
+function matchesTableFilters(user: User, filters: TableFilterState) {
   const q = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
   const user_phone = q(filters.user_phone);
-  const nextAppt = person.citas.proximas[0];
+  const nextAppt = user.citas.proximas[0];
   const proxActividad = q(filters.user_next_activity_text);
-  return (!user_phone || q(person.user_phone).includes(user_phone))
-    && (!filters.user_last_interaction_date || person.user_last_interaction.slice(0, 10) === filters.user_last_interaction_date)
+  return (!user_phone || q(user.user_phone).includes(user_phone))
+    && (!filters.user_last_interaction_date || user.user_last_interaction.slice(0, 10) === filters.user_last_interaction_date)
     && (!filters.user_next_activity_date || nextAppt?.date === filters.user_next_activity_date)
     && (!filters.user_next_activity_hour || nextAppt?.time === filters.user_next_activity_hour)
-    && (!proxActividad || q(person.user_next_activity).includes(proxActividad) || q(person.user_next_activity_detail).includes(proxActividad))
-    && (filters.user_types.length === 0 || filters.user_types.some((t) => person.user_types.includes(t)))
-    && (filters.user_status.length === 0 || filters.user_status.includes(person.user_status));
+    && (!proxActividad || q(user.user_next_activity).includes(proxActividad) || q(user.user_next_activity_detail).includes(proxActividad))
+    && (filters.user_types.length === 0 || filters.user_types.some((t) => user.user_types.includes(t)))
+    && (filters.user_status.length === 0 || filters.user_status.includes(user.user_status));
 }
 
 export function UsersPage() {
@@ -79,14 +79,14 @@ export function UsersPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [editPerson, setEditPerson] = useState<User | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [users, setUsers] = useState<{ id: string; name: string; display_label?: string }[]>([]);
 
-  const selectedPerson = items.find((p) => p.user_id === selectedId) ?? null;
+  const selectedUser = items.find((p) => p.user_id === selectedId) ?? null;
 
   useEffect(() => {
     if (!canRead) { setLoading(false); return; }
@@ -103,7 +103,7 @@ export function UsersPage() {
     return () => { active = false; };
   }, [canRead, statusFilter]);
 
-  const filteredPeople = useMemo(() => items.filter((p) => {
+  const filteredUsers = useMemo(() => items.filter((p) => {
     if (statusFilter === "inactivos") {
       if (p.user_status !== "Inactivo") return false;
     } else if (statusFilter === "archivados") {
@@ -118,7 +118,7 @@ export function UsersPage() {
     return true;
   }), [debouncedSearch, tipoFilter, conditionFilter, statusFilter, items]);
 
-  const tableFilteredPeople = useMemo(() => filteredPeople.filter((p) => matchesTableFilters(p, tableFilters)), [filteredPeople, tableFilters]);
+  const tableFilteredUsers = useMemo(() => filteredUsers.filter((p) => matchesTableFilters(p, tableFilters)), [filteredUsers, tableFilters]);
 
   useEffect(() => { setPage(1); }, [debouncedSearch, tipoFilter, conditionFilter, statusFilter, tableFilters]);
 
@@ -145,10 +145,10 @@ export function UsersPage() {
     activeFilterChips.push({ key: "prox", label: "Próxima actividad", onRemove: () => setTableFilters({ ...tableFilters, user_next_activity_date: "", user_next_activity_hour: "", user_next_activity_text: "" }) });
   }
 
-  const onCreatePerson = async () => {
+  const onCreateUser = async () => {
     try {
       const values = await form.validateFields();
-      const newPerson = await usuariosService.create({
+      const newUser = await usuariosService.create({
         user_name: values.user_name, user_phone: values.user_phone, user_email: values.user_email,
         user_types: values.user_types, user_status: values.user_status,
         user_created_date: new Date().toISOString().slice(0, 10),
@@ -158,18 +158,18 @@ export function UsersPage() {
         user_assigned_to: values.user_assigned_to,
         user_next_activity: "Sin actividad", user_next_activity_detail: "Pendiente de asignación",
       });
-      setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.user_id); setCreateOpen(false); form.resetFields();
+      setItems((c) => [newUser, ...c]); setSelectedId(newUser.user_id); setCreateOpen(false); form.resetFields();
     } catch (err: any) {
       if (err?.errorFields) return;
       message.error(err?.message || "No se pudo crear el usuario");
     }
   };
 
-  const onUpdatePerson = async () => {
-    if (!editPerson) return;
+  const onUpdateUser = async () => {
+    if (!editUser) return;
     try {
       const values = await editForm.validateFields();
-      const updated = await usuariosService.update(editPerson.user_id, {
+      const updated = await usuariosService.update(editUser.user_id, {
         user_name: values.user_name, user_phone: values.user_phone, user_email: values.user_email,
         user_types: values.user_types, user_status: values.user_status,
         user_admin_notes: values.user_admin_notes ?? "",
@@ -179,23 +179,23 @@ export function UsersPage() {
         user_next_activity: values.user_next_activity,
         user_next_activity_detail: values.user_next_activity_detail,
       });
-      setItems((c) => c.map((p) => (p.user_id === editPerson.user_id ? updated : p))); setSelectedId(updated.user_id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
+      setItems((c) => c.map((p) => (p.user_id === editUser.user_id ? updated : p))); setSelectedId(updated.user_id); setEditOpen(false); setEditUser(null); editForm.resetFields();
     } catch (err: any) {
       if (err?.errorFields) return;
       message.error(err?.message || "No se pudo actualizar el usuario");
     }
   };
 
-  const handleDeletePerson = async (person: User) => {
+  const handleDeleteUser = async (user: User) => {
     try {
-      await usuariosService.remove(person.user_id);
-      setItems((c) => c.filter((p) => p.user_id !== person.user_id));
-      if (selectedId === person.user_id) setSelectedId(null);
+      await usuariosService.remove(user.user_id);
+      setItems((c) => c.filter((p) => p.user_id !== user.user_id));
+      if (selectedId === user.user_id) setSelectedId(null);
     } catch (err: any) { message.error(err?.message || "No se pudo eliminar el usuario"); }
   };
 
-  const rightList = selectedPerson ? [selectedPerson, ...tableFilteredPeople.filter((p) => p.user_id !== selectedPerson.user_id)] : tableFilteredPeople;
-  const paginatedPeople = tableFilteredPeople.slice((page - 1) * pageSize, page * pageSize);
+  const rightList = selectedUser ? [selectedUser, ...tableFilteredUsers.filter((p) => p.user_id !== selectedUser.user_id)] : tableFilteredUsers;
+  const paginatedUsers = tableFilteredUsers.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -217,7 +217,7 @@ export function UsersPage() {
       <Card className="rounded-3xl border-[var(--border)] bg-[var(--surface-strong)] shadow-sm">
         <div className="flex items-center gap-3">
           <Input value={search} onChange={(e) => setSearch(e.target.value)} allowClear prefix={<SearchOutlined className="text-surface-muted" />} placeholder="Buscar nombre, email, teléfono..." className="rounded-button flex-1 sm:max-w-md" />
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--status-correct)]/40 bg-[var(--status-correct)]/15 text-xs font-black text-[var(--status-correct)]">{tableFilteredPeople.length}</div>
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--status-correct)]/40 bg-[var(--status-correct)]/15 text-xs font-black text-[var(--status-correct)]">{tableFilteredUsers.length}</div>
           <Button type="primary" icon={<PlusOutlined />} className="rounded-button shrink-0" disabled={!canCreate} onClick={() => setCreateOpen(true)}>Nuevo</Button>
         </div>
 
@@ -248,7 +248,7 @@ export function UsersPage() {
 
         {hasActiveFilters && activeFilterChips.length > 0 && (
           <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2">
-            <span className="text-xs text-surface-muted">{activeFilterChips.length} filtro{activeFilterChips.length > 1 ? "s" : ""} · {tableFilteredPeople.length} resultado{tableFilteredPeople.length !== 1 ? "s" : ""}</span>
+            <span className="text-xs text-surface-muted">{activeFilterChips.length} filtro{activeFilterChips.length > 1 ? "s" : ""} · {tableFilteredUsers.length} resultado{tableFilteredUsers.length !== 1 ? "s" : ""}</span>
             {activeFilterChips.map((chip) => (
               <span key={chip.key} className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)]/30 px-2 py-0.5 text-xs text-[var(--accent-deep)]">
                 {chip.label}
@@ -260,9 +260,9 @@ export function UsersPage() {
       </Card>
 
       <div>
-      {selectedPerson ? (
+      {selectedUser ? (
         <div className="grid items-stretch gap-6 transition-[height] duration-200 ease-in-out xl:h-[720px] xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)]">
-          <div><UserDetail person={selectedPerson} onBack={() => setSelectedId(null)} onEdit={canEdit ? (p) => { setEditPerson(p); setEditOpen(true); } : undefined} onDelete={canEdit ? handleDeletePerson : undefined} /></div>
+          <div><UserDetail user={selectedUser} onBack={() => setSelectedId(null)} onEdit={canEdit ? (u) => { setEditUser(u); setEditOpen(true); } : undefined} onDelete={canEdit ? handleDeleteUser : undefined} /></div>
           <div className="min-h-0 xl:h-full">
             <Card className="flex h-full flex-col rounded-3xl border-[var(--border)] [&_.ant-card-body]:flex [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-1 [&_.ant-card-body]:flex-col">
               <div className="flex shrink-0 items-start justify-between gap-3">
@@ -271,7 +271,7 @@ export function UsersPage() {
               </div>
               <Divider className="shrink-0" />
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 thin-task-scrollbar">
-                {rightList.map((p) => <UserCard key={p.user_id} person={p} compact selected={p.user_id === selectedPerson.user_id} onClick={(person) => setSelectedId(person.user_id)} query={search} />)}
+                {rightList.map((p) => <UserCard key={p.user_id} user={p} compact selected={p.user_id === selectedUser.user_id} onClick={(user) => setSelectedId(user.user_id)} query={search} />)}
                 {rightList.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No se encontraron usuarios" /> : null}
               </div>
             </Card>
@@ -283,17 +283,17 @@ export function UsersPage() {
             <div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">Listado</p><h2 className="mt-2 text-xl font-bold text-surface-main">Usuarios registrados</h2></div>
           </div>
           <Divider />
-          <UsersTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.user_id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
-          {tableFilteredPeople.length > pageSize && (
+          <UsersTable items={paginatedUsers} allFilteredUsers={tableFilteredUsers} onSelect={(u) => setSelectedId(u.user_id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
+          {tableFilteredUsers.length > pageSize && (
             <div className="flex justify-end px-4 py-3">
-              <Pagination current={page} pageSize={pageSize} total={tableFilteredPeople.length} onChange={(p, ps) => { setPage(p); setPageSize(ps); }} pageSizeOptions={[10, 20, 50, 100]} showSizeChanger showTotal={(total, range) => `${range[0]}-${range[1]} de ${total}`} />
+              <Pagination current={page} pageSize={pageSize} total={tableFilteredUsers.length} onChange={(p, ps) => { setPage(p); setPageSize(ps); }} pageSizeOptions={[10, 20, 50, 100]} showSizeChanger showTotal={(total, range) => `${range[0]}-${range[1]} de ${total}`} />
             </div>
           )}
         </Card>
       )}
       </div>
 
-      <Modal title="Nuevo usuario" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={onCreatePerson} okText="Guardar" cancelText="Cancelar" centered destroyOnClose>
+      <Modal title="Nuevo usuario" open={createOpen} onCancel={() => setCreateOpen(false)} onOk={onCreateUser} okText="Guardar" cancelText="Cancelar" centered destroyOnClose>
         <Form form={form} layout="vertical" initialValues={{ user_status: "Activo", user_types: ["Cliente"], user_source: "Manual" }}>
           <Form.Item label="Nombre" name="user_name" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="user_phone" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>
@@ -307,8 +307,8 @@ export function UsersPage() {
         </Form>
       </Modal>
 
-      <Modal title="Editar usuario" open={editOpen} onCancel={() => { setEditOpen(false); setEditPerson(null); editForm.resetFields(); }} onOk={onUpdatePerson} okText="Guardar cambios" cancelText="Cancelar" centered destroyOnClose
-        afterOpenChange={(open) => { if (open && editPerson) editForm.setFieldsValue({ user_name: editPerson.user_name, user_phone: editPerson.user_phone, user_email: editPerson.user_email, user_types: editPerson.user_types, user_status: editPerson.user_status, user_admin_notes: editPerson.user_admin_notes, user_source: editPerson.user_source, user_tags: editPerson.user_tags, user_assigned_to: editPerson.user_assigned_to, user_last_interaction: editPerson.user_last_interaction ? dayjs(editPerson.user_last_interaction) : null, user_next_activity: editPerson.user_next_activity, user_next_activity_detail: editPerson.user_next_activity_detail }); }}>
+      <Modal title="Editar usuario" open={editOpen} onCancel={() => { setEditOpen(false); setEditUser(null); editForm.resetFields(); }} onOk={onUpdateUser} okText="Guardar cambios" cancelText="Cancelar" centered destroyOnClose
+        afterOpenChange={(open) => { if (open && editUser) editForm.setFieldsValue({ user_name: editUser.user_name, user_phone: editUser.user_phone, user_email: editUser.user_email, user_types: editUser.user_types, user_status: editUser.user_status, user_admin_notes: editUser.user_admin_notes, user_source: editUser.user_source, user_tags: editUser.user_tags, user_assigned_to: editUser.user_assigned_to, user_last_interaction: editUser.user_last_interaction ? dayjs(editUser.user_last_interaction) : null, user_next_activity: editUser.user_next_activity, user_next_activity_detail: editUser.user_next_activity_detail }); }}>
         <Form form={editForm} layout="vertical" initialValues={{ user_status: "Activo", user_types: ["Cliente"], user_source: "Manual" }}>
           <Form.Item label="Nombre" name="user_name" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="user_phone" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>

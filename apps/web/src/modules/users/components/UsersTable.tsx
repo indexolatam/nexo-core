@@ -26,10 +26,10 @@ function HeaderFilterButton({ active, children }: { active: boolean; children: R
   );
 }
 
-export function UsersTable({ items, allFilteredPeople, onSelect, query, filters, onChangeFilters, onClearFilters }: {
+export function UsersTable({ items, allFilteredUsers, onSelect, query, filters, onChangeFilters, onClearFilters }: {
   items: User[];
-  allFilteredPeople: User[];
-  onSelect: (person: User) => void;
+  allFilteredUsers: User[];
+  onSelect: (user: User) => void;
   query: string;
   filters: TableFilterState;
   onChangeFilters: (next: TableFilterState) => void;
@@ -38,7 +38,7 @@ export function UsersTable({ items, allFilteredPeople, onSelect, query, filters,
   const setFilter = <K extends keyof TableFilterState>(key: K, value: TableFilterState[K]) => onChangeFilters({ ...filters, [key]: value });
 
   const upcomingHourOptions = useMemo(() =>
-    Array.from(new Set(allFilteredPeople.flatMap((p) => p.citas.proximas.map((e) => e.time)))).sort().map((t) => ({ value: t, label: t })), [allFilteredPeople]);
+    Array.from(new Set(allFilteredUsers.flatMap((p) => p.citas.proximas.map((e) => e.time)))).sort().map((t) => ({ value: t, label: t })), [allFilteredUsers]);
 
   const columnHeader = (label: string, active: boolean, content: ReactNode) => (
     <div className="flex items-center justify-between gap-2">
@@ -107,27 +107,27 @@ export function UsersTable({ items, allFilteredPeople, onSelect, query, filters,
           </tr>
         </thead>
         <tbody>
-          {items.length > 0 ? items.map((person) => (
-            <tr key={person.user_id} onClick={() => onSelect(person)}
+          {items.length > 0 ? items.map((user) => (
+            <tr key={user.user_id} onClick={() => onSelect(user)}
               className="group cursor-pointer border-b border-[var(--border-subtle)] transition-colors duration-150 hover:bg-[var(--accent-soft)]/30">
               <td className="sticky left-0 z-10 max-w-[240px] min-w-[240px] bg-[var(--surface-strong)] px-4 py-4 shadow-[8px_0_12px_-12px_var(--table-sticky-shadow)] group-hover:bg-[var(--accent-soft)]/30">
-                <Tooltip title={person.user_name} placement="topLeft">
-                  <p className="truncate whitespace-nowrap font-semibold text-surface-main">{highlight(person.user_name, query)}</p>
+                <Tooltip title={user.user_name} placement="topLeft">
+                  <p className="truncate whitespace-nowrap font-semibold text-surface-main">{highlight(user.user_name, query)}</p>
                 </Tooltip>
-                <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{person.user_email ?? "Sin correo"}</p>
-                {!person.user_assigned_to ? <p className="mt-0.5 text-[10px] text-[var(--status-attention)]">Sin asignar</p> : null}
+                <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{user.user_email ?? "Sin correo"}</p>
+                {!user.user_assigned_to ? <p className="mt-0.5 text-[10px] text-[var(--status-attention)]">Sin asignar</p> : null}
               </td>
               <td className="px-4 py-4">
                 <div className="flex max-w-[220px] flex-wrap gap-1.5">
-                  {person.user_types.map((type) => <span key={type} className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] text-surface-secondary">{formatTypeLabel(type)}</span>)}
+                  {user.user_types.map((type) => <span key={type} className="rounded-full border border-[var(--border-subtle)] px-2 py-0.5 text-[11px] text-surface-secondary">{formatTypeLabel(type)}</span>)}
                 </div>
               </td>
-              <td className="px-4 py-4"><span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{person.user_status}</span></td>
-              <td className="whitespace-nowrap px-4 py-4 text-surface-secondary">{person.user_phone}</td>
-              <td className="whitespace-nowrap px-4 py-4 text-surface-secondary">{formatDate(person.user_last_interaction)}</td>
+              <td className="px-4 py-4"><span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{user.user_status}</span></td>
+              <td className="whitespace-nowrap px-4 py-4 text-surface-secondary">{user.user_phone}</td>
+              <td className="whitespace-nowrap px-4 py-4 text-surface-secondary">{formatDate(user.user_last_interaction)}</td>
               <td className="max-w-[220px] px-4 py-4">
-                <p className="truncate whitespace-nowrap text-surface-main">{person.user_next_activity}</p>
-                <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{person.user_next_activity_detail}</p>
+                <p className="truncate whitespace-nowrap text-surface-main">{user.user_next_activity}</p>
+                <p className="mt-1 truncate whitespace-nowrap text-xs text-surface-muted">{user.user_next_activity_detail}</p>
               </td>
             </tr>
           )) : (

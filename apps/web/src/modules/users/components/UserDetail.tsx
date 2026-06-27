@@ -8,42 +8,42 @@ import { UserTasksList } from "./UserTasksList";
 import { UserFinanceList } from "./UserFinanceList";
 import { UserHistoryList } from "./UserHistoryList";
 
-export function UserDetail({ person, onBack, onEdit, onDelete }: { person: User; onBack: () => void; onEdit?: (person: User) => void; onDelete?: (person: User) => void }) {
+export function UserDetail({ user, onBack, onEdit, onDelete }: { user: User; onBack: () => void; onEdit?: (user: User) => void; onDelete?: (user: User) => void }) {
   return (
     <div className="space-y-4">
       <Card className="rounded-3xl border-[var(--border)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <Avatar size={56} className="bg-[var(--accent)] text-white">
-              {person.user_name.split(" ").slice(0, 2).map((part) => part[0]).join("")}
+              {user.user_name.split(" ").slice(0, 2).map((part) => part[0]).join("")}
             </Avatar>
             <div>
-              <h2 className="text-2xl font-bold text-surface-main">{person.user_name}</h2>
+              <h2 className="text-2xl font-bold text-surface-main">{user.user_name}</h2>
               <div className="mt-2 flex flex-wrap gap-2">
-                {person.user_types.map((type) => (
+                {user.user_types.map((type) => (
                   <span key={type} className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{formatTypeLabel(type)}</span>
                 ))}
-                <span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{person.user_status}</span>
+                <span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{user.user_status}</span>
               </div>
             </div>
           </div>
           <div className="flex gap-2">
             {onDelete ? (
-              <Popconfirm title="¿Eliminar este usuario?" description="Se marcará como eliminado pero los datos se conservan." onConfirm={() => onDelete(person)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
+              <Popconfirm title="¿Eliminar este usuario?" description="Se marcará como eliminado pero los datos se conservan." onConfirm={() => onDelete(user)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
                 <Button icon={<DeleteOutlined />} danger className="rounded-button">Eliminar</Button>
               </Popconfirm>
             ) : null}
             {onEdit ? (
-              <Button icon={<EditOutlined />} className="rounded-button" onClick={() => onEdit(person)}>Editar</Button>
+              <Button icon={<EditOutlined />} className="rounded-button" onClick={() => onEdit(user)}>Editar</Button>
             ) : null}
             <Button icon={<ArrowLeftOutlined />} className="rounded-button" onClick={onBack}>Volver</Button>
           </div>
         </div>
         <Divider className="my-5" />
         <div className="grid min-w-0 gap-3 md:grid-cols-3">
-          <UserSummaryLine label="Teléfono" value={person.user_phone} icon={<PhoneOutlined />} />
-          <UserSummaryLine label="Email" value={person.user_email ?? "Sin correo"} icon={<MailOutlined />} />
-          <UserSummaryLine label="Último contacto" value={person.user_last_interaction} icon={<CalendarOutlined />} />
+          <UserSummaryLine label="Teléfono" value={user.user_phone} icon={<PhoneOutlined />} />
+          <UserSummaryLine label="Email" value={user.user_email ?? "Sin correo"} icon={<MailOutlined />} />
+          <UserSummaryLine label="Último contacto" value={user.user_last_interaction} icon={<CalendarOutlined />} />
         </div>
       </Card>
 
@@ -56,26 +56,26 @@ export function UserDetail({ person, onBack, onEdit, onDelete }: { person: User;
                 <div className="grid gap-4 lg:grid-cols-3">
                   <Card className="rounded-2xl border-[var(--border-subtle)] bg-transparent shadow-none">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-surface-muted">Próxima cita</p>
-                    <p className="mt-2 text-sm font-semibold text-surface-main">{person.user_next_activity}</p>
-                    <p className="mt-1 text-sm text-surface-secondary">{person.user_next_activity_detail}</p>
+                    <p className="mt-2 text-sm font-semibold text-surface-main">{user.user_next_activity}</p>
+                    <p className="mt-1 text-sm text-surface-secondary">{user.user_next_activity_detail}</p>
                   </Card>
                   <Card className="rounded-2xl border-[var(--border-subtle)] bg-transparent shadow-none">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-surface-muted">Tareas pendientes</p>
-                    <p className="mt-2 text-sm font-semibold text-surface-main">{person.tareas.pendientes.length}</p>
+                    <p className="mt-2 text-sm font-semibold text-surface-main">{user.tareas.pendientes.length}</p>
                     <p className="mt-1 text-sm text-surface-secondary">Operativas y administrativas</p>
                   </Card>
                   <Card className="rounded-2xl border-[var(--border-subtle)] bg-transparent shadow-none">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-surface-muted">Pagos pendientes</p>
-                    <p className="mt-2 text-sm font-semibold text-surface-main">{person.finanzas.pendientes.length}</p>
+                    <p className="mt-2 text-sm font-semibold text-surface-main">{user.finanzas.pendientes.length}</p>
                     <p className="mt-1 text-sm text-surface-secondary">Pendientes de atención</p>
                   </Card>
                 </div>
               ),
             },
-            { key: "Agenda", label: "Agenda", children: <UserAgendaList entries={person.citas.proximas.concat(person.citas.historial)} /> },
-            { key: "Tareas", label: "Tareas", children: <UserTasksList entries={person.tareas.pendientes.concat(person.tareas.completadas)} /> },
-            { key: "Finanzas", label: "Finanzas", children: <UserFinanceList payments={person.finanzas.pendientes} services={person.finanzas.servicios} /> },
-            { key: "Historial", label: "Historial", children: <UserHistoryList entries={person.historial} /> },
+            { key: "Agenda", label: "Agenda", children: <UserAgendaList entries={user.citas.proximas.concat(user.citas.historial)} /> },
+            { key: "Tareas", label: "Tareas", children: <UserTasksList entries={user.tareas.pendientes.concat(user.tareas.completadas)} /> },
+            { key: "Finanzas", label: "Finanzas", children: <UserFinanceList payments={user.finanzas.pendientes} services={user.finanzas.servicios} /> },
+            { key: "Historial", label: "Historial", children: <UserHistoryList entries={user.historial} /> },
           ]}
         />
       </Card>
@@ -90,18 +90,18 @@ export function UserDetail({ person, onBack, onEdit, onDelete }: { person: User;
         <Divider />
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="space-y-3 text-sm text-surface-secondary">
-            <p><span className="font-semibold text-surface-main">ID:</span> {person.user_id}</p>
-            <p><span className="font-semibold text-surface-main">Creado:</span> {person.user_created_date}</p>
-            <p><span className="font-semibold text-surface-main">Última interacción:</span> {person.user_last_interaction}</p>
-            <p><span className="font-semibold text-surface-main">Estado:</span> {person.user_status}</p>
+            <p><span className="font-semibold text-surface-main">ID:</span> {user.user_id}</p>
+            <p><span className="font-semibold text-surface-main">Creado:</span> {user.user_created_date}</p>
+            <p><span className="font-semibold text-surface-main">Última interacción:</span> {user.user_last_interaction}</p>
+            <p><span className="font-semibold text-surface-main">Estado:</span> {user.user_status}</p>
           </div>
           <div className="space-y-3 text-sm text-surface-secondary">
-            <p><span className="font-semibold text-surface-main">Fuente:</span> {person.user_source}</p>
-            <p><span className="font-semibold text-surface-main">Responsable:</span> {person.user_assigned_to}</p>
+            <p><span className="font-semibold text-surface-main">Fuente:</span> {user.user_source}</p>
+            <p><span className="font-semibold text-surface-main">Responsable:</span> {user.user_assigned_to}</p>
             <div>
               <p className="font-semibold text-surface-main">Etiquetas:</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {person.user_tags.map((tag) => (
+                {user.user_tags.map((tag) => (
                   <span key={tag} className="rounded-full border border-[var(--border-subtle)] px-3 py-1 text-xs text-surface-secondary">{tag}</span>
                 ))}
               </div>

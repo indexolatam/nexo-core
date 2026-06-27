@@ -10,9 +10,6 @@ export type UserTypeFilter = "Todos" | UserType;
 
 export const userTypeOptions: UserType[] = ["Cliente", "Empresa", "Freelancer", "Proveedor"];
 
-// Backward-compatible alias
-export const personTypeOptions = userTypeOptions;
-
 export type UserAgendaEntry = {
   id: string; date: string; time: string; title: string;
   status: "Confirmada" | "Pendiente" | "Atendida" | "Cancelada";
@@ -113,15 +110,3 @@ export type CreateUserInput = {
 };
 
 export type UpdateUserInput = Partial<CreateUserInput>;
-
-// Backward-compatible aliases (remove when migration is complete)
-export type Person = User;
-export type PersonType = UserType;
-export type PersonStatus = UserStatus;
-export type PersonTipoFilter = UserTypeFilter;
-export type PersonConditionFilter = UserConditionFilter;
-export type PersonStatusFilter = UserStatusFilter;
-export type PersonAgendaEntry = UserAgendaEntry;
-export type PersonTaskEntry = UserTaskEntry;
-export type PersonPaymentEntry = UserPaymentEntry;
-export type PersonHistoryEntry = UserHistoryEntry;
