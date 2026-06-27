@@ -98,6 +98,13 @@ export function UserDetail({ user, onBack, onEdit, onDelete }: { user: User; onB
           <div className="space-y-3 text-sm text-surface-secondary">
             <p><span className="font-semibold text-surface-main">Fuente:</span> {user.user_source}</p>
             <p><span className="font-semibold text-surface-main">Responsable:</span> {user.user_assigned_to}</p>
+            <p><span className="font-semibold text-surface-main">Dirección:</span> {user.user_address || "—"}</p>
+            <p><span className="font-semibold text-surface-main">Nacimiento:</span> {user.user_birth_date || "—"}</p>
+            <p><span className="font-semibold text-surface-main">Género:</span> {user.user_gender || "—"}</p>
+            <p><span className="font-semibold text-surface-main">Documento:</span> {user.user_doc_id || "—"}</p>
+            <p><span className="font-semibold text-surface-main">Foto:</span> {user.user_photo_url ? <a href={user.user_photo_url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">Ver foto</a> : "—"}</p>
+            <p><span className="font-semibold text-surface-main">Notas internas:</span> {user.user_notes || "—"}</p>
+            <p><span className="font-semibold text-surface-main">Contacto pref.:</span> {user.user_contact_pref || "—"}</p>
             <div>
               <p className="font-semibold text-surface-main">Etiquetas:</p>
               <div className="mt-2 flex flex-wrap gap-2">

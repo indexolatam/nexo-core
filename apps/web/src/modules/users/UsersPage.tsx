@@ -304,11 +304,18 @@ export function UsersPage() {
           <Form.Item label="Etiquetas" name="user_tags"><Select mode="tags" placeholder="Escribe etiquetas" /></Form.Item>
           <Form.Item label="Responsable" name="user_assigned_to"><Select allowClear placeholder="Asignar responsable" options={users.map((u) => ({ value: u.id, label: u.display_label || u.name }))} /></Form.Item>
           <Form.Item label="Observaciones" name="user_admin_notes"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
+          <Form.Item label="Dirección" name="user_address"><Input placeholder="Dirección completa" /></Form.Item>
+          <Form.Item label="Fecha de nacimiento" name="user_birth_date"><DatePicker className="w-full" format="YYYY-MM-DD" /></Form.Item>
+          <Form.Item label="Género" name="user_gender"><Select options={["Masculino", "Femenino", "Otro"].map((g) => ({ value: g, label: g }))} /></Form.Item>
+          <Form.Item label="Documento de identidad" name="user_doc_id"><Input placeholder="Cédula o pasaporte" /></Form.Item>
+          <Form.Item label="Foto URL" name="user_photo_url"><Input placeholder="URL de foto de perfil" /></Form.Item>
+          <Form.Item label="Notas internas" name="user_notes"><Input.TextArea rows={2} placeholder="Notas (no visibles para el cliente)" /></Form.Item>
+          <Form.Item label="Contacto preferido" name="user_contact_pref"><Select allowClear placeholder="Automático según disponibilidad" options={[{ value: "teléfono", label: "Teléfono" }, { value: "email", label: "Email" }]} /></Form.Item>
         </Form>
       </Modal>
 
       <Modal title="Editar usuario" open={editOpen} onCancel={() => { setEditOpen(false); setEditUser(null); editForm.resetFields(); }} onOk={onUpdateUser} okText="Guardar cambios" cancelText="Cancelar" centered destroyOnClose
-        afterOpenChange={(open) => { if (open && editUser) editForm.setFieldsValue({ user_name: editUser.user_name, user_phone: editUser.user_phone, user_email: editUser.user_email, user_types: editUser.user_types, user_status: editUser.user_status, user_admin_notes: editUser.user_admin_notes, user_source: editUser.user_source, user_tags: editUser.user_tags, user_assigned_to: editUser.user_assigned_to, user_last_interaction: editUser.user_last_interaction ? dayjs(editUser.user_last_interaction) : null, user_next_activity: editUser.user_next_activity, user_next_activity_detail: editUser.user_next_activity_detail }); }}>
+        afterOpenChange={(open) => { if (open && editUser) editForm.setFieldsValue({ user_name: editUser.user_name, user_phone: editUser.user_phone, user_email: editUser.user_email, user_types: editUser.user_types, user_status: editUser.user_status, user_admin_notes: editUser.user_admin_notes, user_source: editUser.user_source, user_tags: editUser.user_tags, user_assigned_to: editUser.user_assigned_to, user_last_interaction: editUser.user_last_interaction ? dayjs(editUser.user_last_interaction) : null, user_next_activity: editUser.user_next_activity, user_next_activity_detail: editUser.user_next_activity_detail, user_address: editUser.user_address || "", user_birth_date: editUser.user_birth_date ? dayjs(editUser.user_birth_date) : null, user_gender: editUser.user_gender || "", user_doc_id: editUser.user_doc_id || "", user_photo_url: editUser.user_photo_url || "", user_notes: editUser.user_notes || "", user_contact_pref: editUser.user_contact_pref || "" }); }}>
         <Form form={editForm} layout="vertical" initialValues={{ user_status: "Activo", user_types: ["Cliente"], user_source: "Manual" }}>
           <Form.Item label="Nombre" name="user_name" rules={[{ required: true, message: "Ingresa el nombre" }]}><Input placeholder="Nombre completo" /></Form.Item>
           <Form.Item label="Teléfono" name="user_phone" rules={[{ required: true, message: "Ingresa el teléfono" }]}><Input placeholder="+505 ..." /></Form.Item>
@@ -322,6 +329,13 @@ export function UsersPage() {
           <Form.Item label="Próxima actividad" name="user_next_activity"><Input placeholder="Título de la actividad" /></Form.Item>
           <Form.Item label="Detalle de actividad" name="user_next_activity_detail"><Input placeholder="Descripción" /></Form.Item>
           <Form.Item label="Observaciones" name="user_admin_notes"><Input.TextArea rows={4} placeholder="Notas administrativas" /></Form.Item>
+          <Form.Item label="Dirección" name="user_address"><Input placeholder="Dirección completa" /></Form.Item>
+          <Form.Item label="Fecha de nacimiento" name="user_birth_date"><DatePicker className="w-full" format="YYYY-MM-DD" /></Form.Item>
+          <Form.Item label="Género" name="user_gender"><Select options={["Masculino", "Femenino", "Otro"].map((g) => ({ value: g, label: g }))} /></Form.Item>
+          <Form.Item label="Documento de identidad" name="user_doc_id"><Input placeholder="Cédula o pasaporte" /></Form.Item>
+          <Form.Item label="Foto URL" name="user_photo_url"><Input placeholder="URL de foto de perfil" /></Form.Item>
+          <Form.Item label="Notas internas" name="user_notes"><Input.TextArea rows={2} placeholder="Notas (no visibles para el cliente)" /></Form.Item>
+          <Form.Item label="Contacto preferido" name="user_contact_pref"><Select allowClear placeholder="Automático según disponibilidad" options={[{ value: "teléfono", label: "Teléfono" }, { value: "email", label: "Email" }]} /></Form.Item>
         </Form>
       </Modal>
       </>

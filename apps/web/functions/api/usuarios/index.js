@@ -76,14 +76,20 @@ export async function onRequestPost(context) {
   const user_tags = body.user_tags ? JSON.stringify(body.user_tags) : '[]';
 
   await db.prepare(
-    `INSERT INTO usuarios (user_id, user_name_1, user_name_2, user_lastname_1, user_lastname_2, user_phone, user_email, user_status, user_source, user_created_date, user_last_interaction, user_next_activity, user_next_activity_detail, user_assigned_to, user_created_at, user_updated_at, user_types, user_tags, user_admin_notes)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO usuarios (user_id, user_name_1, user_name_2, user_lastname_1, user_lastname_2, user_phone, user_email, user_status, user_source, user_created_date, user_last_interaction, user_next_activity, user_next_activity_detail, user_assigned_to, user_created_at, user_updated_at, user_types, user_tags, user_admin_notes,
+     user_address, user_birth_date, user_gender, user_doc_id, user_photo_url, user_notes, user_contact_pref)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+     ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     id, user_name_1 || body.user_name || "Sin nombre", user_name_2 || null,
     user_lastname_1 || "", user_lastname_2 || null, body.user_phone || "", body.user_email || null,
     body.user_status || "Pendiente", body.user_source || null, body.user_created_date || now.slice(0, 10),
     body.user_last_interaction || null, body.user_next_activity || null, body.user_next_activity_detail || null,
-    body.user_assigned_to || null, now, now, user_types, user_tags, body.user_admin_notes || null
+    body.user_assigned_to || null, now, now, user_types, user_tags, body.user_admin_notes || null,
+    body.user_address || null, body.user_birth_date || null,
+    body.user_gender || null, body.user_doc_id || null,
+    body.user_photo_url || null, body.user_notes || null,
+    body.user_contact_pref || null
   ).run();
 
   const created = await db.prepare("SELECT * FROM usuarios WHERE user_id = ?").bind(id).first();

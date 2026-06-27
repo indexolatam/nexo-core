@@ -201,6 +201,13 @@ export function mapUserRow(row, relatedData) {
     user_deleted_at: row.user_deleted_at || "",
     user_created_by: row.user_created_by || "",
     user_updated_by: row.user_updated_by || "",
+    user_address: row.user_address || "",
+    user_birth_date: row.user_birth_date || "",
+    user_gender: row.user_gender || "",
+    user_doc_id: row.user_doc_id || "",
+    user_photo_url: row.user_photo_url || "",
+    user_notes: row.user_notes || "",
+    user_contact_pref: row.user_contact_pref || "",
 
     // Backward-compatible aliases (remove when migration is complete)
     id: row.user_id,

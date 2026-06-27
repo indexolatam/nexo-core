@@ -72,7 +72,14 @@ export async function onRequestPatch(context) {
      user_next_activity_detail = COALESCE(?, user_next_activity_detail),
      user_types = COALESCE(?, user_types), user_tags = COALESCE(?, user_tags),
      user_admin_notes = COALESCE(?, user_admin_notes),
-     user_assigned_to = COALESCE(?, user_assigned_to), user_updated_at = ?
+     user_assigned_to = COALESCE(?, user_assigned_to),
+     user_address = COALESCE(?, user_address),
+     user_birth_date = COALESCE(?, user_birth_date),
+     user_gender = COALESCE(?, user_gender),
+     user_doc_id = COALESCE(?, user_doc_id),
+     user_photo_url = COALESCE(?, user_photo_url),
+     user_notes = COALESCE(?, user_notes),
+     user_contact_pref = COALESCE(?, user_contact_pref), user_updated_at = ?
      WHERE user_id = ?`
   ).bind(
     user_name_1, user_name_2, user_lastname_1, user_lastname_2,
@@ -80,7 +87,11 @@ export async function onRequestPatch(context) {
     body.user_last_interaction ?? null, body.user_next_activity ?? null, body.user_next_activity_detail ?? null,
     body.user_types ? JSON.stringify(body.user_types) : null, body.user_tags ? JSON.stringify(body.user_tags) : null,
     body.user_admin_notes ?? null,
-    body.user_assigned_to ?? null, now, context.params.id
+    body.user_assigned_to ?? null,
+    body.user_address ?? null, body.user_birth_date ?? null,
+    body.user_gender ?? null, body.user_doc_id ?? null,
+    body.user_photo_url ?? null, body.user_notes ?? null,
+    body.user_contact_pref ?? null, now, context.params.id
   ).run();
 
   const row = await db.prepare("SELECT * FROM usuarios WHERE user_id = ?").bind(context.params.id).first();

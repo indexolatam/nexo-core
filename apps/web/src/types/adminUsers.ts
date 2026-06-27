@@ -61,6 +61,13 @@ export type User = {
   user_deleted_at: string;
   user_created_by: string;
   user_updated_by: string;
+  user_address?: string;
+  user_birth_date?: string;
+  user_gender?: string;
+  user_doc_id?: string;
+  user_photo_url?: string;
+  user_notes?: string;
+  user_contact_pref?: string;
   citas: {
     proximas: UserAgendaEntry[];
     historial: UserAgendaEntry[];
@@ -107,6 +114,13 @@ export type CreateUserInput = {
   user_tags?: string[];
   user_next_activity?: string;
   user_next_activity_detail?: string;
+  user_address?: string;
+  user_birth_date?: string;
+  user_gender?: string;
+  user_doc_id?: string;
+  user_photo_url?: string;
+  user_notes?: string;
+  user_contact_pref?: string;
 };
 
 export type UpdateUserInput = Partial<CreateUserInput>;
