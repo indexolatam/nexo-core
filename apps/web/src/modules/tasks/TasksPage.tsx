@@ -59,7 +59,7 @@ export function TasksPage() {
         id: d1.id,
         title: d1.title,
         description: d1.description || "",
-        responsible: (d1.assigned_user_id === "doctora" ? "Doctora" : "Asistente") as TaskOwner,
+        responsible: (d1.assigned_user_id === "root" ? "Root" : "Usuario") as TaskOwner,
         priority: (d1.priority === "alta" || d1.priority === "Alta" ? "Alta" : d1.priority === "media" || d1.priority === "Media" ? "Media" : "Baja") as TaskPriority,
         deadline: d1.due_at ? d1.due_at.slice(5, 10) : "",
         deadlineDate: d1.due_at ? d1.due_at.slice(0, 10) : "",

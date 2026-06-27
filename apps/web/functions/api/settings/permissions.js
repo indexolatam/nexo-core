@@ -60,7 +60,7 @@ export async function onRequestPut(context) {
 
   const batch = [];
   for (const [role, modules] of Object.entries(permissions)) {
-    if (!["root", "admin", "doctor", "asistente"].includes(role)) continue;
+    if (!["root", "admin", "asistente", "colaborador"].includes(role)) continue;
     for (const [module, perms] of Object.entries(modules)) {
       if (typeof perms !== "object") continue;
 

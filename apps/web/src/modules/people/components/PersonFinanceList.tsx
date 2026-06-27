@@ -1,7 +1,7 @@
 import { Empty } from "antd";
-import type { PersonPaymentEntry } from "../../../types/adminPeople";
+import type { UserPaymentEntry } from "../../../types/adminUsers";
 
-export function PersonFinanceList({ payments, services }: { payments: PersonPaymentEntry[]; services: string[] }) {
+export function PersonFinanceList({ payments, services }: { payments: UserPaymentEntry[]; services: string[] }) {
   return (
     <div className="space-y-5">
       <section>

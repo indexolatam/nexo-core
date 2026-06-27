@@ -1,47 +1,47 @@
-import { forbidden, unauthorized } from "./errors.js";
+import { forbidden } from "./errors.js";
 import { ensureAllSchemas } from "./db.js";
 
 const ROLE_MAX_PERMISSIONS = {
   root: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1 },
-    finanzas: { can_read: 1, can_create: 1, can_edit: 1 },
-    agenda: { can_read: 1, can_create: 1, can_edit: 1 },
-    tareas: { can_read: 1, can_create: 1, can_edit: 1 },
-    configuracion: { can_read: 1, can_create: 1, can_edit: 1 },
-    auditoria: { can_read: 1, can_create: 1, can_edit: 1 },
-    blog: { can_read: 1, can_create: 1, can_edit: 1 },
+    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    configuracion: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    auditoria: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    blog: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
   },
   admin: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1 },
-    finanzas: { can_read: 1, can_create: 1, can_edit: 1 },
-    agenda: { can_read: 1, can_create: 1, can_edit: 1 },
-    tareas: { can_read: 1, can_create: 1, can_edit: 1 },
-    configuracion: { can_read: 1, can_create: 1, can_edit: 1 },
-    auditoria: { can_read: 0, can_create: 0, can_edit: 0 },
-    blog: { can_read: 0, can_create: 0, can_edit: 0 },
-  },
-  doctor: {
-    personas: { can_read: 0, can_create: 0, can_edit: 0 },
-    finanzas: { can_read: 0, can_create: 0, can_edit: 0 },
-    agenda: { can_read: 1, can_create: 1, can_edit: 1 },
-    tareas: { can_read: 1, can_create: 1, can_edit: 1 },
-    configuracion: { can_read: 0, can_create: 0, can_edit: 0 },
-    auditoria: { can_read: 0, can_create: 0, can_edit: 0 },
-    blog: { can_read: 0, can_create: 0, can_edit: 0 },
+    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    configuracion: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    auditoria: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    blog: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
   },
   asistente: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1 },
-    finanzas: { can_read: 1, can_create: 1, can_edit: 1 },
-    agenda: { can_read: 1, can_create: 1, can_edit: 1 },
-    tareas: { can_read: 1, can_create: 1, can_edit: 1 },
-    configuracion: { can_read: 1, can_create: 0, can_edit: 0 },
-    auditoria: { can_read: 0, can_create: 0, can_edit: 0 },
-    blog: { can_read: 0, can_create: 0, can_edit: 0 },
+    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    configuracion: { can_read: 1, can_create: 0, can_edit: 0, can_delete: 0 },
+    auditoria: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    blog: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+  },
+  colaborador: {
+    personas: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    finanzas: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    configuracion: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    auditoria: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    blog: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
   },
 };
 
 export function getMaxPermissions(role, module) {
-  return ROLE_MAX_PERMISSIONS[role]?.[module] || { can_read: 0, can_create: 0, can_edit: 0 };
+  return ROLE_MAX_PERMISSIONS[role]?.[module] || { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 };
 }
 
 export function canExceedMax(role, module, permissions) {
@@ -49,6 +49,7 @@ export function canExceedMax(role, module, permissions) {
   if (permissions.can_read > max.can_read) return true;
   if (permissions.can_create > max.can_create) return true;
   if (permissions.can_edit > max.can_edit) return true;
+  if (permissions.can_delete > max.can_delete) return true;
   return false;
 }
 

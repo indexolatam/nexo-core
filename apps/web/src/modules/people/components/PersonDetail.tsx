@@ -1,6 +1,6 @@
 import { ArrowLeftOutlined, CalendarOutlined, DeleteOutlined, EditOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Button, Card, Divider, Popconfirm, Tabs } from "antd";
-import type { Person } from "../../../types/adminPeople";
+import type { User } from "../../../types/adminUsers";
 import { formatTypeLabel } from "../../../utils/formatting";
 import { PersonSummaryLine } from "./PersonSummaryLine";
 import { PersonAgendaList } from "./PersonAgendaList";
@@ -8,28 +8,28 @@ import { PersonTasksList } from "./PersonTasksList";
 import { PersonFinanceList } from "./PersonFinanceList";
 import { PersonHistoryList } from "./PersonHistoryList";
 
-export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Person; onBack: () => void; onEdit?: (person: Person) => void; onDelete?: (person: Person) => void }) {
+export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: User; onBack: () => void; onEdit?: (person: User) => void; onDelete?: (person: User) => void }) {
   return (
     <div className="space-y-4">
       <Card className="rounded-3xl border-[var(--border)]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <Avatar size={56} className="bg-[var(--accent)] text-white">
-              {person.nombre.split(" ").slice(0, 2).map((part) => part[0]).join("")}
+              {person.user_name.split(" ").slice(0, 2).map((part) => part[0]).join("")}
             </Avatar>
             <div>
-              <h2 className="text-2xl font-bold text-surface-main">{person.nombre}</h2>
+              <h2 className="text-2xl font-bold text-surface-main">{person.user_name}</h2>
               <div className="mt-2 flex flex-wrap gap-2">
-                {person.tipos.map((type) => (
+                {person.user_types.map((type) => (
                   <span key={type} className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{formatTypeLabel(type)}</span>
                 ))}
-                <span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{person.estado}</span>
+                <span className="rounded-full border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-medium text-surface-secondary">{person.user_status}</span>
               </div>
             </div>
           </div>
           <div className="flex gap-2">
             {onDelete ? (
-              <Popconfirm title="¿Eliminar esta persona?" description="Se marcará como eliminada pero los datos se conservan." onConfirm={() => onDelete(person)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
+              <Popconfirm title="¿Eliminar este usuario?" description="Se marcará como eliminado pero los datos se conservan." onConfirm={() => onDelete(person)} okText="Eliminar" cancelText="Cancelar" okButtonProps={{ danger: true }}>
                 <Button icon={<DeleteOutlined />} danger className="rounded-button">Eliminar</Button>
               </Popconfirm>
             ) : null}
@@ -41,9 +41,9 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Per
         </div>
         <Divider className="my-5" />
         <div className="grid min-w-0 gap-3 md:grid-cols-3">
-          <PersonSummaryLine label="Teléfono" value={person.telefono} icon={<PhoneOutlined />} />
-          <PersonSummaryLine label="Email" value={person.email ?? "Sin correo"} icon={<MailOutlined />} />
-          <PersonSummaryLine label="Último contacto" value={person.ultima_interaccion} icon={<CalendarOutlined />} />
+          <PersonSummaryLine label="Teléfono" value={person.user_phone} icon={<PhoneOutlined />} />
+          <PersonSummaryLine label="Email" value={person.user_email ?? "Sin correo"} icon={<MailOutlined />} />
+          <PersonSummaryLine label="Último contacto" value={person.user_last_interaction} icon={<CalendarOutlined />} />
         </div>
       </Card>
 
@@ -56,8 +56,8 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Per
                 <div className="grid gap-4 lg:grid-cols-3">
                   <Card className="rounded-2xl border-[var(--border-subtle)] bg-transparent shadow-none">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-surface-muted">Próxima cita</p>
-                    <p className="mt-2 text-sm font-semibold text-surface-main">{person.proxima_actividad}</p>
-                    <p className="mt-1 text-sm text-surface-secondary">{person.proxima_actividad_detalle}</p>
+                    <p className="mt-2 text-sm font-semibold text-surface-main">{person.user_next_activity}</p>
+                    <p className="mt-1 text-sm text-surface-secondary">{person.user_next_activity_detail}</p>
                   </Card>
                   <Card className="rounded-2xl border-[var(--border-subtle)] bg-transparent shadow-none">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-surface-muted">Tareas pendientes</p>
@@ -90,18 +90,18 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Per
         <Divider />
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="space-y-3 text-sm text-surface-secondary">
-            <p><span className="font-semibold text-surface-main">ID:</span> {person.id}</p>
-            <p><span className="font-semibold text-surface-main">Creado:</span> {person.fecha_creacion}</p>
-            <p><span className="font-semibold text-surface-main">Última interacción:</span> {person.ultima_interaccion}</p>
-            <p><span className="font-semibold text-surface-main">Estado:</span> {person.estado}</p>
+            <p><span className="font-semibold text-surface-main">ID:</span> {person.user_id}</p>
+            <p><span className="font-semibold text-surface-main">Creado:</span> {person.user_created_date}</p>
+            <p><span className="font-semibold text-surface-main">Última interacción:</span> {person.user_last_interaction}</p>
+            <p><span className="font-semibold text-surface-main">Estado:</span> {person.user_status}</p>
           </div>
           <div className="space-y-3 text-sm text-surface-secondary">
-            <p><span className="font-semibold text-surface-main">Fuente:</span> {person.fuente}</p>
-            <p><span className="font-semibold text-surface-main">Responsable:</span> {person.responsable}</p>
+            <p><span className="font-semibold text-surface-main">Fuente:</span> {person.user_source}</p>
+            <p><span className="font-semibold text-surface-main">Responsable:</span> {person.user_assigned_to}</p>
             <div>
               <p className="font-semibold text-surface-main">Etiquetas:</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {person.etiquetas.map((tag) => (
+                {person.user_tags.map((tag) => (
                   <span key={tag} className="rounded-full border border-[var(--border-subtle)] px-3 py-1 text-xs text-surface-secondary">{tag}</span>
                 ))}
               </div>

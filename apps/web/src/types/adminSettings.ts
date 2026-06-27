@@ -41,10 +41,10 @@ export type ModulePermission = {
 
 export type ModulePermissionsByRole = Record<string, ModulePermission[]>;
 
-export type ModuleKey = "personas" | "finanzas" | "agenda" | "tareas" | "configuracion" | "auditoria" | "blog";
+export type ModuleKey = "usuarios" | "finanzas" | "agenda" | "tareas" | "configuracion" | "auditoria" | "blog";
 
 export const ALL_MODULES: { key: ModuleKey; label: string }[] = [
-  { key: "personas", label: "Personas" },
+  { key: "usuarios", label: "Usuarios" },
   { key: "finanzas", label: "Finanzas" },
   { key: "agenda", label: "Agenda" },
   { key: "tareas", label: "Tareas" },

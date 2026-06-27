@@ -1,6 +1,6 @@
-import type { Person } from "./adminPeople";
+import type { UserStatus } from "./adminUsers";
 
-export type D1Role = "root" | "admin" | "doctor" | "asistente";
+export type D1Role = "root" | "admin" | "asistente" | "colaborador";
 
 export type D1AuditEventType =
   | "created"
@@ -33,7 +33,7 @@ export type D1Person = {
   contacto_adicional_nombre?: string;
   contacto_adicional_apellido?: string;
   email?: string;
-  estado: Person["estado"];
+  estado: UserStatus;
   fuente?: string;
   fecha_creacion: string;
   ultima_interaccion?: string;

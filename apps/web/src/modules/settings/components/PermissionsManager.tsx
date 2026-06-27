@@ -7,50 +7,50 @@ import { ALL_MODULES } from "../../../types/adminSettings";
 const ROLE_LABELS: Record<string, string> = {
   root: "Root",
   admin: "Administrador",
-  doctor: "Doctor",
   asistente: "Asistente",
+  colaborador: "Colaborador",
 };
 
-const ROLE_MAX: Record<string, Record<ModuleKey, { can_read: boolean; can_create: boolean; can_edit: boolean }>> = {
+const ROLE_MAX: Record<string, Record<ModuleKey, { can_read: boolean; can_create: boolean; can_edit: boolean; can_delete: boolean }>> = {
   root: {
-    personas: { can_read: true, can_create: true, can_edit: true },
-    finanzas: { can_read: true, can_create: true, can_edit: true },
-    agenda: { can_read: true, can_create: true, can_edit: true },
-    tareas: { can_read: true, can_create: true, can_edit: true },
-    configuracion: { can_read: true, can_create: true, can_edit: true },
-    auditoria: { can_read: true, can_create: true, can_edit: true },
-    blog: { can_read: true, can_create: true, can_edit: true },
+    usuarios: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    finanzas: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    agenda: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    tareas: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    configuracion: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    auditoria: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    blog: { can_read: true, can_create: true, can_edit: true, can_delete: true },
   },
   admin: {
-    personas: { can_read: true, can_create: true, can_edit: true },
-    finanzas: { can_read: true, can_create: true, can_edit: true },
-    agenda: { can_read: true, can_create: true, can_edit: true },
-    tareas: { can_read: true, can_create: true, can_edit: true },
-    configuracion: { can_read: true, can_create: true, can_edit: true },
-    auditoria: { can_read: false, can_create: false, can_edit: false },
-    blog: { can_read: false, can_create: false, can_edit: false },
-  },
-  doctor: {
-    personas: { can_read: false, can_create: false, can_edit: false },
-    finanzas: { can_read: false, can_create: false, can_edit: false },
-    agenda: { can_read: true, can_create: true, can_edit: true },
-    tareas: { can_read: true, can_create: true, can_edit: true },
-    configuracion: { can_read: false, can_create: false, can_edit: false },
-    auditoria: { can_read: false, can_create: false, can_edit: false },
-    blog: { can_read: false, can_create: false, can_edit: false },
+    usuarios: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    finanzas: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    agenda: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    tareas: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    configuracion: { can_read: true, can_create: true, can_edit: true, can_delete: true },
+    auditoria: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    blog: { can_read: false, can_create: false, can_edit: false, can_delete: false },
   },
   asistente: {
-    personas: { can_read: true, can_create: true, can_edit: true },
-    finanzas: { can_read: true, can_create: true, can_edit: true },
-    agenda: { can_read: true, can_create: true, can_edit: true },
-    tareas: { can_read: true, can_create: true, can_edit: true },
-    configuracion: { can_read: true, can_create: false, can_edit: false },
-    auditoria: { can_read: false, can_create: false, can_edit: false },
-    blog: { can_read: false, can_create: false, can_edit: false },
+    usuarios: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    finanzas: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    agenda: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    tareas: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    configuracion: { can_read: true, can_create: false, can_edit: false, can_delete: false },
+    auditoria: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    blog: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+  },
+  colaborador: {
+    usuarios: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    finanzas: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    agenda: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    tareas: { can_read: true, can_create: true, can_edit: true, can_delete: false },
+    configuracion: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    auditoria: { can_read: false, can_create: false, can_edit: false, can_delete: false },
+    blog: { can_read: false, can_create: false, can_edit: false, can_delete: false },
   },
 };
 
-function isAtMax(role: string, module: ModuleKey, field: "can_read" | "can_create" | "can_edit"): boolean {
+function isAtMax(role: string, module: ModuleKey, field: "can_read" | "can_create" | "can_edit" | "can_delete"): boolean {
   return ROLE_MAX[role]?.[module]?.[field] === false;
 }
 
@@ -65,7 +65,7 @@ export function PermissionsManager() {
 
   const roles = Object.keys(local);
 
-  const toggle = (role: string, module: ModuleKey, field: "can_read" | "can_create" | "can_edit") => {
+  const toggle = (role: string, module: ModuleKey, field: "can_read" | "can_create" | "can_edit" | "can_delete") => {
     setLocal((prev) => {
       const next = { ...prev };
       next[role] = (next[role] || []).map((p) =>
@@ -98,7 +98,7 @@ export function PermissionsManager() {
             <tr className="border-b border-[var(--border-subtle)]">
               <th className="px-3 py-2 text-left font-semibold text-surface-main">Módulo</th>
               {roles.map((role) => (
-                <th key={role} colSpan={3} className="px-3 py-2 text-center font-semibold text-surface-main border-l border-[var(--border-subtle)]">
+                <th key={role} colSpan={4} className="px-3 py-2 text-center font-semibold text-surface-main border-l border-[var(--border-subtle)]">
                   {ROLE_LABELS[role] || role}
                 </th>
               ))}
@@ -106,11 +106,12 @@ export function PermissionsManager() {
             <tr className="border-b border-[var(--border-subtle)] text-xs text-surface-muted">
               <th></th>
               {roles.map((role) => (
-                <th key={role} className="border-l border-[var(--border-subtle)]" colSpan={3}>
-                  <div className="grid grid-cols-3 gap-1 px-1">
+                <th key={role} className="border-l border-[var(--border-subtle)]" colSpan={4}>
+                  <div className="grid grid-cols-4 gap-1 px-1">
                     <span className="text-center">Leer</span>
                     <span className="text-center">Crear</span>
                     <span className="text-center">Editar</span>
+                    <span className="text-center">Eliminar</span>
                   </div>
                 </th>
               ))}
@@ -125,9 +126,10 @@ export function PermissionsManager() {
                   const readMax = isAtMax(role, mod.key, "can_read");
                   const createMax = isAtMax(role, mod.key, "can_create");
                   const editMax = isAtMax(role, mod.key, "can_edit");
+                  const deleteMax = isAtMax(role, mod.key, "can_delete");
                   return (
                     <td key={role} className="border-l border-[var(--border-subtle)]">
-                      <div className="grid grid-cols-3 gap-1 px-1">
+                      <div className="grid grid-cols-4 gap-1 px-1">
                         <div className="flex justify-center">
                           <Checkbox
                             checked={perms?.can_read ?? false}
@@ -147,6 +149,13 @@ export function PermissionsManager() {
                             checked={perms?.can_edit ?? false}
                             disabled={role === "root" || editMax}
                             onChange={() => toggle(role, mod.key, "can_edit")}
+                          />
+                        </div>
+                        <div className="flex justify-center">
+                          <Checkbox
+                            checked={perms?.can_delete ?? false}
+                            disabled={role === "root" || deleteMax}
+                            onChange={() => toggle(role, mod.key, "can_delete")}
                           />
                         </div>
                       </div>

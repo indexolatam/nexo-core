@@ -295,10 +295,9 @@ export function QuickActionContent({
           </FieldLabel>
           <FieldLabel label="Responsable">
             <Select
-              defaultValue="doctora"
+              defaultValue="root"
               options={[
-                { value: "doctora", label: "Doctora" },
-                { value: "asistente", label: "Asistente" },
+                { value: "root", label: "Root Admin" },
               ]}
             />
           </FieldLabel>
@@ -484,8 +483,7 @@ export function QuickActionContent({
           <Select
             defaultValue={selectedEvent.owner.toLowerCase()}
             options={[
-              { value: "doctora", label: "Doctora" },
-              { value: "asistente", label: "Asistente" },
+              { value: "root", label: "Root Admin" },
             ]}
           />
         </FieldLabel>

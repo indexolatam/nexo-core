@@ -34,7 +34,7 @@ export async function onRequestPost(context) {
 
   if (!body.name || !body.username) return error("name y username son requeridos", 400);
 
-  const allowedRoles = ["admin", "doctor", "asistente"];
+  const allowedRoles = ["admin", "asistente", "colaborador"];
   const role = allowedRoles.includes(body.role) ? body.role : "admin";
 
   const id = `usr-${Date.now()}`;

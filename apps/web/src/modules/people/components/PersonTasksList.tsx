@@ -1,7 +1,7 @@
 import { Empty } from "antd";
-import type { PersonTaskEntry } from "../../../types/adminPeople";
+import type { UserTaskEntry } from "../../../types/adminUsers";
 
-export function PersonTasksList({ entries }: { entries: PersonTaskEntry[] }) {
+export function PersonTasksList({ entries }: { entries: UserTaskEntry[] }) {
   if (entries.length === 0) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Sin tareas" />;
 
   return (

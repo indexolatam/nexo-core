@@ -4,6 +4,12 @@ export function formatTypeLabel(type: string): string {
   return type === "Participante Taller" ? "Taller" : type;
 }
 
+export function formatDate(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString("es-NI", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+
 export function highlight(text: string, query: string): ReactNode {
   if (!query.trim()) return text;
   const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
