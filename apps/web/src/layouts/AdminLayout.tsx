@@ -14,16 +14,16 @@ const ALL_NAV_ITEMS = [
   { key: "agenda", label: "Agenda", to: "/admin/agenda", icon: <CalendarOutlined /> },
   { key: "tareas", label: "Tareas", to: "/admin/tareas", icon: <UnorderedListOutlined /> },
   { key: "finanzas", label: "Finanzas", to: "/admin/finanzas", icon: <DollarOutlined /> },
-  { key: "personas", label: "Personas", to: "/admin/personas", icon: <TeamOutlined /> },
+  { key: "usuarios", label: "Usuarios", to: "/admin/usuarios", icon: <TeamOutlined /> },
   { key: "auditoria", label: "Auditoría", to: "/admin/logs", icon: <AuditOutlined /> },
   { key: "configuracion", label: "Configuración", to: "/admin/configuracion", icon: <SettingOutlined /> },
 ];
 
 const ROLE_ALLOWED_KEYS: Record<string, readonly string[]> = {
-  root: ["inicio", "agenda", "tareas", "finanzas", "personas", "auditoria", "configuracion"],
-  admin: ["inicio", "agenda", "tareas", "finanzas", "personas", "configuracion"],
+  root: ["inicio", "agenda", "tareas", "finanzas", "usuarios", "auditoria", "configuracion"],
+  admin: ["inicio", "agenda", "tareas", "finanzas", "usuarios", "configuracion"],
   doctor: ["inicio", "agenda", "tareas"],
-  asistente: ["inicio", "agenda", "tareas", "personas", "finanzas", "configuracion"],
+  asistente: ["inicio", "agenda", "tareas", "usuarios", "finanzas", "configuracion"],
 };
 
 export function AdminLayout() {

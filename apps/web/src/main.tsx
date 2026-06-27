@@ -46,7 +46,8 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPage /> },
           { path: "agenda", element: <RequireRole module="agenda" action="read"><AgendaPage /></RequireRole> },
-          { path: "personas", element: <RequireRole module="personas" action="read"><PeoplePage /></RequireRole> },
+          { path: "personas", element: <RequireRole module="usuarios" action="read"><PeoplePage /></RequireRole> },
+          { path: "usuarios", element: <RequireRole module="usuarios" action="read"><PeoplePage /></RequireRole> },
           { path: "finanzas", element: <RequireRole module="finanzas" action="read"><FinancePage /></RequireRole> },
           { path: "tareas", element: <RequireRole module="tareas" action="read"><TasksPage /></RequireRole> },
           { path: "configuracion", element: <RequireRole module="configuracion" action="read"><SettingsPage /></RequireRole> },

@@ -3,35 +3,44 @@
 -- Contiene todas las tablas operativas + datos de semilla
 -- ============================================================
 
--- 0001_local_core: people + bank_configs
-CREATE TABLE IF NOT EXISTS people (
-  id TEXT PRIMARY KEY,
-  nombre_1 TEXT NOT NULL,
-  nombre_2 TEXT,
-  apellido_1 TEXT NOT NULL,
-  apellido_2 TEXT,
-  telefono TEXT NOT NULL,
-  telefono_adicional TEXT,
-  contacto_adicional_nombre TEXT,
-  contacto_adicional_apellido TEXT,
-  email TEXT,
-  estado TEXT NOT NULL DEFAULT 'Pendiente',
-  fuente TEXT,
-  fecha_creacion TEXT NOT NULL,
-  ultima_interaccion TEXT,
-  proximo_evento_fecha TEXT,
-  proxima_actividad TEXT,
-  proxima_actividad_detalle TEXT,
-  consentimiento_contacto INTEGER DEFAULT 1,
-  assigned_user_id TEXT,
-  created_at TEXT NOT NULL,
-  updated_at TEXT,
-  deleted_at TEXT,
-  created_by_user_id TEXT,
-  updated_by_user_id TEXT,
-  tipos TEXT DEFAULT '[]',
-  etiquetas TEXT DEFAULT '[]',
-  observaciones_administrativas TEXT DEFAULT ''
+-- 0018: usuarios (reemplaza people)
+CREATE TABLE IF NOT EXISTS usuarios (
+  user_id TEXT PRIMARY KEY,
+  user_name_1 TEXT NOT NULL,
+  user_name_2 TEXT,
+  user_lastname_1 TEXT NOT NULL,
+  user_lastname_2 TEXT,
+  user_phone_code TEXT NOT NULL DEFAULT '505',
+  user_phone TEXT NOT NULL,
+  user_contact_phone_code TEXT,
+  user_contact_phone TEXT,
+  user_contact_name TEXT,
+  user_contact_lastname TEXT,
+  user_email TEXT,
+  user_status TEXT NOT NULL DEFAULT 'Pendiente',
+  user_source TEXT,
+  user_created_date DATE NOT NULL,
+  user_last_interaction DATETIME,
+  user_next_event_date DATETIME,
+  user_next_activity TEXT,
+  user_next_activity_detail TEXT,
+  user_consent INTEGER DEFAULT 1,
+  user_assigned_to TEXT,
+  user_created_at DATETIME NOT NULL,
+  user_updated_at DATETIME,
+  user_deleted_at DATETIME,
+  user_created_by TEXT,
+  user_updated_by TEXT,
+  user_types TEXT DEFAULT '[]',
+  user_tags TEXT DEFAULT '[]',
+  user_admin_notes TEXT DEFAULT '',
+  user_address TEXT,
+  user_birth_date DATE,
+  user_gender TEXT,
+  user_doc_id TEXT,
+  user_photo_url TEXT,
+  user_notes TEXT,
+  user_contact_pref TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bank_configs (
@@ -227,7 +236,7 @@ CREATE TABLE IF NOT EXISTS palette_settings (
 -- 0016_module_permissions
 CREATE TABLE IF NOT EXISTS module_permissions (
   id TEXT PRIMARY KEY,
-  role TEXT NOT NULL CHECK(role IN ('root','admin','doctor','asistente')),
+  role TEXT NOT NULL CHECK(role IN ('root','admin','asistente','colaborador')),
   module TEXT NOT NULL,
   can_read INTEGER DEFAULT 1,
   can_create INTEGER DEFAULT 0,
@@ -241,11 +250,11 @@ CREATE TABLE IF NOT EXISTS module_permissions (
 -- SEEDS
 -- ============================================================
 
--- seed_people
-INSERT OR IGNORE INTO people (id, nombre_1, apellido_1, telefono, email, estado, fecha_creacion, created_at)
+-- seed_usuarios
+INSERT OR IGNORE INTO usuarios (user_id, user_name_1, user_lastname_1, user_phone, user_email, user_status, user_created_date, user_created_at)
 VALUES
-  ('per-001', 'Ana', 'Pérez', '+505 8888 1001', 'ana.perez@email.com', 'Activo', '2026-06-01', '2026-06-01T00:00:00.000Z'),
-  ('per-002', 'Empresa', 'ABC', '+505 8888 1002', 'rrhh@empresaabc.com', 'Activo', '2026-05-20', '2026-05-20T00:00:00.000Z');
+  ('usr-001', 'Ana', 'Pérez', '+505 8888 1001', 'ana.perez@email.com', 'Activo', '2026-06-01', '2026-06-01T00:00:00.000Z'),
+  ('usr-002', 'Empresa ABC', '—', '+505 8888 1002', 'rrhh@empresaabc.com', 'Activo', '2026-05-20', '2026-05-20T00:00:00.000Z');
 
 -- seed_services_landing
 INSERT OR IGNORE INTO services (id, name, duration, price, description, category, active, landing_visible)
@@ -259,29 +268,26 @@ VALUES
   ('bank-bac', 'BAC', 1, 1, '2026-06-14T00:00:00.000Z'),
   ('bank-lafise', 'LAFISE', 1, 2, '2026-06-14T00:00:00.000Z');
 
--- seed_users_credentials (password: admin123)
+-- seed_users_credentials (password: root)
 INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at)
 VALUES
-  ('root', 'Root', 'Admin', 'root', 'root', 'root@clinica.com', '4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2', 'root', 1, datetime('now')),
-  ('admin', 'Admin', 'Clínica', 'admin', 'admin', 'admin@clinica.com', '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918', 'admin', 1, datetime('now')),
-  ('doctor', 'Doctor', 'Principal', 'doctor', 'doc', 'doc@clinica.com', '139d544b821b13ebea14f1b0fe18577222e415c2966e3a3511c4196055232202', 'doctor', 1, datetime('now')),
-  ('asistente', 'Asistente', 'Administrativo', 'asistente', 'asis', 'asis@clinica.com', '105f495d894006d1dd5a432123573c88bdc64b58949d98af4c26e238f8be28a4', 'asistente', 1, datetime('now'));
+  ('root', 'Root', 'Admin', 'root', 'root', 'root@nexo.local', '4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2', 'Root Admin', 1, datetime('now'));
 
 -- seed_module_permissions
 INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit, can_delete) VALUES
-  ('perm-root-personas','root','personas',1,1,1,1), ('perm-root-finanzas','root','finanzas',1,1,1,1),
+  ('perm-root-usuarios','root','usuarios',1,1,1,1), ('perm-root-finanzas','root','finanzas',1,1,1,1),
   ('perm-root-agenda','root','agenda',1,1,1,1), ('perm-root-tareas','root','tareas',1,1,1,1),
   ('perm-root-configuracion','root','configuracion',1,1,1,1), ('perm-root-auditoria','root','auditoria',1,1,1,1),
   ('perm-root-blog','root','blog',1,1,1,1),
-  ('perm-admin-personas','admin','personas',1,1,1,1), ('perm-admin-finanzas','admin','finanzas',1,1,1,1),
+  ('perm-admin-usuarios','admin','usuarios',1,1,1,1), ('perm-admin-finanzas','admin','finanzas',1,1,1,1),
   ('perm-admin-agenda','admin','agenda',1,1,1,1), ('perm-admin-tareas','admin','tareas',1,1,1,1),
   ('perm-admin-configuracion','admin','configuracion',1,1,1,1), ('perm-admin-auditoria','admin','auditoria',0,0,0,0),
   ('perm-admin-blog','admin','blog',0,0,0,0),
-  ('perm-doctor-personas','doctor','personas',0,0,0,0), ('perm-doctor-finanzas','doctor','finanzas',0,0,0,0),
+  ('perm-doctor-usuarios','doctor','usuarios',0,0,0,0), ('perm-doctor-finanzas','doctor','finanzas',0,0,0,0),
   ('perm-doctor-agenda','doctor','agenda',1,1,1,1), ('perm-doctor-tareas','doctor','tareas',1,1,1,1),
   ('perm-doctor-configuracion','doctor','configuracion',0,0,0,0), ('perm-doctor-auditoria','doctor','auditoria',0,0,0,0),
   ('perm-doctor-blog','doctor','blog',0,0,0,0),
-  ('perm-asistente-personas','asistente','personas',1,1,1,1), ('perm-asistente-finanzas','asistente','finanzas',1,1,1,1),
+  ('perm-asistente-usuarios','asistente','usuarios',1,1,1,1), ('perm-asistente-finanzas','asistente','finanzas',1,1,1,1),
   ('perm-asistente-agenda','asistente','agenda',1,1,1,1), ('perm-asistente-tareas','asistente','tareas',1,1,1,1),
   ('perm-asistente-configuracion','asistente','configuracion',1,0,0,0), ('perm-asistente-auditoria','asistente','auditoria',0,0,0,0),
   ('perm-asistente-blog','asistente','blog',0,0,0,0);

@@ -5,7 +5,7 @@ import {
 import { Button, Card, Col, Row, Spin } from "antd";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { peopleService } from "../../services/peopleService";
+import { usuariosService } from "../../services/usuariosService";
 import { agendaService } from "../../services/agendaService";
 import { tasksService } from "../../services/tasksService";
 import { financeService } from "../../services/financeService";
@@ -64,7 +64,7 @@ export function DashboardPage() {
     setNowLabel(`${dayNames[dayOfWeek]} ${now.getDate()} ${monthNames[now.getMonth()]} · ${timeStr}`);
 
     Promise.allSettled([
-      peopleService.list(),
+      usuariosService.list(),
       agendaService.list(),
       tasksService.list(),
       financeService.list(),
@@ -76,7 +76,7 @@ export function DashboardPage() {
       const tasks = results[2].status === "fulfilled" ? results[2].value : [];
       const finances = results[3].status === "fulfilled" ? results[3].value : [];
 
-      const activePeople = people.filter((p) => p.estado === "Activo").length;
+      const activePeople = people.filter((p) => p.user_status === "Activo").length;
       setPeopleCount(activePeople);
 
       const todayEvts = events.filter((evt) => evt.starts_at?.slice(0, 10) === today);

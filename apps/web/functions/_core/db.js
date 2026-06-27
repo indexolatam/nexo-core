@@ -1,17 +1,19 @@
 export async function ensureAllSchemas(db) {
-  await db.prepare(`CREATE TABLE IF NOT EXISTS people (
-    id TEXT PRIMARY KEY, nombre_1 TEXT NOT NULL, nombre_2 TEXT,
-    apellido_1 TEXT NOT NULL, apellido_2 TEXT, telefono TEXT NOT NULL,
-    telefono_adicional TEXT, contacto_adicional_nombre TEXT, contacto_adicional_apellido TEXT,
-    email TEXT, estado TEXT NOT NULL DEFAULT 'Pendiente', fuente TEXT,
-    fecha_creacion TEXT NOT NULL, ultima_interaccion TEXT, proximo_evento_fecha TEXT,
-    proxima_actividad TEXT, proxima_actividad_detalle TEXT, consentimiento_contacto INTEGER DEFAULT 1,
-    assigned_user_id TEXT, created_at TEXT NOT NULL, updated_at TEXT, deleted_at TEXT,
-    created_by_user_id TEXT, updated_by_user_id TEXT
+  await db.prepare(`CREATE TABLE IF NOT EXISTS usuarios (
+    user_id TEXT PRIMARY KEY, user_name_1 TEXT NOT NULL, user_name_2 TEXT,
+    user_lastname_1 TEXT NOT NULL, user_lastname_2 TEXT,
+    user_phone_code TEXT NOT NULL DEFAULT '505', user_phone TEXT NOT NULL,
+    user_contact_phone_code TEXT, user_contact_phone TEXT,
+    user_contact_name TEXT, user_contact_lastname TEXT,
+    user_email TEXT, user_status TEXT NOT NULL DEFAULT 'Pendiente', user_source TEXT,
+    user_created_date DATE NOT NULL, user_last_interaction DATETIME,
+    user_next_event_date DATETIME, user_next_activity TEXT, user_next_activity_detail TEXT,
+    user_consent INTEGER DEFAULT 1, user_assigned_to TEXT,
+    user_created_at DATETIME NOT NULL, user_updated_at DATETIME, user_deleted_at DATETIME,
+    user_created_by TEXT, user_updated_by TEXT,
+    user_types TEXT DEFAULT '[]', user_tags TEXT DEFAULT '[]', user_admin_notes TEXT DEFAULT ''
+
   )`).run();
-  try { await db.prepare("ALTER TABLE people ADD COLUMN tipos TEXT DEFAULT '[]'").run(); } catch {}
-  try { await db.prepare("ALTER TABLE people ADD COLUMN etiquetas TEXT DEFAULT '[]'").run(); } catch {}
-  try { await db.prepare("ALTER TABLE people ADD COLUMN observaciones_administrativas TEXT DEFAULT ''").run(); } catch {}
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS bank_configs (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, active INTEGER DEFAULT 1,
@@ -49,7 +51,7 @@ export async function ensureAllSchemas(db) {
     moneda TEXT DEFAULT 'USD', notes TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT, created_by_user_id TEXT, deleted_at TEXT,
     fecha_vencimiento TEXT, pagado_en TEXT,
-    FOREIGN KEY (persona_id) REFERENCES people(id),
+    FOREIGN KEY (persona_id) REFERENCES usuarios(user_id),
     FOREIGN KEY (service_id) REFERENCES services(id),
     FOREIGN KEY (banco_id) REFERENCES bank_configs(id)
   )`).run();
@@ -66,7 +68,7 @@ export async function ensureAllSchemas(db) {
     assigned_user_id TEXT, person_id TEXT, service_id TEXT, is_recurring INTEGER DEFAULT 0,
     recurring_rule TEXT, notes TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT, created_by_user_id TEXT, deleted_at TEXT,
-    FOREIGN KEY (person_id) REFERENCES people(id),
+    FOREIGN KEY (person_id) REFERENCES usuarios(user_id),
     FOREIGN KEY (service_id) REFERENCES services(id),
     FOREIGN KEY (assigned_user_id) REFERENCES users(id)
   )`).run();
@@ -86,7 +88,7 @@ export async function ensureAllSchemas(db) {
     created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT, deleted_at TEXT,
     created_by_user_id TEXT, completed_at TEXT,
     FOREIGN KEY (assigned_user_id) REFERENCES users(id),
-    FOREIGN KEY (person_id) REFERENCES people(id),
+    FOREIGN KEY (person_id) REFERENCES usuarios(user_id),
     FOREIGN KEY (event_id) REFERENCES agenda_events(id),
     FOREIGN KEY (service_id) REFERENCES services(id)
   )`).run();
@@ -111,19 +113,19 @@ export async function ensureAllSchemas(db) {
   try { await db.prepare("ALTER TABLE module_permissions ADD COLUMN can_delete INTEGER DEFAULT 0").run(); } catch {}
 
   const perms = [
-    ['perm-root-personas','root','personas',1,1,1,1], ['perm-root-finanzas','root','finanzas',1,1,1,1],
+    ['perm-root-usuarios','root','usuarios',1,1,1,1], ['perm-root-finanzas','root','finanzas',1,1,1,1],
     ['perm-root-agenda','root','agenda',1,1,1,1], ['perm-root-tareas','root','tareas',1,1,1,1],
     ['perm-root-configuracion','root','configuracion',1,1,1,1], ['perm-root-auditoria','root','auditoria',1,1,1,1],
     ['perm-root-blog','root','blog',1,1,1,1],
-    ['perm-admin-personas','admin','personas',1,1,1,1], ['perm-admin-finanzas','admin','finanzas',1,1,1,1],
+    ['perm-admin-usuarios','admin','usuarios',1,1,1,1], ['perm-admin-finanzas','admin','finanzas',1,1,1,1],
     ['perm-admin-agenda','admin','agenda',1,1,1,1], ['perm-admin-tareas','admin','tareas',1,1,1,1],
     ['perm-admin-configuracion','admin','configuracion',1,1,1,1], ['perm-admin-auditoria','admin','auditoria',0,0,0,0],
     ['perm-admin-blog','admin','blog',0,0,0,0],
-    ['perm-doctor-personas','doctor','personas',0,0,0,0], ['perm-doctor-finanzas','doctor','finanzas',0,0,0,0],
+    ['perm-doctor-usuarios','doctor','usuarios',0,0,0,0], ['perm-doctor-finanzas','doctor','finanzas',0,0,0,0],
     ['perm-doctor-agenda','doctor','agenda',1,1,1,1], ['perm-doctor-tareas','doctor','tareas',1,1,1,1],
     ['perm-doctor-configuracion','doctor','configuracion',0,0,0,0], ['perm-doctor-auditoria','doctor','auditoria',0,0,0,0],
     ['perm-doctor-blog','doctor','blog',0,0,0,0],
-    ['perm-asistente-personas','asistente','personas',1,1,1,1], ['perm-asistente-finanzas','asistente','finanzas',1,1,1,1],
+    ['perm-asistente-usuarios','asistente','usuarios',1,1,1,1], ['perm-asistente-finanzas','asistente','finanzas',1,1,1,1],
     ['perm-asistente-agenda','asistente','agenda',1,1,1,1], ['perm-asistente-tareas','asistente','tareas',1,1,1,1],
     ['perm-asistente-configuracion','asistente','configuracion',1,0,0,0], ['perm-asistente-auditoria','asistente','auditoria',0,0,0,0],
     ['perm-asistente-blog','asistente','blog',0,0,0,0],
@@ -132,18 +134,16 @@ export async function ensureAllSchemas(db) {
     await db.prepare("INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit, can_delete) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(...p).run();
   }
 
-  const { results } = await db.prepare("SELECT COUNT(*) as cnt FROM people").all();
+  const { results } = await db.prepare("SELECT COUNT(*) as cnt FROM usuarios").all();
   if (results[0]?.cnt === 0) {
     const now = new Date().toISOString();
     const hash = "240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9";
-    await db.prepare("INSERT OR IGNORE INTO people (id, nombre_1, apellido_1, telefono, email, estado, fecha_creacion, tipos, etiquetas, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .bind("per-001", "Ana", "Pérez", "+50588881001", "ana@cliente.local", "Activo", now.slice(0, 10), '["Paciente"]', '["regular"]', now).run();
+    await db.prepare("INSERT OR IGNORE INTO usuarios (user_id, user_name_1, user_lastname_1, user_phone, user_email, user_status, user_created_date, user_types, user_tags, user_created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .bind("usr-001", "Ana", "Pérez", "+50588881001", "ana@cliente.local", "Activo", now.slice(0, 10), '["Cliente"]', '["regular"]', now).run();
     await db.prepare("INSERT OR IGNORE INTO services (id, name, duration, price, description, category, active, landing_visible) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-      .bind("svc-001", "Consulta general", 60, 50, "Atención psicológica general", "Consultas", 1, 1).run();
+      .bind("svc-001", "Consulta general", 60, 50, "Atención general", "Consultas", 1, 1).run();
     await db.prepare("INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
       .bind("usr-root", "Root", "Admin", "root", "root", "root@nexo.local", hash, "Root Admin", 1, now).run();
-    await db.prepare("INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
-      .bind("usr-admin", "Admin", "User", "admin", "admin", "admin@nexo.local", hash, "Admin User", 1, now).run();
   }
 }
 
@@ -156,24 +156,69 @@ function parseJsonArray(val) {
   try { return JSON.parse(val); } catch { return []; }
 }
 
-export function mapPersonRow(row, relatedData) {
+export function mapUserRow(row, relatedData) {
   if (!row) return null;
   const data = relatedData || {};
+  const name = [row.user_name_1, row.user_name_2, row.user_lastname_1, row.user_lastname_2].filter(Boolean).join(" ").trim();
+  const source = row.user_source || "";
+  const lastInteraction = row.user_last_interaction || "";
+  const nextActivity = row.user_next_activity || "";
+  const nextActivityDetail = row.user_next_activity_detail || "";
+  const assignedTo = row.user_assigned_to || "";
+  const adminNotes = row.user_admin_notes || "";
+  const types = parseJsonArray(row.user_types);
+  const tags = parseJsonArray(row.user_tags);
+  const consent = !!row.user_consent;
+
   return {
-    id: row.id,
-    nombre: [row.nombre_1, row.nombre_2, row.apellido_1, row.apellido_2].filter(Boolean).join(" ").trim(),
-    telefono: row.telefono,
-    email: row.email || undefined,
-    tipos: parseJsonArray(row.tipos),
-    estado: row.estado,
-    fecha_creacion: row.fecha_creacion,
-    ultima_interaccion: row.ultima_interaccion || "",
-    observaciones_administrativas: row.observaciones_administrativas || "",
-    fuente: row.fuente || "",
-    responsable: row.assigned_user_id || "",
-    etiquetas: parseJsonArray(row.etiquetas),
-    proxima_actividad: row.proxima_actividad || "",
-    proxima_actividad_detalle: row.proxima_actividad_detalle || "",
+    // New API fields (preferred)
+    user_id: row.user_id,
+    user_name: name,
+    user_name_1: row.user_name_1,
+    user_name_2: row.user_name_2,
+    user_lastname_1: row.user_lastname_1,
+    user_lastname_2: row.user_lastname_2,
+    user_phone_code: row.user_phone_code,
+    user_phone: row.user_phone,
+    user_contact_phone_code: row.user_contact_phone_code,
+    user_contact_phone: row.user_contact_phone,
+    user_contact_name: row.user_contact_name,
+    user_contact_lastname: row.user_contact_lastname,
+    user_email: row.user_email || undefined,
+    user_status: row.user_status,
+    user_source: source,
+    user_created_date: row.user_created_date,
+    user_last_interaction: lastInteraction,
+    user_next_activity: nextActivity,
+    user_next_activity_detail: nextActivityDetail,
+    user_consent: consent,
+    user_assigned_to: assignedTo,
+    user_types: types,
+    user_tags: tags,
+    user_admin_notes: adminNotes,
+    user_created_at: row.user_created_at,
+    user_updated_at: row.user_updated_at || "",
+    user_deleted_at: row.user_deleted_at || "",
+    user_created_by: row.user_created_by || "",
+    user_updated_by: row.user_updated_by || "",
+
+    // Backward-compatible aliases (remove when migration is complete)
+    id: row.user_id,
+    nombre: name,
+    telefono: row.user_phone,
+    email: row.user_email || undefined,
+    tipos: types,
+    estado: row.user_status,
+    fecha_creacion: row.user_created_date,
+    ultima_interaccion: lastInteraction,
+    observaciones_administrativas: adminNotes,
+    fuente: source,
+    responsable: assignedTo,
+    etiquetas: tags,
+    proxima_actividad: nextActivity,
+    proxima_actividad_detalle: nextActivityDetail,
+
+    // Computed fields
     citas: data.citas || { proximas: [], historial: [] },
     tareas: data.tareas || { pendientes: [], completadas: [] },
     finanzas: data.finanzas || { pagadas: [], pendientes: [], servicios: [] },

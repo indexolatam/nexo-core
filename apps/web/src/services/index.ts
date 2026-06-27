@@ -1,5 +1,5 @@
 export { authService } from "./authService";
-export { peopleService } from "./peopleService";
+export { usuariosService } from "./usuariosService";
 export { servicesService } from "./servicesService";
 export { financeService } from "./financeService";
 export { agendaService } from "./agendaService";

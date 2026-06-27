@@ -1,31 +1,39 @@
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import { CloseCircleOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import { Button, Card, Divider, Empty, Form, Input, message, Modal, Pagination, Select, Spin, DatePicker } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
-import { peopleService, usersService } from "../../services";
+import { usuariosService, usersService } from "../../services";
 import { usePermissions } from "../../hooks/usePermissions";
-import type { Person, PersonQuickFilter, PersonStatus } from "../../types/adminPeople";
+import type { Person, PersonStatus, PersonTipoFilter, PersonConditionFilter, PersonStatusFilter } from "../../types/adminPeople";
 import { personTypeOptions } from "../../types/adminPeople";
 import { PersonCard } from "./components/PersonCard";
 import { PeopleBigCounter } from "./components/PeopleBigCounter";
 import { PersonDetail } from "./components/PersonDetail";
 import { PeopleTable, type TableFilterState } from "./components/PeopleTable";
 
-const quickFilterLabels: { value: PersonQuickFilter; label: string }[] = [
+const tipoFilterLabels: { value: PersonTipoFilter; label: string }[] = [
   { value: "Todos", label: "Todos" },
-  { value: "Clientes", label: "Clientes" },
-  { value: "Empresas", label: "Empresas" },
-  { value: "Freelancers", label: "Freelancers" },
-  { value: "Proveedores", label: "Proveedores" },
-  { value: "Con tareas", label: "Con tareas" },
-  { value: "Pendientes de pago", label: "Pendientes de pago" },
+  { value: "Cliente", label: "Clientes" },
+  { value: "Empresa", label: "Empresas" },
+  { value: "Freelancer", label: "Freelancers" },
+  { value: "Proveedor", label: "Proveedores" },
+];
+
+const conditionFilterLabels: { value: PersonConditionFilter; label: string }[] = [
+  { value: "conTareas", label: "Con tareas" },
+  { value: "pagoPendiente", label: "Pend. pago" },
+];
+
+const statusFilterLabels: { value: PersonStatusFilter; label: string }[] = [
+  { value: "inactivos", label: "Inactivos" },
+  { value: "archivados", label: "Archivados" },
 ];
 
 const statusOptions: PersonStatus[] = ["Activo", "Inactivo", "Pendiente", "Archivado"];
 const fuenteOptions = ["Manual", "Referido", "Red social", "Web", "Otro"];
 
 const defaultTableFilters: TableFilterState = {
-  nombre: "", tipos: [], estado: [], telefono: "", ultimaInteraccionFecha: "",
+  tipos: [], estado: [], telefono: "", ultimaInteraccionFecha: "",
   proximaActividadDia: "", proximaActividadHora: "", proximaActividadTexto: "",
 };
 
@@ -43,11 +51,10 @@ function matchesText(person: Person, search: string) {
 
 function matchesTableFilters(person: Person, filters: TableFilterState) {
   const q = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase().trim();
-  const nombre = q(filters.nombre), telefono = q(filters.telefono);
+  const telefono = q(filters.telefono);
   const nextAppt = person.citas.proximas[0];
   const proxActividad = q(filters.proximaActividadTexto);
-  return (!nombre || q(person.nombre).includes(nombre) || q(person.email ?? "").includes(nombre))
-    && (!telefono || q(person.telefono).includes(telefono))
+  return (!telefono || q(person.telefono).includes(telefono))
     && (!filters.ultimaInteraccionFecha || person.ultima_interaccion.slice(0, 10) === filters.ultimaInteraccionFecha)
     && (!filters.proximaActividadDia || nextAppt?.date === filters.proximaActividadDia)
     && (!filters.proximaActividadHora || nextAppt?.time === filters.proximaActividadHora)
@@ -65,9 +72,9 @@ export function PeoplePage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search, 200);
-  const [quickFilter, setQuickFilter] = useState<PersonQuickFilter>("Todos");
-  const [showInactive, setShowInactive] = useState(false);
-  const [showArchived, setShowArchived] = useState(false);
+  const [tipoFilter, setTipoFilter] = useState<PersonTipoFilter>("Todos");
+  const [conditionFilter, setConditionFilter] = useState<PersonConditionFilter>(null);
+  const [statusFilter, setStatusFilter] = useState<PersonStatusFilter>(null);
   const [tableFilters, setTableFilters] = useState<TableFilterState>(defaultTableFilters);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -84,46 +91,70 @@ export function PeoplePage() {
   useEffect(() => {
     if (!canRead) { setLoading(false); return; }
     let active = true;
+    const showInactive = statusFilter === "inactivos";
+    const showArchived = statusFilter === "archivados";
     Promise.all([
-      peopleService.list({ showInactive, showArchived }),
+      usuariosService.list({ showInactive, showArchived }),
       usersService.list(),
     ]).then(([records, userRecords]) => {
       if (active) { setItems(records); setUsers(userRecords as { id: string; name: string; display_label?: string }[]); }
     }).catch(() => message.error("No se pudieron cargar los datos"))
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [canRead, showInactive, showArchived]);
+  }, [canRead, statusFilter]);
 
   const filteredPeople = useMemo(() => items.filter((p) => {
-    if (!showInactive && p.estado === "Inactivo") return false;
-    if (!showArchived && p.estado === "Archivado") return false;
+    if (statusFilter === "inactivos") {
+      if (p.estado !== "Inactivo") return false;
+    } else if (statusFilter === "archivados") {
+      if (p.estado !== "Archivado") return false;
+    } else {
+      if (p.estado === "Inactivo" || p.estado === "Archivado") return false;
+    }
     if (!matchesText(p, debouncedSearch)) return false;
-    if (quickFilter === "Clientes") return p.tipos.includes("Cliente");
-    if (quickFilter === "Empresas") return p.tipos.includes("Empresa");
-    if (quickFilter === "Freelancers") return p.tipos.includes("Freelancer");
-    if (quickFilter === "Proveedores") return p.tipos.includes("Proveedor");
-    if (quickFilter === "Con tareas") return p.tareas.pendientes.length > 0;
-    if (quickFilter === "Pendientes de pago") return p.finanzas.pendientes.length > 0;
+    if (tipoFilter !== "Todos" && !p.tipos.includes(tipoFilter)) return false;
+    if (conditionFilter === "conTareas" && p.tareas.pendientes.length === 0) return false;
+    if (conditionFilter === "pagoPendiente" && p.finanzas.pendientes.length === 0) return false;
     return true;
-  }), [debouncedSearch, quickFilter, items, showInactive, showArchived]);
+  }), [debouncedSearch, tipoFilter, conditionFilter, statusFilter, items]);
 
   const tableFilteredPeople = useMemo(() => filteredPeople.filter((p) => matchesTableFilters(p, tableFilters)), [filteredPeople, tableFilters]);
 
-  useEffect(() => { setPage(1); }, [debouncedSearch, quickFilter, showInactive, showArchived, tableFilters]);
+  useEffect(() => { setPage(1); }, [debouncedSearch, tipoFilter, conditionFilter, statusFilter, tableFilters]);
 
-  const clearAllFilters = () => { setSearch(""); setQuickFilter("Todos"); setTableFilters(defaultTableFilters); };
+  const clearAllFilters = () => { setSearch(""); setTipoFilter("Todos"); setConditionFilter(null); setStatusFilter(null); setTableFilters(defaultTableFilters); };
   const clearTableFilters = () => setTableFilters(defaultTableFilters);
+
+  const hasActiveFilters = search !== "" || tipoFilter !== "Todos" || conditionFilter !== null || statusFilter !== null
+    || tableFilters.tipos.length > 0 || tableFilters.estado.length > 0
+    || tableFilters.telefono !== "" || tableFilters.ultimaInteraccionFecha !== ""
+    || tableFilters.proximaActividadDia !== "" || tableFilters.proximaActividadHora !== "" || tableFilters.proximaActividadTexto !== "";
+
+  const activeFilterChips: { key: string; label: string; onRemove: () => void }[] = [];
+  if (search) activeFilterChips.push({ key: "search", label: `"${search}"`, onRemove: () => setSearch("") });
+  if (tipoFilter !== "Todos") activeFilterChips.push({ key: "tipo", label: tipoFilter === "Cliente" ? "Clientes" : tipoFilter === "Empresa" ? "Empresas" : tipoFilter === "Freelancer" ? "Freelancers" : "Proveedores", onRemove: () => setTipoFilter("Todos") });
+  if (conditionFilter === "conTareas") activeFilterChips.push({ key: "condition", label: "Con tareas", onRemove: () => setConditionFilter(null) });
+  if (conditionFilter === "pagoPendiente") activeFilterChips.push({ key: "condition", label: "Pend. pago", onRemove: () => setConditionFilter(null) });
+  if (statusFilter === "inactivos") activeFilterChips.push({ key: "status", label: "Inactivos", onRemove: () => setStatusFilter(null) });
+  if (statusFilter === "archivados") activeFilterChips.push({ key: "status", label: "Archivados", onRemove: () => setStatusFilter(null) });
+  tableFilters.tipos.forEach((t) => activeFilterChips.push({ key: `tipo-${t}`, label: t, onRemove: () => setTableFilters({ ...tableFilters, tipos: tableFilters.tipos.filter((x) => x !== t) }) }));
+  tableFilters.estado.forEach((s) => activeFilterChips.push({ key: `estado-${s}`, label: s, onRemove: () => setTableFilters({ ...tableFilters, estado: tableFilters.estado.filter((x) => x !== s) }) }));
+  if (tableFilters.telefono) activeFilterChips.push({ key: "tel", label: `Tel: ${tableFilters.telefono}`, onRemove: () => setTableFilters({ ...tableFilters, telefono: "" }) });
+  if (tableFilters.ultimaInteraccionFecha) activeFilterChips.push({ key: "ultima", label: `Última: ${tableFilters.ultimaInteraccionFecha}`, onRemove: () => setTableFilters({ ...tableFilters, ultimaInteraccionFecha: "" }) });
+  if (tableFilters.proximaActividadDia || tableFilters.proximaActividadHora || tableFilters.proximaActividadTexto) {
+    activeFilterChips.push({ key: "prox", label: "Próxima actividad", onRemove: () => setTableFilters({ ...tableFilters, proximaActividadDia: "", proximaActividadHora: "", proximaActividadTexto: "" }) });
+  }
 
   const onCreatePerson = async () => {
     try {
       const values = await form.validateFields();
-      const newPerson = await peopleService.create({
-        nombre: values.nombre, telefono: values.telefono, email: values.email,
-        tipos: values.tipos, estado: values.estado, fecha_creacion: new Date().toISOString().slice(0, 10),
-        ultima_interaccion: new Date().toISOString().slice(0, 10), observaciones_administrativas: values.observaciones ?? "",
-        fuente: values.fuente || "Manual", etiquetas: values.etiquetas || [],
-        responsable: values.responsable,
-        proxima_actividad: "Sin actividad", proxima_actividad_detalle: "Pendiente de asignación",
+      const newPerson = await usuariosService.create({
+        user_name: values.nombre, user_phone: values.telefono, user_email: values.email,
+        user_types: values.tipos, user_status: values.estado, user_created_date: new Date().toISOString().slice(0, 10),
+        user_last_interaction: new Date().toISOString().slice(0, 10), user_admin_notes: values.observaciones ?? "",
+        user_source: values.fuente || "Manual", user_tags: values.etiquetas || [],
+        user_assigned_to: values.responsable,
+        user_next_activity: "Sin actividad", user_next_activity_detail: "Pendiente de asignación",
       });
       setItems((c) => [newPerson, ...c]); setSelectedId(newPerson.id); setCreateOpen(false); form.resetFields();
     } catch (err: any) {
@@ -136,15 +167,15 @@ export function PeoplePage() {
     if (!editPerson) return;
     try {
       const values = await editForm.validateFields();
-      const updated = await peopleService.update(editPerson.id, {
-        nombre: values.nombre, telefono: values.telefono, email: values.email,
-        tipos: values.tipos, estado: values.estado,
-        observaciones_administrativas: values.observaciones ?? "",
-        fuente: values.fuente, etiquetas: values.etiquetas,
-        responsable: values.responsable,
-        ultima_interaccion: values.ultima_interaccion || new Date().toISOString().slice(0, 10),
-        proxima_actividad: values.proxima_actividad,
-        proxima_actividad_detalle: values.proxima_actividad_detalle,
+      const updated = await usuariosService.update(editPerson.id, {
+        user_name: values.nombre, user_phone: values.telefono, user_email: values.email,
+        user_types: values.tipos, user_status: values.estado,
+        user_admin_notes: values.observaciones ?? "",
+        user_source: values.fuente, user_tags: values.etiquetas,
+        user_assigned_to: values.responsable,
+        user_last_interaction: values.ultima_interaccion || new Date().toISOString().slice(0, 10),
+        user_next_activity: values.proxima_actividad,
+        user_next_activity_detail: values.proxima_actividad_detalle,
       });
       setItems((c) => c.map((p) => (p.id === editPerson.id ? updated : p))); setSelectedId(updated.id); setEditOpen(false); setEditPerson(null); editForm.resetFields();
     } catch (err: any) {
@@ -155,7 +186,7 @@ export function PeoplePage() {
 
   const handleDeletePerson = async (person: Person) => {
     try {
-      await peopleService.remove(person.id);
+      await usuariosService.remove(person.id);
       setItems((c) => c.filter((p) => p.id !== person.id));
       if (selectedId === person.id) setSelectedId(null);
     } catch (err: any) { message.error(err?.message || "No se pudo eliminar el usuario"); }
@@ -181,26 +212,53 @@ export function PeoplePage() {
         <div className="flex min-h-[300px] items-center justify-center"><Spin size="large" /></div>
       ) : (<>
 
-      <Card className="rounded-3xl border-[var(--border)] border-b border-b-[var(--border-subtle)] bg-[var(--surface-strong)] shadow-sm">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center">
-            <Input value={search} onChange={(e) => setSearch(e.target.value)} allowClear prefix={<SearchOutlined className="text-surface-muted" />} placeholder="Buscar usuario..." className="rounded-button sm:max-w-md" />
-            <Button type="primary" icon={<PlusOutlined />} className="rounded-button" disabled={!canCreate} onClick={() => setCreateOpen(true)}>Nuevo usuario</Button>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between xl:justify-end">
-            <div className="flex flex-wrap gap-2">
-              {quickFilterLabels.map((item) => (
-                <button key={item.value} type="button" onClick={() => setQuickFilter(item.value)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${quickFilter === item.value ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{item.label}</button>
-              ))}
-              <button type="button" onClick={() => setShowInactive((p) => !p)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${showInactive ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{showInactive ? "Ocultar inactivos" : "Ver inactivos"}</button>
-              <button type="button" onClick={() => setShowArchived((p) => !p)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${showArchived ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{showArchived ? "Ocultar archivados" : "Ver archivados"}</button>
-            </div>
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--status-correct)]/40 bg-[var(--status-correct)]/15 text-sm font-black text-[var(--status-correct)] shadow-[0_0_0_4px_rgba(34,197,94,0.08)]">{tableFilteredPeople.length}</div>
-          </div>
+      <Card className="rounded-3xl border-[var(--border)] bg-[var(--surface-strong)] shadow-sm">
+        {/* Fila 1: Búsqueda + Counter + Acción principal */}
+        <div className="flex items-center gap-3">
+          <Input value={search} onChange={(e) => setSearch(e.target.value)} allowClear prefix={<SearchOutlined className="text-surface-muted" />} placeholder="Buscar nombre, email, teléfono..." className="rounded-button flex-1 sm:max-w-md" />
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--status-correct)]/40 bg-[var(--status-correct)]/15 text-xs font-black text-[var(--status-correct)]">{tableFilteredPeople.length}</div>
+          <Button type="primary" icon={<PlusOutlined />} className="rounded-button shrink-0" disabled={!canCreate} onClick={() => setCreateOpen(true)}>Nuevo</Button>
         </div>
+
+        {/* Fila 2: Filtros de tipo (single-select) */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {tipoFilterLabels.map((item) => (
+            <button key={item.value} type="button" onClick={() => setTipoFilter(item.value)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${tipoFilter === item.value ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{item.label}</button>
+          ))}
+        </div>
+
+        {/* Fila 3: Condición + Estado + Limpiar */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {conditionFilterLabels.map((item) => (
+            <button key={item.value} type="button" onClick={() => setConditionFilter(conditionFilter === item.value ? null : item.value)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${conditionFilter === item.value ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{item.label}</button>
+          ))}
+          <span className="mx-1 h-4 w-px bg-[var(--border-subtle)]" />
+          {statusFilterLabels.map((item) => (
+            <button key={item.value} type="button" onClick={() => setStatusFilter(statusFilter === item.value ? null : item.value)}
+              className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${statusFilter === item.value ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 text-[var(--accent-deep)]" : "border-[var(--border-subtle)] text-surface-secondary hover:border-[var(--accent-border)] hover:text-[var(--accent-deep)]"}`}>{item.label}</button>
+          ))}
+          {hasActiveFilters && (
+            <>
+              <span className="mx-1 h-4 w-px bg-[var(--border-subtle)]" />
+              <button type="button" onClick={clearAllFilters} className="text-xs font-medium text-[var(--accent)] hover:underline">Limpiar filtros</button>
+            </>
+          )}
+        </div>
+
+        {/* Fila 4 (condicional): Chips de filtros activos */}
+        {hasActiveFilters && activeFilterChips.length > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface)] px-3 py-2">
+            <span className="text-xs text-surface-muted">{activeFilterChips.length} filtro{activeFilterChips.length > 1 ? "s" : ""} · {tableFilteredPeople.length} resultado{tableFilteredPeople.length !== 1 ? "s" : ""}</span>
+            {activeFilterChips.map((chip) => (
+              <span key={chip.key} className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)]/30 px-2 py-0.5 text-xs text-[var(--accent-deep)]">
+                {chip.label}
+                <button type="button" onClick={chip.onRemove} className="ml-0.5 text-[var(--accent)]/60 hover:text-[var(--accent)]"><CloseCircleOutlined className="text-[10px]" /></button>
+              </span>
+            ))}
+          </div>
+        )}
       </Card>
 
       <div>
@@ -227,11 +285,7 @@ export function PeoplePage() {
             <div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">Listado</p><h2 className="mt-2 text-xl font-bold text-surface-main">Usuarios registrados</h2></div>
           </div>
           <Divider />
-          {tableFilteredPeople.length > 0 ? (
-            <PeopleTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
-          ) : (
-            <div className="py-6"><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No se encontraron usuarios"><Button onClick={clearAllFilters}>Limpiar filtros</Button></Empty></div>
-          )}
+          <PeopleTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
           {tableFilteredPeople.length > pageSize && (
             <div className="flex justify-end px-4 py-3">
               <Pagination current={page} pageSize={pageSize} total={tableFilteredPeople.length} onChange={(p, ps) => { setPage(p); setPageSize(ps); }} pageSizeOptions={[10, 20, 50, 100]} showSizeChanger showTotal={(total, range) => `${range[0]}-${range[1]} de ${total}`} />
