@@ -11,7 +11,9 @@ export async function ensureAllSchemas(db) {
     user_consent INTEGER DEFAULT 1, user_assigned_to TEXT,
     user_created_at DATETIME NOT NULL, user_updated_at DATETIME, user_deleted_at DATETIME,
     user_created_by TEXT, user_updated_by TEXT,
-    user_types TEXT DEFAULT '[]', user_tags TEXT DEFAULT '[]', user_admin_notes TEXT DEFAULT ''
+    user_types TEXT DEFAULT '[]', user_tags TEXT DEFAULT '[]', user_admin_notes TEXT DEFAULT '',
+    user_address TEXT, user_birth_date DATE, user_gender TEXT, user_doc_id TEXT,
+    user_photo_url TEXT, user_notes TEXT, user_contact_pref TEXT
 
   )`).run();
 
