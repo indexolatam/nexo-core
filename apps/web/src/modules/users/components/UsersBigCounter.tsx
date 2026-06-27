@@ -1,6 +1,6 @@
 import type { User } from "../../../types/adminUsers";
 
-export function PeopleBigCounter({ items }: { items: User[] }) {
+export function UsersBigCounter({ items }: { items: User[] }) {
   const activos = items.filter((p) => p.user_status === "Activo").length;
   const pendientes = items.filter((p) => p.user_status === "Pendiente").length;
   const inactivos = items.filter((p) => p.user_status === "Inactivo").length;

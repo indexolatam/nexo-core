@@ -1,7 +1,7 @@
 import { Empty } from "antd";
 import type { UserHistoryEntry } from "../../../types/adminUsers";
 
-export function PersonHistoryList({ entries }: { entries: UserHistoryEntry[] }) {
+export function UserHistoryList({ entries }: { entries: UserHistoryEntry[] }) {
   if (entries.length === 0) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Sin historial" />;
 
   return (

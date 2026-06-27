@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export function PersonSummaryLine({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
+export function UserSummaryLine({ label, value, icon }: { label: string; value: string; icon: ReactNode }) {
   return (
     <div className="min-w-0 flex items-start gap-3 rounded-2xl border border-[var(--border-subtle)] bg-transparent p-4">
       <span className="mt-0.5 text-base text-[var(--accent-deep)]">{icon}</span>

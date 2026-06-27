@@ -16,7 +16,7 @@ import { AgendaPage } from "./pages/admin/AgendaPage";
 import { AuditLogsPage } from "./pages/admin/AuditLogsPage";
 import { DashboardPage } from "./pages/admin/DashboardPage";
 import { FinancePage } from "./pages/admin/FinancePage";
-import { PeoplePage } from "./pages/admin/PeoplePage";
+import { UsersPage } from "./pages/admin/UsersPage";
 import { TasksPage } from "./pages/admin/TasksPage";
 import { LoginPage } from "./pages/admin/LoginPage";
 import { SettingsPage } from "./pages/admin/SettingsPage";
@@ -46,8 +46,8 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPage /> },
           { path: "agenda", element: <RequireRole module="agenda" action="read"><AgendaPage /></RequireRole> },
-          { path: "personas", element: <RequireRole module="usuarios" action="read"><PeoplePage /></RequireRole> },
-          { path: "usuarios", element: <RequireRole module="usuarios" action="read"><PeoplePage /></RequireRole> },
+          { path: "personas", element: <RequireRole module="usuarios" action="read"><UsersPage /></RequireRole> },
+          { path: "usuarios", element: <RequireRole module="usuarios" action="read"><UsersPage /></RequireRole> },
           { path: "finanzas", element: <RequireRole module="finanzas" action="read"><FinancePage /></RequireRole> },
           { path: "tareas", element: <RequireRole module="tareas" action="read"><TasksPage /></RequireRole> },
           { path: "configuracion", element: <RequireRole module="configuracion" action="read"><SettingsPage /></RequireRole> },

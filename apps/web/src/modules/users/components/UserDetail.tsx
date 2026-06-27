@@ -2,13 +2,13 @@ import { ArrowLeftOutlined, CalendarOutlined, DeleteOutlined, EditOutlined, Mail
 import { Avatar, Button, Card, Divider, Popconfirm, Tabs } from "antd";
 import type { User } from "../../../types/adminUsers";
 import { formatTypeLabel } from "../../../utils/formatting";
-import { PersonSummaryLine } from "./PersonSummaryLine";
-import { PersonAgendaList } from "./PersonAgendaList";
-import { PersonTasksList } from "./PersonTasksList";
-import { PersonFinanceList } from "./PersonFinanceList";
-import { PersonHistoryList } from "./PersonHistoryList";
+import { UserSummaryLine } from "./UserSummaryLine";
+import { UserAgendaList } from "./UserAgendaList";
+import { UserTasksList } from "./UserTasksList";
+import { UserFinanceList } from "./UserFinanceList";
+import { UserHistoryList } from "./UserHistoryList";
 
-export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: User; onBack: () => void; onEdit?: (person: User) => void; onDelete?: (person: User) => void }) {
+export function UserDetail({ person, onBack, onEdit, onDelete }: { person: User; onBack: () => void; onEdit?: (person: User) => void; onDelete?: (person: User) => void }) {
   return (
     <div className="space-y-4">
       <Card className="rounded-3xl border-[var(--border)]">
@@ -41,9 +41,9 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Use
         </div>
         <Divider className="my-5" />
         <div className="grid min-w-0 gap-3 md:grid-cols-3">
-          <PersonSummaryLine label="Teléfono" value={person.user_phone} icon={<PhoneOutlined />} />
-          <PersonSummaryLine label="Email" value={person.user_email ?? "Sin correo"} icon={<MailOutlined />} />
-          <PersonSummaryLine label="Último contacto" value={person.user_last_interaction} icon={<CalendarOutlined />} />
+          <UserSummaryLine label="Teléfono" value={person.user_phone} icon={<PhoneOutlined />} />
+          <UserSummaryLine label="Email" value={person.user_email ?? "Sin correo"} icon={<MailOutlined />} />
+          <UserSummaryLine label="Último contacto" value={person.user_last_interaction} icon={<CalendarOutlined />} />
         </div>
       </Card>
 
@@ -72,10 +72,10 @@ export function PersonDetail({ person, onBack, onEdit, onDelete }: { person: Use
                 </div>
               ),
             },
-            { key: "Agenda", label: "Agenda", children: <PersonAgendaList entries={person.citas.proximas.concat(person.citas.historial)} /> },
-            { key: "Tareas", label: "Tareas", children: <PersonTasksList entries={person.tareas.pendientes.concat(person.tareas.completadas)} /> },
-            { key: "Finanzas", label: "Finanzas", children: <PersonFinanceList payments={person.finanzas.pendientes} services={person.finanzas.servicios} /> },
-            { key: "Historial", label: "Historial", children: <PersonHistoryList entries={person.historial} /> },
+            { key: "Agenda", label: "Agenda", children: <UserAgendaList entries={person.citas.proximas.concat(person.citas.historial)} /> },
+            { key: "Tareas", label: "Tareas", children: <UserTasksList entries={person.tareas.pendientes.concat(person.tareas.completadas)} /> },
+            { key: "Finanzas", label: "Finanzas", children: <UserFinanceList payments={person.finanzas.pendientes} services={person.finanzas.servicios} /> },
+            { key: "Historial", label: "Historial", children: <UserHistoryList entries={person.historial} /> },
           ]}
         />
       </Card>

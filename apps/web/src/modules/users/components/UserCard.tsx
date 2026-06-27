@@ -3,7 +3,7 @@ import { Tooltip } from "antd";
 import type { User } from "../../../types/adminUsers";
 import { formatTypeLabel, highlight } from "../../../utils/formatting";
 
-export function PersonCard({ person, compact, selected, onClick, query }: { person: User; compact?: boolean; selected?: boolean; onClick: (person: User) => void; query: string }) {
+export function UserCard({ person, compact, selected, onClick, query }: { person: User; compact?: boolean; selected?: boolean; onClick: (person: User) => void; query: string }) {
   return (
     <button type="button" onClick={() => onClick(person)}
       className={`w-full rounded-3xl border p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--accent-border)] ${selected ? "border-[var(--accent-border)] bg-[var(--accent-soft)]/40 shadow-sm" : "border-[var(--border-subtle)] bg-transparent"}`}>

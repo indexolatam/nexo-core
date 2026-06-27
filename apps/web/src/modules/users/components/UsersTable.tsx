@@ -26,7 +26,7 @@ function HeaderFilterButton({ active, children }: { active: boolean; children: R
   );
 }
 
-export function PeopleTable({ items, allFilteredPeople, onSelect, query, filters, onChangeFilters, onClearFilters }: {
+export function UsersTable({ items, allFilteredPeople, onSelect, query, filters, onChangeFilters, onClearFilters }: {
   items: User[];
   allFilteredPeople: User[];
   onSelect: (person: User) => void;

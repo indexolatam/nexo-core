@@ -6,10 +6,10 @@ import { usuariosService, usersService } from "../../services";
 import { usePermissions } from "../../hooks/usePermissions";
 import type { User, UserStatus, UserTypeFilter, UserConditionFilter, UserStatusFilter } from "../../types/adminUsers";
 import { userTypeOptions } from "../../types/adminUsers";
-import { PersonCard } from "./components/PersonCard";
-import { PeopleBigCounter } from "./components/PeopleBigCounter";
-import { PersonDetail } from "./components/PersonDetail";
-import { PeopleTable, type TableFilterState } from "./components/PeopleTable";
+import { UserCard } from "./components/UserCard";
+import { UsersBigCounter } from "./components/UsersBigCounter";
+import { UserDetail } from "./components/UserDetail";
+import { UsersTable, type TableFilterState } from "./components/UsersTable";
 
 const tipoFilterLabels: { value: UserTypeFilter; label: string }[] = [
   { value: "Todos", label: "Todos" },
@@ -63,7 +63,7 @@ function matchesTableFilters(person: User, filters: TableFilterState) {
     && (filters.user_status.length === 0 || filters.user_status.includes(person.user_status));
 }
 
-export function PeoplePage() {
+export function UsersPage() {
   const { hasPermission } = usePermissions();
   const canRead = hasPermission("usuarios", "read");
   const canCreate = hasPermission("usuarios", "create");
@@ -262,16 +262,16 @@ export function PeoplePage() {
       <div>
       {selectedPerson ? (
         <div className="grid items-stretch gap-6 transition-[height] duration-200 ease-in-out xl:h-[720px] xl:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)]">
-          <div><PersonDetail person={selectedPerson} onBack={() => setSelectedId(null)} onEdit={canEdit ? (p) => { setEditPerson(p); setEditOpen(true); } : undefined} onDelete={canEdit ? handleDeletePerson : undefined} /></div>
+          <div><UserDetail person={selectedPerson} onBack={() => setSelectedId(null)} onEdit={canEdit ? (p) => { setEditPerson(p); setEditOpen(true); } : undefined} onDelete={canEdit ? handleDeletePerson : undefined} /></div>
           <div className="min-h-0 xl:h-full">
             <Card className="flex h-full flex-col rounded-3xl border-[var(--border)] [&_.ant-card-body]:flex [&_.ant-card-body]:min-h-0 [&_.ant-card-body]:flex-1 [&_.ant-card-body]:flex-col">
               <div className="flex shrink-0 items-start justify-between gap-3">
                 <div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">Lista compacta</p><h2 className="mt-2 text-lg font-bold text-surface-main">Usuarios</h2></div>
-                <PeopleBigCounter items={items} />
+                <UsersBigCounter items={items} />
               </div>
               <Divider className="shrink-0" />
               <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-1 thin-task-scrollbar">
-                {rightList.map((p) => <PersonCard key={p.user_id} person={p} compact selected={p.user_id === selectedPerson.user_id} onClick={(person) => setSelectedId(person.user_id)} query={search} />)}
+                {rightList.map((p) => <UserCard key={p.user_id} person={p} compact selected={p.user_id === selectedPerson.user_id} onClick={(person) => setSelectedId(person.user_id)} query={search} />)}
                 {rightList.length === 0 ? <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No se encontraron usuarios" /> : null}
               </div>
             </Card>
@@ -283,7 +283,7 @@ export function PeoplePage() {
             <div><p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--accent)]">Listado</p><h2 className="mt-2 text-xl font-bold text-surface-main">Usuarios registrados</h2></div>
           </div>
           <Divider />
-          <PeopleTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.user_id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
+          <UsersTable items={paginatedPeople} allFilteredPeople={tableFilteredPeople} onSelect={(person) => setSelectedId(person.user_id)} query={search} filters={tableFilters} onChangeFilters={setTableFilters} onClearFilters={clearTableFilters} />
           {tableFilteredPeople.length > pageSize && (
             <div className="flex justify-end px-4 py-3">
               <Pagination current={page} pageSize={pageSize} total={tableFilteredPeople.length} onChange={(p, ps) => { setPage(p); setPageSize(ps); }} pageSizeOptions={[10, 20, 50, 100]} showSizeChanger showTotal={(total, range) => `${range[0]}-${range[1]} de ${total}`} />
