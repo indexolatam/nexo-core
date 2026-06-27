@@ -41,7 +41,7 @@ export function UserDetail({ user, onBack, onEdit, onDelete }: { user: User; onB
         </div>
         <Divider className="my-5" />
         <div className="grid min-w-0 gap-3 md:grid-cols-3">
-          <UserSummaryLine label="Teléfono" value={user.user_phone} icon={<PhoneOutlined />} />
+          <UserSummaryLine label="Teléfono" value={`+${user.user_phone_code} ${user.user_phone}`} icon={<PhoneOutlined />} />
           <UserSummaryLine label="Email" value={user.user_email ?? "Sin correo"} icon={<MailOutlined />} />
           <UserSummaryLine label="Último contacto" value={user.user_last_interaction} icon={<CalendarOutlined />} />
         </div>
@@ -105,6 +105,14 @@ export function UserDetail({ user, onBack, onEdit, onDelete }: { user: User; onB
             <p><span className="font-semibold text-surface-main">Foto:</span> {user.user_photo_url ? <a href={user.user_photo_url} target="_blank" rel="noopener noreferrer" className="text-[var(--accent)] hover:underline">Ver foto</a> : "—"}</p>
             <p><span className="font-semibold text-surface-main">Notas internas:</span> {user.user_notes || "—"}</p>
             <p><span className="font-semibold text-surface-main">Contacto pref.:</span> {user.user_contact_pref || "—"}</p>
+            {user.user_contact_phone ? (
+              <>
+                <p><span className="font-semibold text-surface-main">Contacto:</span> +{user.user_contact_phone_code} {user.user_contact_phone}</p>
+                <p><span className="font-semibold text-surface-main">Nombre contacto:</span> {user.user_contact_name} {user.user_contact_lastname}</p>
+              </>
+            ) : null}
+            <p><span className="font-semibold text-surface-main">Consentimiento:</span> {user.user_consent ? "Sí" : "No"}</p>
+            <p><span className="font-semibold text-surface-main">Actualizado:</span> {user.user_updated_at || "—"}</p>
             <div>
               <p className="font-semibold text-surface-main">Etiquetas:</p>
               <div className="mt-2 flex flex-wrap gap-2">
