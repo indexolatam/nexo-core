@@ -12,7 +12,7 @@ export function PublicFooter() {
             className="h-12 w-auto max-w-[210px] object-contain"
           />
           <p className="mt-3 text-sm text-[var(--footer-link)]">
-            Acompañamiento personalizado y orientación para agendar servicios.
+            {CLIENT.footer.tagline}
           </p>
         </div>
         <div>
@@ -49,7 +49,7 @@ export function PublicFooter() {
       </div>
       <div className="border-t border-[var(--footer-divider)] px-4 py-5 text-center text-xs text-[var(--footer-link)]">
         <p>&copy; {new Date().getFullYear()} {CLIENT.branding.name}. Todos los derechos reservados.</p>
-        <p className="mt-1">Desarrollado por INDEXO.</p>
+        {CLIENT.footer.showCredit && <p className="mt-1">{CLIENT.footer.credit}</p>}
       </div>
     </footer>
   );

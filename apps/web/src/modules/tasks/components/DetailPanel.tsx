@@ -1,4 +1,4 @@
-import type { Task } from "../../../types/adminTasks";
+import type { Task } from "../types/adminTasks";
 import { PriorityDot, StatusBadge } from "./ui";
 import { eventLabelById, isEventRelation } from "./TaskForm";
 

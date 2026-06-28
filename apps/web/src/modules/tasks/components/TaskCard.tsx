@@ -1,5 +1,5 @@
 import { CheckCircleOutlined } from "@ant-design/icons";
-import type { Task } from "../../../types/adminTasks";
+import type { Task } from "../types/adminTasks";
 import { Pill, PriorityDot, statusBorderColor } from "./ui";
 
 export function TaskCard({ task, isSelected, onSelect }: { task: Task; isSelected: boolean; onSelect: () => void }) {

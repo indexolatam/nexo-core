@@ -5,13 +5,6 @@ import { MenuOutlined, MoonOutlined, SunOutlined } from "@ant-design/icons";
 import { CLIENT, getContactHref } from "../../config/client";
 import { useTheme } from "../../context/ThemeContext";
 
-const navItems = [
-  { label: "Inicio", to: "/" },
-  { label: "Servicios", to: "/servicios" },
-  { label: "Blog", to: "/blog" },
-  { label: "Contacto", to: "/contacto" },
-];
-
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -36,7 +29,7 @@ export function PublicHeader() {
         </NavLink>
 
         <nav className="hidden items-center gap-6 md:flex">
-          {navItems.map((item) => (
+          {CLIENT.navigation.map((item) => (
             <NavLink key={item.to} to={item.to} className={linkClass}>
               {item.label}
             </NavLink>
@@ -83,7 +76,7 @@ export function PublicHeader() {
         onClose={() => setOpen(false)}
       >
         <div className="flex flex-col gap-4">
-          {navItems.map((item) => (
+          {CLIENT.navigation.map((item) => (
             <NavLink key={item.to} to={item.to} className={linkClass} onClick={() => setOpen(false)}>
               {item.label}
             </NavLink>

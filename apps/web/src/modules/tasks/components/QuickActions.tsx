@@ -1,7 +1,7 @@
 import { Button, Select } from "antd";
 import { CheckCircleOutlined, DeleteOutlined } from "@ant-design/icons";
-import type { Task, TaskOwner, TaskPriority } from "../../../types/adminTasks";
-import { taskPriorities } from "../../../types/adminTasks";
+import type { Task, TaskOwner, TaskPriority } from "../types/adminTasks";
+import { taskPriorities } from "../types/adminTasks";
 import { PriorityDot, FieldLabel } from "./ui";
 import { ownerOptions } from "./TaskFilters";
 

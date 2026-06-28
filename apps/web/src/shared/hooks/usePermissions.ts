@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import { permissionsService } from "../services";
-import type { ModulePermissionsByRole } from "../types/adminSettings";
-import { useAuth } from "../modules/auth/AuthContext";
+import { permissionsService } from "../../services";
+import type { ModulePermissionsByRole } from "../../modules/settings/types/adminSettings";
+import { useAuth } from "../../modules/auth/AuthContext";
 
 const EMPTY: ModulePermissionsByRole = {};
 

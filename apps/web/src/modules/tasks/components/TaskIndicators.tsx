@@ -1,6 +1,6 @@
 import { Card } from "antd";
-import type { Task } from "../../../types/adminTasks";
-import { TASK_BASE_DATE } from "../../../types/adminTasks";
+import type { Task } from "../types/adminTasks";
+import { TASK_BASE_DATE } from "../types/adminTasks";
 
 export function IndicatorsRow({ tasks, filteredTasks }: { tasks: Task[]; filteredTasks: Task[] }) {
   const total = tasks.length;

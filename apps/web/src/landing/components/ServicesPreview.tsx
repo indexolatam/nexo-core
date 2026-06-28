@@ -1,6 +1,6 @@
 import { Button, Card, Skeleton } from "antd";
 import { useEffect, useState } from "react";
-import { getContactHref } from "../../config/client";
+import { getContactHref, CLIENT } from "../../config/client";
 
 type ServiceFromApi = {
   services_id: string;
@@ -18,7 +18,7 @@ export function ServicesPreview() {
   useEffect(() => {
     fetch("/api/services")
       .then((res) => res.json())
-      .then((data) => setServices(data || []))
+      .then((json) => setServices(Array.isArray(json?.data) ? json.data : []))
       .catch(() => setServices([]))
       .finally(() => setLoading(false));
   }, []);
@@ -27,9 +27,9 @@ export function ServicesPreview() {
     <section id="servicios" className="surface-app py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-wide text-[var(--accent)]">Servicios</p>
-          <h2 className="mt-3 text-3xl font-bold text-surface-main sm:text-4xl">Servicios principales</h2>
-          <p className="mt-4 text-surface-secondary">Consulta los servicios disponibles y solicita información para agendar.</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-[var(--accent)]">{CLIENT.landing.servicesPreview.overline}</p>
+          <h2 className="mt-3 text-3xl font-bold text-surface-main sm:text-4xl">{CLIENT.landing.servicesPreview.heading}</h2>
+          <p className="mt-4 text-surface-secondary">{CLIENT.landing.servicesPreview.description}</p>
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {loading

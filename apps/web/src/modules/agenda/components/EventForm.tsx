@@ -9,13 +9,13 @@ import type {
   AgendaEvent,
   AgendaFilter,
   AgendaView,
-} from "../../../types/adminAgenda";
+} from "../types/adminAgenda";
 import {
   agendaFilters,
   agendaLocationLabels,
   agendaLocationTypes,
   agendaViews,
-} from "../../../types/adminAgenda";
+} from "../types/adminAgenda";
 import { FilterGroup, Pill } from "./AgendaFilters";
 import { LocationBadge } from "./CalendarView";
 

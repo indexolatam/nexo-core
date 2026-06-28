@@ -1,5 +1,15 @@
 import { json, error } from "../../_core/response.js";
 import { ensureAllSchemas } from "../../_core/db.js";
+import { getUserPermission } from "../../_core/permissions.js";
+
+async function checkPermission(context, action) {
+  const user = context.data?.user;
+  if (!user) return error("No autenticado", 401);
+  if (user.role === "root") return null;
+  const perm = await getUserPermission(context.env.DB, user.role, "configuracion");
+  if (!perm[`can_${action}`]) return error("Sin permiso para esta acción", 403);
+  return null;
+}
 
 function mapRowsToPalette(rows) {
   const light = {};
@@ -48,6 +58,8 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPut(context) {
+  const denied = await checkPermission(context, "edit");
+  if (denied) return denied;
   const db = context.env.DB;
   await ensureAllSchemas(db);
   const body = await context.request.json();

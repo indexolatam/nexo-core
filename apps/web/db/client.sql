@@ -275,7 +275,10 @@ VALUES
 -- seed_users_credentials (password: root)
 INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at)
 VALUES
-  ('root', 'Root', 'Admin', 'root', 'root', 'root@nexo.local', '4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2', 'Root Admin', 1, datetime('now'));
+  ('root', 'Root', 'Admin', 'root', 'root', 'root@nexo.local', '4813494d137e1631bba301d5acab6e7bb7aa74ce1185d456565ef51d737677b2', 'Root Admin', 1, datetime('now')),
+  ('usr-admin', 'Admin', 'User', 'admin', 'admin', 'admin@nexo.local', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', 'Admin User', 1, datetime('now')),
+  ('usr-asistente', 'Asistente', 'User', 'asistente', 'asis', 'asis@nexo.local', '3b0f4397bb0cf0b3f97704aa31b20accf225710ad86e83c9cbc63b706fd1f1d3', 'Asistente User', 1, datetime('now')),
+  ('usr-colaborador', 'Colaborador', 'User', 'colaborador', 'colab', 'colab@nexo.local', 'f2c7c2aa06a1c44c175729dd3c88c34e66e355628d13364336b32cb858bf50d6', 'Colaborador User', 1, datetime('now'));
 
 -- seed_module_permissions
 INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create, can_edit, can_delete) VALUES
@@ -287,10 +290,10 @@ INSERT OR IGNORE INTO module_permissions (id, role, module, can_read, can_create
   ('perm-admin-agenda','admin','agenda',1,1,1,1), ('perm-admin-tareas','admin','tareas',1,1,1,1),
   ('perm-admin-configuracion','admin','configuracion',1,1,1,1), ('perm-admin-auditoria','admin','auditoria',0,0,0,0),
   ('perm-admin-blog','admin','blog',0,0,0,0),
-  ('perm-doctor-usuarios','doctor','usuarios',0,0,0,0), ('perm-doctor-finanzas','doctor','finanzas',0,0,0,0),
-  ('perm-doctor-agenda','doctor','agenda',1,1,1,1), ('perm-doctor-tareas','doctor','tareas',1,1,1,1),
-  ('perm-doctor-configuracion','doctor','configuracion',0,0,0,0), ('perm-doctor-auditoria','doctor','auditoria',0,0,0,0),
-  ('perm-doctor-blog','doctor','blog',0,0,0,0),
+  ('perm-colaborador-usuarios','colaborador','usuarios',0,0,0,0), ('perm-colaborador-finanzas','colaborador','finanzas',0,0,0,0),
+  ('perm-colaborador-agenda','colaborador','agenda',1,1,1,0), ('perm-colaborador-tareas','colaborador','tareas',1,1,1,0),
+  ('perm-colaborador-configuracion','colaborador','configuracion',0,0,0,0), ('perm-colaborador-auditoria','colaborador','auditoria',0,0,0,0),
+  ('perm-colaborador-blog','colaborador','blog',0,0,0,0),
   ('perm-asistente-usuarios','asistente','usuarios',1,1,1,1), ('perm-asistente-finanzas','asistente','finanzas',1,1,1,1),
   ('perm-asistente-agenda','asistente','agenda',1,1,1,1), ('perm-asistente-tareas','asistente','tareas',1,1,1,1),
   ('perm-asistente-configuracion','asistente','configuracion',1,0,0,0), ('perm-asistente-auditoria','asistente','auditoria',0,0,0,0),

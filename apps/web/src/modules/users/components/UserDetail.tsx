@@ -1,7 +1,7 @@
 import { ArrowLeftOutlined, CalendarOutlined, DeleteOutlined, EditOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Avatar, Button, Card, Divider, Popconfirm, Tabs } from "antd";
-import type { User } from "../../../types/adminUsers";
-import { formatTypeLabel } from "../../../utils/formatting";
+import type { User } from "../types/adminUsers";
+import { formatTypeLabel } from "../utils/formatting";
 import { UserSummaryLine } from "./UserSummaryLine";
 import { UserAgendaList } from "./UserAgendaList";
 import { UserTasksList } from "./UserTasksList";

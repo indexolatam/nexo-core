@@ -1,8 +1,8 @@
 import { Button, Checkbox, message, Spin } from "antd";
 import { useEffect, useState } from "react";
-import { usePermissions } from "../../../hooks/usePermissions";
-import type { ModulePermissionsByRole, ModuleKey } from "../../../types/adminSettings";
-import { ALL_MODULES } from "../../../types/adminSettings";
+import { usePermissions } from "../../../shared/hooks/usePermissions";
+import type { ModulePermissionsByRole, ModuleKey } from "../types/adminSettings";
+import { ALL_MODULES } from "../types/adminSettings";
 
 const ROLE_LABELS: Record<string, string> = {
   root: "Root",

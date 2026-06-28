@@ -1,5 +1,5 @@
 import { apiRequest } from "./apiClient";
-import type { User, CreateUserInput, UpdateUserInput } from "../types/adminUsers";
+import type { User, CreateUserInput, UpdateUserInput } from "../modules/users/types/adminUsers";
 
 class UsuariosApiService {
   async list(options?: { showInactive?: boolean; showArchived?: boolean }) {

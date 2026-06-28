@@ -1,6 +1,6 @@
 import { Select } from "antd";
-import type { TaskType } from "../../../types/adminTasks";
-import { taskTypes } from "../../../types/adminTasks";
+import type { TaskType } from "../types/adminTasks";
+import { taskTypes } from "../types/adminTasks";
 import { FieldLabel } from "./ui";
 
 export type SortMode = "Fecha limite" | "Prioridad" | "Estado";

@@ -1,7 +1,7 @@
 import { UnorderedListOutlined } from "@ant-design/icons";
 import { Tooltip } from "antd";
-import type { User } from "../../../types/adminUsers";
-import { formatTypeLabel, highlight } from "../../../utils/formatting";
+import type { User } from "../types/adminUsers";
+import { formatTypeLabel, highlight } from "../utils/formatting";
 
 export function UserCard({ user, compact, selected, onClick, query }: { user: User; compact?: boolean; selected?: boolean; onClick: (user: User) => void; query: string }) {
   return (

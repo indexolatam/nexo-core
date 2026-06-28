@@ -12,7 +12,7 @@ import {
 import { Badge, Button, Card, Divider, Empty, Segmented, Tag, Tooltip } from "antd";
 import dayjs from "dayjs";
 import type { ReactNode } from "react";
-import type { FinanceMovement, PaymentMethod, PaymentStatus, PaymentView } from "../../../types/adminFinance";
+import type { FinanceMovement, PaymentMethod, PaymentStatus, PaymentView } from "../types/adminFinance";
 
 const FINANCE_BASE_DATE = new Date(2026, 5, 14);
 

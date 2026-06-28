@@ -22,7 +22,7 @@ const ALL_NAV_ITEMS = [
 const ROLE_ALLOWED_KEYS: Record<string, readonly string[]> = {
   root: ["inicio", "agenda", "tareas", "finanzas", "usuarios", "auditoria", "configuracion"],
   admin: ["inicio", "agenda", "tareas", "finanzas", "usuarios", "configuracion"],
-  doctor: ["inicio", "agenda", "tareas"],
+  colaborador: ["inicio", "agenda", "tareas"],
   asistente: ["inicio", "agenda", "tareas", "usuarios", "finanzas", "configuracion"],
 };
 

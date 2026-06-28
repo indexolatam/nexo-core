@@ -5,7 +5,7 @@ import {
   editablePaletteConfig,
   type EditablePalette,
   type PaletteColorKey,
-} from "../types/adminPalette";
+} from "../modules/settings/types/adminPalette";
 import { apiRequest } from "../services/apiClient";
 import { CLIENT } from "../config/client";
 
@@ -89,19 +89,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [lightPalette, setLightPalette] = useState<EditablePalette>(() => {
+    const clientOverrides = CLIENT.theme?.palette?.light ?? {};
     try {
       const stored = localStorage.getItem(PALETTE_CACHE_KEY);
-      if (stored) { const parsed = JSON.parse(stored); if (parsed && parsed.light) return normalizePalette(parsed.light); return normalizePalette(parsed); }
-      return defaultEditablePalette;
-    } catch { return defaultEditablePalette; }
+      if (stored) { const parsed = JSON.parse(stored); if (parsed && parsed.light) return normalizePalette({ ...clientOverrides, ...parsed.light }); return normalizePalette({ ...clientOverrides, ...parsed }); }
+      return normalizePalette(clientOverrides);
+    } catch { return normalizePalette(clientOverrides); }
   });
 
   const [darkPalette, setDarkPalette] = useState<EditablePalette>(() => {
+    const clientOverrides = CLIENT.theme?.palette?.dark ?? {};
     try {
       const stored = localStorage.getItem(PALETTE_CACHE_KEY);
-      if (stored) { const parsed = JSON.parse(stored); if (parsed && parsed.dark) return normalizePalette(parsed.dark); }
-      return defaultDarkEditablePalette;
-    } catch { return defaultDarkEditablePalette; }
+      if (stored) { const parsed = JSON.parse(stored); if (parsed && parsed.dark) return normalizePalette({ ...clientOverrides, ...parsed.dark }); }
+      return normalizePalette(clientOverrides);
+    } catch { return normalizePalette(clientOverrides); }
   });
 
   const palette = theme === "dark" ? darkPalette : lightPalette;

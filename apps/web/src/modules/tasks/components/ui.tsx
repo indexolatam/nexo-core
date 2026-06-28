@@ -1,6 +1,6 @@
 import { CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
-import type { TaskPriority, TaskStatus } from "../../../types/adminTasks";
+import type { TaskPriority, TaskStatus } from "../types/adminTasks";
 
 export const priorityWeight = (p: TaskPriority): number => {
   if (p === "Alta") return 0;

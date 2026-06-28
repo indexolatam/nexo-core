@@ -1,5 +1,5 @@
 import { CalendarOutlined, DollarOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
-import type { FinanceMovement } from "../../../types/adminFinance";
+import type { FinanceMovement } from "../types/adminFinance";
 
 const FINANCE_BASE_DATE = new Date();
 

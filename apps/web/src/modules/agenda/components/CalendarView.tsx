@@ -8,11 +8,11 @@ import type {
   AgendaEvent,
   AgendaTone,
   AgendaView,
-} from "../../../types/adminAgenda";
+} from "../types/adminAgenda";
 import {
   agendaLocationLabels,
   agendaWeekDays,
-} from "../../../types/adminAgenda";
+} from "../types/adminAgenda";
 import { Pill } from "./AgendaFilters";
 
 export const dayNames = [

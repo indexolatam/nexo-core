@@ -1,9 +1,9 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, Checkbox, DatePicker, Empty, Input, Popover, Select, Tooltip } from "antd";
 import { useMemo, type ReactNode } from "react";
-import { userTypeOptions } from "../../../types/adminUsers";
-import type { User, UserStatus, UserType } from "../../../types/adminUsers";
-import { formatTypeLabel, highlight, formatDate } from "../../../utils/formatting";
+import { userTypeOptions } from "../types/adminUsers";
+import type { User, UserStatus, UserType } from "../types/adminUsers";
+import { formatTypeLabel, highlight, formatDate } from "../utils/formatting";
 
 const statusOptions: UserStatus[] = ["Activo", "Inactivo", "Pendiente", "Archivado"];
 

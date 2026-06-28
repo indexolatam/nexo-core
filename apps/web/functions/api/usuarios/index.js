@@ -14,7 +14,7 @@ async function checkPermission(context, action) {
 
 function buildRoleFilter(user) {
   if (user.role === "root" || user.role === "admin") return { sql: "", params: [] };
-  if (user.role === "doctor" || user.role === "asistente") return { sql: "AND user_assigned_to = ?", params: [user.id] };
+  if (user.role === "colaborador" || user.role === "asistente") return { sql: "AND user_assigned_to = ?", params: [user.id] };
   return { sql: "AND 1=0", params: [] };
 }
 

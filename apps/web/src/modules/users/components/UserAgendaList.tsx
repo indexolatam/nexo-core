@@ -1,5 +1,5 @@
 import { Empty } from "antd";
-import type { UserAgendaEntry } from "../../../types/adminUsers";
+import type { UserAgendaEntry } from "../types/adminUsers";
 
 export function UserAgendaList({ entries }: { entries: UserAgendaEntry[] }) {
   if (entries.length === 0) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Sin citas próximas" />;

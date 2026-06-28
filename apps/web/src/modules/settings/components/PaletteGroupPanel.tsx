@@ -1,4 +1,4 @@
-import { paletteGroups, type PaletteColorKey, editablePaletteConfig } from "../../../types/adminPalette";
+import { paletteGroups, type PaletteColorKey, editablePaletteConfig } from "../types/adminPalette";
 import { ColorGrid } from "./ColorGrid";
 
 const itemsByKey = new Map(editablePaletteConfig.map((item) => [item.key, item]));

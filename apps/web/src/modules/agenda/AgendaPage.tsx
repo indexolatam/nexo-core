@@ -16,8 +16,8 @@ import {
   type AgendaLocationType,
   type AgendaTone,
   type AgendaView,
-} from "../../types/adminAgenda";
-import type { D1AgendaEvent } from "../../types/d1";
+} from "./types/adminAgenda";
+import type { D1AgendaEvent } from "../../shared/types/d1";
 import { agendaService } from "../../services";
 import { Pill, SegmentedControl, PeriodNavigator } from "./components/AgendaFilters";
 import {

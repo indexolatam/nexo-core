@@ -7,11 +7,11 @@ import {
 import { App, Button, Card, DatePicker, Form, Input, InputNumber, Modal, Popover, Select } from "antd";
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { paymentMethods, paymentStatuses } from "../../types/adminFinance";
+import { paymentMethods, paymentStatuses } from "./types/adminFinance";
 import { financeService } from "../../services";
 import { useBankConfig } from "../../context/BankConfigContext";
-import type { FinanceFilterState, FinanceMovement, FinanceQuickFilter, PaymentMethod, PaymentStatus, PaymentView } from "../../types/adminFinance";
-import type { D1FinanceMovement } from "../../types/d1";
+import type { FinanceFilterState, FinanceMovement, FinanceQuickFilter, PaymentMethod, PaymentStatus, PaymentView } from "./types/adminFinance";
+import type { D1FinanceMovement } from "../../shared/types/d1";
 import { StatCard } from "./components/StatCard";
 import { FinanceTable } from "./components/FinanceTable";
 import { FinanceFilters } from "./components/FinanceFilters";

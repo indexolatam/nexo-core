@@ -1,4 +1,4 @@
-import { editablePaletteConfig } from "../../../types/adminPalette";
+import { editablePaletteConfig } from "../types/adminPalette";
 import { useTheme } from "../../../context/ThemeContext";
 
 export function ColorGrid({ items }: { items: typeof editablePaletteConfig }) {

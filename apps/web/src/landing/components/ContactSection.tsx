@@ -1,6 +1,7 @@
 import { Button, Form, Input, Select, message } from "antd";
 import { CLIENT, getContactHref } from "../../config/client";
 import { contactService } from "../../services";
+import { useEffect, useState } from "react";
 
 const { TextArea } = Input;
 
@@ -12,8 +13,21 @@ type ContactFormValues = {
   message?: string;
 };
 
+type ServiceFromApi = {
+  services_id: string;
+  services_name: string;
+};
+
 export function ContactSection() {
   const [form] = Form.useForm<ContactFormValues>();
+  const [services, setServices] = useState<ServiceFromApi[]>([]);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((res) => res.json())
+      .then((json) => setServices(Array.isArray(json?.data) ? json.data : []))
+      .catch(() => setServices([]));
+  }, []);
 
   const handleSubmit = async (values: ContactFormValues) => {
     try {
@@ -56,12 +70,9 @@ export function ContactSection() {
             <Select
               placeholder="Selecciona un servicio"
               options={[
-                "Consulta individual",
-                "Terapia de pareja",
-                "Terapia familiar",
-                "Taller grupal",
-                "Otro"
-              ].map((s) => ({ value: s, label: s }))}
+                ...services.map((s) => ({ value: s.services_name, label: s.services_name })),
+                { value: "Otro", label: "Otro" },
+              ]}
             />
           </Form.Item>
           <Form.Item label="Mensaje breve" name="message">

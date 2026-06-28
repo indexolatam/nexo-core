@@ -3,7 +3,7 @@ import { ensureAllSchemas } from "./db.js";
 
 const ROLE_MAX_PERMISSIONS = {
   root: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    usuarios: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
@@ -12,7 +12,7 @@ const ROLE_MAX_PERMISSIONS = {
     blog: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
   },
   admin: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
+    usuarios: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
     tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 1 },
@@ -21,7 +21,7 @@ const ROLE_MAX_PERMISSIONS = {
     blog: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
   },
   asistente: {
-    personas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
+    usuarios: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
     finanzas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
     agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
     tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
@@ -30,7 +30,7 @@ const ROLE_MAX_PERMISSIONS = {
     blog: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
   },
   colaborador: {
-    personas: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
+    usuarios: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
     finanzas: { can_read: 0, can_create: 0, can_edit: 0, can_delete: 0 },
     agenda: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },
     tareas: { can_read: 1, can_create: 1, can_edit: 1, can_delete: 0 },

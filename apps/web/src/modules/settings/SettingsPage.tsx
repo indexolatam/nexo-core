@@ -1,16 +1,17 @@
 import { CaretRightOutlined, DeleteOutlined, EditOutlined, PlusOutlined, UndoOutlined } from "@ant-design/icons";
-import { Button, Card, Input, InputNumber, message, Modal, Select, Tag } from "antd";
+import { Button, Card, Input, message, Modal, Select, Tag } from "antd";
 import { useEffect, useState } from "react";
-import { paletteGroups } from "../../types/adminPalette";
+import { paletteGroups } from "./types/adminPalette";
 import { useTheme } from "../../context/ThemeContext";
-import type { ServiceConfig, UserConfig, BlogPostConfig } from "../../types/adminSettings";
-import type { D1Role } from "../../types/d1";
-import { blogService, servicesService, usersService } from "../../services";
+import type { UserConfig, BlogPostConfig } from "./types/adminSettings";
+import type { D1Role } from "../../shared/types/d1";
+import { blogService, usersService } from "../../services";
 import { useAuth } from "../auth/AuthContext";
-import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissions } from "../../shared/hooks/usePermissions";
 import { PaletteGroupPanel } from "./components/PaletteGroupPanel";
 import { ConfigListItem } from "./components/ConfigListItem";
 import { BankManager } from "./components/BankManager";
+import { ServiceManager } from "./components/ServiceManager";
 import { PermissionsManager } from "./components/PermissionsManager";
 
 const landingPaletteGroups = paletteGroups.filter((group) => group.id.startsWith("landing"));
@@ -41,45 +42,21 @@ export function SettingsPage() {
   const isRootOrAdmin = user?.role === "root" || user?.role === "admin";
   const canEditUsers = hasPermission("configuracion", "edit");
   const [openSection, setOpenSection] = useState<ConfigSection | null>("apariencia");
-  const [services, setServices] = useState<ServiceConfig[]>([]);
   const [users, setUsers] = useState<UserConfig[]>([]);
   const [posts, setPosts] = useState<BlogPostConfig[]>([]);
-  const [serviceOpen, setServiceOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [postEditorOpen, setPostEditorOpen] = useState(false);
-  const [serviceDraft, setServiceDraft] = useState({ services_name: "", services_duration: 60, services_price: 0 });
   const [userDraft, setUserDraft] = useState({ name: "", role: "Operativo" });
   const [postDraft, setPostDraft] = useState<BlogPostConfig>({ id: "", title: "", status: "Borrador", tags: "", content: "", image: "", date: "2026-06-14" });
   const [blogFilter, setBlogFilter] = useState<"Todos" | "Borradores" | "Publicados">("Todos");
   const [blogSearch, setBlogSearch] = useState("");
 
   useEffect(() => {
-    servicesService.list().then(setServices).catch(() => message.error("No se pudieron cargar los servicios"));
     usersService.list().then((data) => setUsers(data as unknown as UserConfig[])).catch(() => message.error("No se pudieron cargar los usuarios"));
     blogService.list().then((data) => setPosts(data as unknown as BlogPostConfig[])).catch(() => message.error("No se pudieron cargar los posts del blog"));
   }, []);
 
   const toggleSection = (section: ConfigSection) => setOpenSection((current) => (current === section ? null : section));
-
-  const createService = async () => {
-    const name = serviceDraft.services_name.trim();
-    if (!name) return message.warning("Escribe el nombre del servicio");
-    try {
-      const created = await servicesService.create({ services_name: name, services_duration: serviceDraft.services_duration, services_price: serviceDraft.services_price, services_active: true });
-      setServices((prev) => [created, ...prev.filter((s) => s.services_id !== created.services_id)]);
-      setServiceDraft({ services_name: "", services_duration: 60, services_price: 0 });
-      setServiceOpen(false);
-      message.success("Servicio agregado");
-    } catch { message.error("No se pudo guardar el servicio"); }
-  };
-
-  const toggleService = async (service: ServiceConfig) => {
-    try {
-      const updated = await servicesService.update(service.services_id, { services_active: !service.services_active });
-      setServices((prev) => prev.map((item) => (item.services_id === updated.services_id ? updated : item)));
-      message.success(updated.services_active ? "Servicio activado" : "Servicio desactivado");
-    } catch { message.error("No se pudo actualizar el servicio"); }
-  };
 
   const createUser = async () => {
     const name = userDraft.name.trim();
@@ -158,14 +135,7 @@ export function SettingsPage() {
                 ) : null}
 
                 {section === "servicios" ? (
-                  <div className="space-y-4">
-                    <Button icon={<PlusOutlined />} className="rounded-button" onClick={() => setServiceOpen(true)}>Nuevo servicio</Button>
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                      {services.map((service) => (
-                        <ConfigListItem key={service.services_id} title={service.services_name} subtitle={`${service.services_duration} min · $${service.services_price} · ${service.services_active ? "Activo" : "Inactivo"}`} active={service.services_active} onToggle={() => toggleService(service)} />
-                      ))}
-                    </div>
-                  </div>
+                  <ServiceManager />
                 ) : null}
 
                 {section === "horarios" ? (
@@ -244,14 +214,6 @@ export function SettingsPage() {
           </section>
         ))}
       </Card>
-
-      <Modal title="Nuevo servicio" open={serviceOpen} onOk={createService} onCancel={() => setServiceOpen(false)} okText="Guardar" cancelText="Cancelar" centered>
-        <div className="space-y-3">
-          <Input value={serviceDraft.services_name} onChange={(e) => setServiceDraft((prev) => ({ ...prev, services_name: e.target.value }))} placeholder="Nombre del servicio" />
-          <InputNumber className="w-full" min={15} value={serviceDraft.services_duration} onChange={(value) => setServiceDraft((prev) => ({ ...prev, services_duration: value ?? 60 }))} addonAfter="min" />
-          <InputNumber className="w-full" min={0} value={serviceDraft.services_price} onChange={(value) => setServiceDraft((prev) => ({ ...prev, services_price: value ?? 0 }))} prefix="$" />
-        </div>
-      </Modal>
 
       <Modal title="Nuevo usuario" open={userOpen} onOk={createUser} onCancel={() => setUserOpen(false)} okText="Guardar" cancelText="Cancelar" centered>
         <div className="space-y-3">

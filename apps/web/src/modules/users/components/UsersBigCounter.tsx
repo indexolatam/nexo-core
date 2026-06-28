@@ -1,4 +1,4 @@
-import type { User } from "../../../types/adminUsers";
+import type { User } from "../types/adminUsers";
 
 export function UsersBigCounter({ items }: { items: User[] }) {
   const activos = items.filter((p) => p.user_status === "Activo").length;

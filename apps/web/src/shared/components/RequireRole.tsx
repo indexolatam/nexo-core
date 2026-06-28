@@ -1,6 +1,6 @@
 import { Spin } from "antd";
 import { Navigate } from "react-router-dom";
-import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissions } from "../hooks/usePermissions";
 
 interface RequireRoleProps {
   module: string;

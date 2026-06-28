@@ -1,4 +1,6 @@
+let _schemasInitialized = false;
 export async function ensureAllSchemas(db) {
+  if (_schemasInitialized) return;
   await db.prepare(`CREATE TABLE IF NOT EXISTS usuarios (
     user_id TEXT PRIMARY KEY, user_name_1 TEXT NOT NULL, user_name_2 TEXT,
     user_lastname_1 TEXT NOT NULL, user_lastname_2 TEXT,
@@ -37,6 +39,22 @@ export async function ensureAllSchemas(db) {
     services_created_at TEXT DEFAULT CURRENT_TIMESTAMP, services_updated_at TEXT,
     services_deleted_at TEXT, services_created_by TEXT, services_updated_by TEXT
   )`).run();
+
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_category TEXT DEFAULT 'General'").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_duration_unit TEXT DEFAULT 'minutes'").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_currency TEXT DEFAULT 'USD'").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_participants TEXT DEFAULT '[{\"count\":1,\"label\":\"Individual\",\"price\":0}]'").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_visible INTEGER DEFAULT 0").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_title TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_paragraph TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_image TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_icon TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_order INTEGER DEFAULT 0").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_landing_cta TEXT DEFAULT 'Consultar'").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_updated_at TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_deleted_at TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_created_by TEXT").run(); } catch {}
+  try { await db.prepare("ALTER TABLE services ADD COLUMN services_updated_by TEXT").run(); } catch {}
 
   await db.prepare(`CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY, name TEXT NOT NULL, lastname TEXT NOT NULL DEFAULT '',
@@ -131,10 +149,10 @@ export async function ensureAllSchemas(db) {
     ['perm-admin-agenda','admin','agenda',1,1,1,1], ['perm-admin-tareas','admin','tareas',1,1,1,1],
     ['perm-admin-configuracion','admin','configuracion',1,1,1,1], ['perm-admin-auditoria','admin','auditoria',0,0,0,0],
     ['perm-admin-blog','admin','blog',0,0,0,0],
-    ['perm-doctor-usuarios','doctor','usuarios',0,0,0,0], ['perm-doctor-finanzas','doctor','finanzas',0,0,0,0],
-    ['perm-doctor-agenda','doctor','agenda',1,1,1,1], ['perm-doctor-tareas','doctor','tareas',1,1,1,1],
-    ['perm-doctor-configuracion','doctor','configuracion',0,0,0,0], ['perm-doctor-auditoria','doctor','auditoria',0,0,0,0],
-    ['perm-doctor-blog','doctor','blog',0,0,0,0],
+    ['perm-colaborador-usuarios','colaborador','usuarios',0,0,0,0], ['perm-colaborador-finanzas','colaborador','finanzas',0,0,0,0],
+    ['perm-colaborador-agenda','colaborador','agenda',1,1,1,0], ['perm-colaborador-tareas','colaborador','tareas',1,1,1,0],
+    ['perm-colaborador-configuracion','colaborador','configuracion',0,0,0,0], ['perm-colaborador-auditoria','colaborador','auditoria',0,0,0,0],
+    ['perm-colaborador-blog','colaborador','blog',0,0,0,0],
     ['perm-asistente-usuarios','asistente','usuarios',1,1,1,1], ['perm-asistente-finanzas','asistente','finanzas',1,1,1,1],
     ['perm-asistente-agenda','asistente','agenda',1,1,1,1], ['perm-asistente-tareas','asistente','tareas',1,1,1,1],
     ['perm-asistente-configuracion','asistente','configuracion',1,0,0,0], ['perm-asistente-auditoria','asistente','auditoria',0,0,0,0],
@@ -155,12 +173,16 @@ export async function ensureAllSchemas(db) {
     await db.prepare("INSERT OR IGNORE INTO users (id, name, lastname, role, username, email, password_hash, display_label, active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
       .bind("usr-root", "Root", "Admin", "root", "root", "root@nexo.local", hash, "Root Admin", 1, now).run();
   }
+  _schemasInitialized = true;
 }
 
 export async function ensurePeopleSchema(db) {
   await ensureAllSchemas(db);
 }
 
+// Parseador de columnas JSON de la DB (user_types, services_participants, etc.)
+// Usado por mapUserRow() y directamente en servicios API (/services, etc.)
+// TODO: exportar e importar en otros endpoints (agenda, tasks, blog, finance) si agregan columnas JSON
 function parseJsonArray(val) {
   if (!val) return [];
   try { return JSON.parse(val); } catch { return []; }

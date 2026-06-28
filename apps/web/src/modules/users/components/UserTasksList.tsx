@@ -1,5 +1,5 @@
 import { Empty } from "antd";
-import type { UserTaskEntry } from "../../../types/adminUsers";
+import type { UserTaskEntry } from "../types/adminUsers";
 
 export function UserTasksList({ entries }: { entries: UserTaskEntry[] }) {
   if (entries.length === 0) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Sin tareas" />;

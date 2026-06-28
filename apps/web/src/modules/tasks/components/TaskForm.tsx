@@ -1,8 +1,8 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Input, Select } from "antd";
-import type { AgendaEvent } from "../../../types/adminAgenda";
-import type { Task, TaskRelationType, TaskType } from "../../../types/adminTasks";
-import { taskPriorities, taskTypes } from "../../../types/adminTasks";
+import type { AgendaEvent } from "../../agenda/types/adminAgenda";
+import type { Task, TaskRelationType, TaskType } from "../types/adminTasks";
+import { taskPriorities, taskTypes } from "../types/adminTasks";
 import { FieldLabel } from "./ui";
 
 const agendaEventTypeOptions = [

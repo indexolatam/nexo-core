@@ -1,4 +1,4 @@
-import type { Task } from "../../../types/adminTasks";
+import type { Task } from "../types/adminTasks";
 
 export const SEED_TASKS: Task[] = [
   { id: "t1", title: "Preparar informe mensual de pacientes", description: "Recopilar datos de asistencia del mes", responsible: "Asistente", priority: "Alta", deadline: "20 jun", deadlineDate: "2026-06-20", status: "En curso", type: "Administrativa", relationType: "Ninguno" },

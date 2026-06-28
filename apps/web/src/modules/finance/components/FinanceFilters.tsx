@@ -1,7 +1,7 @@
 import { Button, Checkbox, DatePicker, InputNumber, Select } from "antd";
 import type { Dispatch, SetStateAction } from "react";
-import type { FinanceFilterState, PaymentMethod, PaymentStatus } from "../../../types/adminFinance";
-import { paymentMethods, paymentStatuses } from "../../../types/adminFinance";
+import type { FinanceFilterState, PaymentMethod, PaymentStatus } from "../types/adminFinance";
+import { paymentMethods, paymentStatuses } from "../types/adminFinance";
 
 const serviceOptions: string[] = [];
 

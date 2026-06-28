@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
 import { CLIENT } from "../../config/client";
+import { authService } from "../../services/authService";
 
 export interface AdminUser {
   id: string;
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(payload.data.user));
       setUser(payload.data.user);
     },
-    logout: () => { clearToken(); setUser(null); },
+    logout: async () => { try { await authService.logout(); } catch {} clearToken(); setUser(null); },
   }), [user, loading]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -15,8 +15,8 @@ import type {
   TaskRelationType,
   TaskStatus,
   TaskType,
-} from "../../types/adminTasks";
-import { TASK_BASE_DATE } from "../../types/adminTasks";
+} from "./types/adminTasks";
+import { TASK_BASE_DATE } from "./types/adminTasks";
 import { tasksService } from "../../services";
 import { TaskCard } from "./components/TaskCard";
 import { TaskForm, eventDateById, isDeadlineAfterEvent, defaultEventFilterForTaskType, isEventRelation } from "./components/TaskForm";

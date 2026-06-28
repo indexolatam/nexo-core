@@ -48,7 +48,7 @@ export function LoginPage() {
 
         <Form layout="vertical" onFinish={handleFinish} requiredMark={false}>
           <Form.Item label="Usuario" name="username" rules={[{ required: true, message: "Ingresa tu usuario." }]}>
-            <Input prefix={<UserOutlined />} placeholder="doc, admin, root, asis" size="large" />
+            <Input prefix={<UserOutlined />} placeholder="root, admin, asis, colab" size="large" />
           </Form.Item>
           <Form.Item label="Contraseña" name="password" rules={[{ required: true, message: "Ingresa la contraseña." }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="Ej.: admin / doc / root / asis" size="large" />

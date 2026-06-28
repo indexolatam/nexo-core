@@ -1,7 +1,19 @@
 import { json, error } from "../../_core/response.js";
 import { ensureAuditSchema, mapAuditRow } from "../../_core/audit.js";
+import { getUserPermission } from "../../_core/permissions.js";
+
+async function checkPermission(context, action) {
+  const user = context.data?.user;
+  if (!user) return error("No autenticado", 401);
+  if (user.role === "root") return null;
+  const perm = await getUserPermission(context.env.DB, user.role, "auditoria");
+  if (!perm[`can_${action}`]) return error("Sin permiso para esta acción", 403);
+  return null;
+}
 
 export async function onRequestGet(context) {
+  const denied = await checkPermission(context, "read");
+  if (denied) return denied;
   const db = context.env.DB_AUDIT;
   if (!db) return error("D1 de auditoría no configurado", 500);
   await ensureAuditSchema(db);
@@ -30,6 +42,8 @@ export async function onRequestGet(context) {
 }
 
 export async function onRequestPost(context) {
+  const denied = await checkPermission(context, "create");
+  if (denied) return denied;
   const db = context.env.DB_AUDIT;
   if (!db) return error("D1 de auditoría no configurado", 500);
   await ensureAuditSchema(db);

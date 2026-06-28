@@ -1,5 +1,5 @@
 import { Empty } from "antd";
-import type { UserPaymentEntry } from "../../../types/adminUsers";
+import type { UserPaymentEntry } from "../types/adminUsers";
 
 export function UserFinanceList({ payments, services }: { payments: UserPaymentEntry[]; services: string[] }) {
   return (

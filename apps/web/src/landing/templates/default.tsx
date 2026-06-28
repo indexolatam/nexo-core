@@ -5,17 +5,19 @@ import { FinalCTA } from "../components/FinalCTA";
 import { Hero } from "../components/Hero";
 import { ServicesPreview } from "../components/ServicesPreview";
 import { TrustSection } from "../components/TrustSection";
+import { CLIENT } from "../../config/client";
 
 export function DefaultLandingTemplate() {
+  const s = CLIENT.landing.sections;
   return (
     <>
-      <Hero />
-      <TrustSection />
-      <ServicesPreview />
-      <BookingProcess />
-      <FaqSection />
-      <FinalCTA />
-      <ContactSection />
+      {s.hero && <Hero />}
+      {s.trust && <TrustSection />}
+      {s.services && <ServicesPreview />}
+      {s.process && <BookingProcess />}
+      {s.faq && <FaqSection />}
+      {s.finalCta && <FinalCTA />}
+      {s.contact && <ContactSection />}
     </>
   );
 }

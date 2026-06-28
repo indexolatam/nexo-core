@@ -38,10 +38,10 @@ export function Hero() {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--hero-overlay-strong)] via-[var(--hero-overlay-soft)] to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-[var(--text-inverse)] sm:p-8">
-              <p className="text-sm font-semibold uppercase tracking-wide text-[var(--text-inverse)]">Primer contacto</p>
-              <h2 className="mt-3 text-2xl font-bold text-[var(--text-inverse)]">Agenda una orientación</h2>
+              <p className="text-sm font-semibold uppercase tracking-wide text-[var(--text-inverse)]">{CLIENT.landing.hero.overline}</p>
+              <h2 className="mt-3 text-2xl font-bold text-[var(--text-inverse)]">{CLIENT.landing.hero.title}</h2>
               <p className="mt-3 max-w-md text-sm leading-6 text-[var(--text-inverse)] sm:text-base">
-                Cuéntanos de forma breve qué servicio necesitas y coordinamos la disponibilidad.
+                {CLIENT.landing.hero.description}
               </p>
             </div>
           </div>

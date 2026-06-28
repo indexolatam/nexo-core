@@ -1,4 +1,4 @@
-import type { UserStatus } from "./adminUsers";
+import type { UserStatus } from "../../modules/users/types/adminUsers";
 
 export type D1Role = "root" | "admin" | "asistente" | "colaborador";
 

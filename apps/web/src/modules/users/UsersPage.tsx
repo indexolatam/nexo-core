@@ -3,9 +3,9 @@ import { Button, Card, Divider, Empty, Form, Input, message, Modal, Pagination, 
 import dayjs from "dayjs";
 import { useEffect, useMemo, useState } from "react";
 import { usuariosService, usersService } from "../../services";
-import { usePermissions } from "../../hooks/usePermissions";
-import type { User, UserStatus, UserTypeFilter, UserConditionFilter, UserStatusFilter } from "../../types/adminUsers";
-import { userTypeOptions } from "../../types/adminUsers";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import type { User, UserStatus, UserTypeFilter, UserConditionFilter, UserStatusFilter } from "./types/adminUsers";
+import { userTypeOptions } from "./types/adminUsers";
 import { UserCard } from "./components/UserCard";
 import { UsersBigCounter } from "./components/UsersBigCounter";
 import { UserDetail } from "./components/UserDetail";

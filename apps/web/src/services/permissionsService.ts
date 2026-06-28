@@ -1,5 +1,5 @@
 import { apiRequest } from "./apiClient";
-import type { ModulePermissionsByRole } from "../types/adminSettings";
+import type { ModulePermissionsByRole } from "../modules/settings/types/adminSettings";
 
 class PermissionsApiService {
   async list() { return apiRequest<ModulePermissionsByRole>("/settings/permissions"); }
