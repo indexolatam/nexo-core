@@ -1,7 +1,28 @@
-import { Button, Card } from "antd";
-import { CLIENT, getContactHref } from "../../config/client";
+import { Button, Card, Skeleton } from "antd";
+import { useEffect, useState } from "react";
+import { getContactHref } from "../../config/client";
+
+type ServiceFromApi = {
+  services_id: string;
+  services_name: string;
+  services_landing_paragraph?: string;
+  services_description?: string;
+  services_landing_cta?: string;
+  services_landing_icon?: string;
+};
 
 export function ServicesPreview() {
+  const [services, setServices] = useState<ServiceFromApi[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/services")
+      .then((res) => res.json())
+      .then((data) => setServices(data || []))
+      .catch(() => setServices([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <section id="servicios" className="surface-app py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -11,16 +32,27 @@ export function ServicesPreview() {
           <p className="mt-4 text-surface-secondary">Consulta los servicios disponibles y solicita información para agendar.</p>
         </div>
         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {CLIENT.services.map((service) => (
-            <Card key={service.id} className="surface-card h-full border-[var(--border)]" bordered>
-              <h3 className="text-xl font-bold text-card-main">{service.title}</h3>
-              <p className="mt-3 text-card-secondary">{service.shortDescription}</p>
-              <p className="mt-3 text-sm text-card-soft">{service.detail}</p>
-              <Button href={getContactHref(service.whatsappMessage)} className="rounded-button brand-outline mt-5">
-                {service.ctaLabel}
-              </Button>
-            </Card>
-          ))}
+          {loading
+            ? Array.from({ length: 3 }).map((_, i) => (
+                <Card key={i} className="surface-card h-full border-[var(--border)]" bordered>
+                  <Skeleton active />
+                </Card>
+              ))
+            : services.map((service) => (
+                <Card key={service.services_id} className="surface-card h-full border-[var(--border)]" bordered>
+                  <h3 className="text-xl font-bold text-card-main">{service.services_name}</h3>
+                  <p className="mt-3 text-card-secondary">{service.services_landing_paragraph || service.services_description}</p>
+                  <Button
+                    href={getContactHref(`Hola, quiero consultar sobre el servicio: ${service.services_name}.`)}
+                    className="rounded-button brand-outline mt-5"
+                  >
+                    {service.services_landing_cta || "Consultar"}
+                  </Button>
+                </Card>
+              ))}
+          {!loading && services.length === 0 ? (
+            <p className="col-span-full text-center text-surface-muted">No hay servicios disponibles por el momento.</p>
+          ) : null}
         </div>
       </div>
     </section>

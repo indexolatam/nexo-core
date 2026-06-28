@@ -47,7 +47,7 @@ export function SettingsPage() {
   const [serviceOpen, setServiceOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [postEditorOpen, setPostEditorOpen] = useState(false);
-  const [serviceDraft, setServiceDraft] = useState({ name: "", duration: 60, price: 0 });
+  const [serviceDraft, setServiceDraft] = useState({ services_name: "", services_duration: 60, services_price: 0 });
   const [userDraft, setUserDraft] = useState({ name: "", role: "Operativo" });
   const [postDraft, setPostDraft] = useState<BlogPostConfig>({ id: "", title: "", status: "Borrador", tags: "", content: "", image: "", date: "2026-06-14" });
   const [blogFilter, setBlogFilter] = useState<"Todos" | "Borradores" | "Publicados">("Todos");
@@ -62,12 +62,12 @@ export function SettingsPage() {
   const toggleSection = (section: ConfigSection) => setOpenSection((current) => (current === section ? null : section));
 
   const createService = async () => {
-    const name = serviceDraft.name.trim();
+    const name = serviceDraft.services_name.trim();
     if (!name) return message.warning("Escribe el nombre del servicio");
     try {
-      const created = await servicesService.create({ name, duration: serviceDraft.duration, price: serviceDraft.price, active: true });
-      setServices((prev) => [created, ...prev.filter((s) => s.id !== created.id)]);
-      setServiceDraft({ name: "", duration: 60, price: 0 });
+      const created = await servicesService.create({ services_name: name, services_duration: serviceDraft.services_duration, services_price: serviceDraft.services_price, services_active: true });
+      setServices((prev) => [created, ...prev.filter((s) => s.services_id !== created.services_id)]);
+      setServiceDraft({ services_name: "", services_duration: 60, services_price: 0 });
       setServiceOpen(false);
       message.success("Servicio agregado");
     } catch { message.error("No se pudo guardar el servicio"); }
@@ -75,9 +75,9 @@ export function SettingsPage() {
 
   const toggleService = async (service: ServiceConfig) => {
     try {
-      const updated = await servicesService.update(service.id, { active: !service.active });
-      setServices((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-      message.success(updated.active ? "Servicio activado" : "Servicio desactivado");
+      const updated = await servicesService.update(service.services_id, { services_active: !service.services_active });
+      setServices((prev) => prev.map((item) => (item.services_id === updated.services_id ? updated : item)));
+      message.success(updated.services_active ? "Servicio activado" : "Servicio desactivado");
     } catch { message.error("No se pudo actualizar el servicio"); }
   };
 
@@ -162,7 +162,7 @@ export function SettingsPage() {
                     <Button icon={<PlusOutlined />} className="rounded-button" onClick={() => setServiceOpen(true)}>Nuevo servicio</Button>
                     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                       {services.map((service) => (
-                        <ConfigListItem key={service.id} title={service.name} subtitle={`${service.duration} min · $${service.price} · ${service.active ? "Activo" : "Inactivo"}`} active={service.active} onToggle={() => toggleService(service)} />
+                        <ConfigListItem key={service.services_id} title={service.services_name} subtitle={`${service.services_duration} min · $${service.services_price} · ${service.services_active ? "Activo" : "Inactivo"}`} active={service.services_active} onToggle={() => toggleService(service)} />
                       ))}
                     </div>
                   </div>
@@ -247,9 +247,9 @@ export function SettingsPage() {
 
       <Modal title="Nuevo servicio" open={serviceOpen} onOk={createService} onCancel={() => setServiceOpen(false)} okText="Guardar" cancelText="Cancelar" centered>
         <div className="space-y-3">
-          <Input value={serviceDraft.name} onChange={(e) => setServiceDraft((prev) => ({ ...prev, name: e.target.value }))} placeholder="Nombre del servicio" />
-          <InputNumber className="w-full" min={15} value={serviceDraft.duration} onChange={(value) => setServiceDraft((prev) => ({ ...prev, duration: value ?? 60 }))} addonAfter="min" />
-          <InputNumber className="w-full" min={0} value={serviceDraft.price} onChange={(value) => setServiceDraft((prev) => ({ ...prev, price: value ?? 0 }))} prefix="$" />
+          <Input value={serviceDraft.services_name} onChange={(e) => setServiceDraft((prev) => ({ ...prev, services_name: e.target.value }))} placeholder="Nombre del servicio" />
+          <InputNumber className="w-full" min={15} value={serviceDraft.services_duration} onChange={(value) => setServiceDraft((prev) => ({ ...prev, services_duration: value ?? 60 }))} addonAfter="min" />
+          <InputNumber className="w-full" min={0} value={serviceDraft.services_price} onChange={(value) => setServiceDraft((prev) => ({ ...prev, services_price: value ?? 0 }))} prefix="$" />
         </div>
       </Modal>
 

@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
 
   await db.prepare(`
     INSERT INTO finance_movements (
-      id, persona_id, persona_nombre, servicio, service_id, monto,
+      id, persona_id, persona_nombre, servicio, services_id, monto,
       metodo_pago, estado, fecha, hora, banco_id, referencia_transaccion,
       notes, created_at
     )
@@ -37,7 +37,7 @@ export async function onRequestPost(context) {
     body.persona_id || null,
     body.persona_nombre || null,
     body.servicio || null,
-    body.service_id || null,
+    body.services_id || body.service_id || null,
     body.monto,
     body.metodo_pago,
     body.estado || "Pendiente",

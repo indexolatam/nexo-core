@@ -1,12 +1,3 @@
-export type ClientService = {
-  id: string;
-  title: string;
-  shortDescription: string;
-  detail: string;
-  ctaLabel: string;
-  whatsappMessage: string;
-};
-
 export type ClientFaqItem = {
   question: string;
   answer: string;
@@ -95,25 +86,6 @@ export const CLIENT = {
     heroPhoto: "/img/hero.jpg",
     favicon: "/favicon.svg",
   },
-
-  services: [
-    {
-      id: "servicio-1",
-      title: "Servicio 1",
-      shortDescription: "Lorem ipsum dolor sit amet.",
-      detail: "Sed ut perspiciatis unde omnis.",
-      ctaLabel: "Consultar este servicio",
-      whatsappMessage: "Hola, quiero consultar sobre el servicio.",
-    },
-    {
-      id: "servicio-2",
-      title: "Servicio 2",
-      shortDescription: "Consectetur adipiscing elit.",
-      detail: "Nemo enim ipsam voluptatem quia voluptas.",
-      ctaLabel: "Consultar este servicio",
-      whatsappMessage: "Hola, quiero consultar sobre el servicio.",
-    },
-  ] as ClientService[],
 
   faq: [
     {

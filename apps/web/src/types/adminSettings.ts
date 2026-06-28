@@ -5,11 +5,11 @@ export type BankConfig = {
 };
 
 export type ServiceConfig = {
-  id: string;
-  name: string;
-  duration: number;
-  price: number;
-  active: boolean;
+  services_id: string;
+  services_name: string;
+  services_duration: number;
+  services_price: number;
+  services_active: boolean;
 };
 
 export type UserConfig = {

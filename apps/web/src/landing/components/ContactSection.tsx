@@ -55,7 +55,13 @@ export function ContactSection() {
           <Form.Item label="Servicio de interés" name="service">
             <Select
               placeholder="Selecciona un servicio"
-              options={CLIENT.services.map((service) => ({ value: service.title, label: service.title }))}
+              options={[
+                "Consulta individual",
+                "Terapia de pareja",
+                "Terapia familiar",
+                "Taller grupal",
+                "Otro"
+              ].map((s) => ({ value: s, label: s }))}
             />
           </Form.Item>
           <Form.Item label="Mensaje breve" name="message">

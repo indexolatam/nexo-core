@@ -53,26 +53,30 @@ CREATE TABLE IF NOT EXISTS bank_configs (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
--- 0002_services
+-- 0019_services_redesign
 CREATE TABLE IF NOT EXISTS services (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  duration INTEGER DEFAULT 60,
-  price REAL DEFAULT 0,
-  description TEXT,
-  category TEXT,
-  color TEXT,
-  max_participants INTEGER,
-  is_online INTEGER DEFAULT 0,
-  active INTEGER DEFAULT 1,
-  landing_visible INTEGER DEFAULT 1,
-  landing_description TEXT,
-  landing_image TEXT,
-  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT,
-  deleted_at TEXT,
-  created_by_user_id TEXT,
-  updated_by_user_id TEXT
+  services_id TEXT PRIMARY KEY,
+  services_name TEXT NOT NULL,
+  services_category TEXT DEFAULT 'General',
+  services_duration INTEGER DEFAULT 60,
+  services_duration_unit TEXT DEFAULT 'minutes',
+  services_price REAL DEFAULT 0,
+  services_currency TEXT DEFAULT 'USD',
+  services_participants TEXT DEFAULT '[{"count":1,"label":"Individual","price":0}]',
+  services_description TEXT,
+  services_landing_visible INTEGER DEFAULT 0,
+  services_landing_title TEXT,
+  services_landing_paragraph TEXT,
+  services_landing_image TEXT,
+  services_landing_icon TEXT,
+  services_landing_order INTEGER DEFAULT 0,
+  services_landing_cta TEXT DEFAULT 'Consultar',
+  services_active INTEGER DEFAULT 1,
+  services_created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  services_updated_at TEXT,
+  services_deleted_at TEXT,
+  services_created_by TEXT,
+  services_updated_by TEXT
 );
 
 -- 0003_users_auth: users + auth_sessions
@@ -112,7 +116,7 @@ CREATE TABLE IF NOT EXISTS finance_movements (
   persona_id TEXT,
   persona_nombre TEXT,
   servicio TEXT,
-  service_id TEXT,
+  services_id TEXT,
   monto REAL NOT NULL,
   metodo_pago TEXT NOT NULL DEFAULT 'Efectivo',
   estado TEXT NOT NULL DEFAULT 'Pendiente',
@@ -134,7 +138,7 @@ CREATE TABLE IF NOT EXISTS finance_movements (
   created_by_user_id TEXT,
   updated_by_user_id TEXT,
   FOREIGN KEY (persona_id) REFERENCES people(id),
-  FOREIGN KEY (service_id) REFERENCES services(id),
+  FOREIGN KEY (services_id) REFERENCES services(services_id),
   FOREIGN KEY (banco_id) REFERENCES bank_configs(id)
 );
 
@@ -157,7 +161,7 @@ CREATE TABLE IF NOT EXISTS agenda_events (
   tiempo_posterior_minutes INTEGER DEFAULT 0,
   assigned_user_id TEXT,
   person_id TEXT,
-  service_id TEXT,
+  services_id TEXT,
   is_recurring INTEGER DEFAULT 0,
   recurring_rule TEXT,
   notes TEXT,
@@ -166,7 +170,7 @@ CREATE TABLE IF NOT EXISTS agenda_events (
   deleted_at TEXT,
   created_by_user_id TEXT,
   FOREIGN KEY (person_id) REFERENCES people(id),
-  FOREIGN KEY (service_id) REFERENCES services(id),
+  FOREIGN KEY (services_id) REFERENCES services(services_id),
   FOREIGN KEY (assigned_user_id) REFERENCES users(id)
 );
 
@@ -195,7 +199,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   related_entity_id TEXT,
   person_id TEXT,
   event_id TEXT,
-  service_id TEXT,
+  services_id TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT,
   deleted_at TEXT,
@@ -206,7 +210,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   FOREIGN KEY (assigned_user_id) REFERENCES users(id),
   FOREIGN KEY (person_id) REFERENCES people(id),
   FOREIGN KEY (event_id) REFERENCES agenda_events(id),
-  FOREIGN KEY (service_id) REFERENCES services(id)
+  FOREIGN KEY (services_id) REFERENCES services(services_id)
 );
 
 -- 0007_blog_posts
@@ -257,10 +261,10 @@ VALUES
   ('usr-002', 'Empresa ABC', '—', '+505 8888 1002', 'rrhh@empresaabc.com', 'Activo', '2026-05-20', '2026-05-20T00:00:00.000Z');
 
 -- seed_services_landing
-INSERT OR IGNORE INTO services (id, name, duration, price, description, category, active, landing_visible)
+INSERT OR IGNORE INTO services (services_id, services_name, services_duration, services_price, services_description, services_category, services_active, services_landing_visible)
 VALUES
-  ('consulta-individual', 'Consulta individual', 60, 30.00, 'Atención psicológica individual con modalidad a coordinar.', 'Terapia individual', 1, 1),
-  ('terapia-familiar', 'Terapia familiar', 90, 50.00, 'Espacio de acompañamiento terapéutico para familias.', 'Terapia familiar', 1, 1);
+  ('svc-001', 'Consulta individual', 60, 30.00, 'Atención psicológica individual con modalidad a coordinar.', 'Terapia individual', 1, 1),
+  ('svc-002', 'Terapia familiar', 90, 50.00, 'Espacio de acompañamiento terapéutico para familias.', 'Terapia familiar', 1, 1);
 
 -- seed_bank_configs
 INSERT OR IGNORE INTO bank_configs (id, name, active, display_order, created_at)

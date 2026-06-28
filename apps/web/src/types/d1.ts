@@ -44,20 +44,35 @@ export type D1Person = {
   assigned_user_id?: string;
 };
 
-export type D1Service = {
-  id: string;
-  name: string;
-  duration: number;
+export type ParticipantOption = {
+  count: number;
+  label: string;
   price: number;
-  active: boolean;
-  description?: string;
-  category?: string;
-  color?: string;
-  max_participants?: number;
-  is_online?: boolean;
-  landing_visible?: boolean;
-  landing_description?: string;
-  landing_image?: string;
+};
+
+export type D1Service = {
+  services_id: string;
+  services_name: string;
+  services_category: string;
+  services_duration: number;
+  services_duration_unit: "minutes" | "hours" | "days" | "weeks" | "months" | "years";
+  services_price: number;
+  services_currency: string;
+  services_participants: ParticipantOption[];
+  services_description?: string;
+  services_landing_visible: boolean;
+  services_landing_title?: string;
+  services_landing_paragraph?: string;
+  services_landing_image?: string;
+  services_landing_icon?: string;
+  services_landing_order: number;
+  services_landing_cta: string;
+  services_active: boolean;
+  services_created_at: string;
+  services_updated_at?: string;
+  services_deleted_at?: string;
+  services_created_by?: string;
+  services_updated_by?: string;
 };
 
 export type D1BankConfig = {
@@ -74,7 +89,7 @@ export type D1FinanceMovement = {
   persona_id: string;
   persona_nombre?: string;
   servicio?: string;
-  service_id?: string;
+  services_id?: string;
   monto: number;
   metodo_pago: string;
   estado: string;
@@ -106,7 +121,7 @@ export type D1AgendaEvent = {
   location_department?: string;
   location_reference?: string;
   meeting_url?: string;
-  service_id?: string;
+  services_id?: string;
   is_recurring: boolean;
 };
 
@@ -133,7 +148,7 @@ export type D1Task = {
   related_entity_id?: string;
   person_id?: string;
   event_id?: string;
-  service_id?: string;
+  services_id?: string;
   completed_at?: string;
 };
 

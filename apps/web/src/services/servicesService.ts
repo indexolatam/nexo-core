@@ -1,14 +1,19 @@
 import { apiRequest } from "./apiClient";
 
 export interface ServiceItem {
-  id: string;
-  name: string;
-  duration: number;
-  price: number;
-  active: boolean;
-  description?: string;
-  category?: string;
-  color?: string;
+  services_id: string;
+  services_name: string;
+  services_duration: number;
+  services_price: number;
+  services_active: boolean;
+  services_description?: string;
+  services_category?: string;
+  services_landing_visible?: boolean;
+  services_landing_paragraph?: string;
+  services_landing_image?: string;
+  services_landing_icon?: string;
+  services_landing_order?: number;
+  services_landing_cta?: string;
   [key: string]: unknown;
 }
 
