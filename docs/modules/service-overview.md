@@ -133,4 +133,4 @@ Si necesitas modificar algo en Servicios, estos son los archivos que necesitas l
 9. `apps/web/db/client.sql` — schema completo unificado
 10. `apps/web/db/migrations/0019_services_redesign.sql` — migración
 
-Para referencia rápida, ver `docs/modules/servicio.md` (documentación técnica) y `docs/modules/servicio-pending.md` (bugs y backlog).
+Para referencia rápida, ver `docs/modules/service.md` (documentación técnica) y `docs/modules/service-pending.md` (bugs y backlog).
