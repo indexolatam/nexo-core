@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["@cloudflare/workers-types"],
+    "baseUrl": ".",
+    "paths": {
+      "@nexo-core/contracts": ["../../packages/contracts/src"]
+    }
+  },
+  "include": ["src"]
+}

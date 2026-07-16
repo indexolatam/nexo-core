@@ -1,0 +1,12 @@
+{
+  "name": "nexo-core",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:api": "npm --prefix apps/api run dev",
+    "dev:dashboard": "npm --prefix apps/dashboard run dev",
+    "build": "npm --prefix apps/api run build && npm --prefix apps/dashboard run build",
+    "typecheck": "npm --prefix packages/contracts run typecheck && npm --prefix apps/api run typecheck && npm --prefix apps/dashboard run typecheck",
+    "test": "node --test tests/**/*.test.mjs"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "tenant_id": "demo",
+  "host": "demo.localhost",
+  "brand": "Demo NEXO",
+  "status": "active",
+  "plan": "basico"
+}

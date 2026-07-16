@@ -1,6 +1,0 @@
-INSERT OR IGNORE INTO people (id, nombre_1, apellido_1, apellido_2, telefono, email, estado, fuente, fecha_creacion, ultima_interaccion, proxima_actividad, assigned_user_id, created_at, updated_at) VALUES
-('per-003', 'Carlos', 'Pérez', 'López', '+505 8888 1003', 'carlos.perez@email.com', 'Activo', 'Referencia', '2026-05-10', '2026-06-14', 'Llamada de seguimiento', 'doctor', '2026-05-10T00:00:00.000Z', '2026-06-14T00:00:00.000Z'),
-('per-004', 'María', 'García', 'Ruiz', '+505 8888 1004', 'maria.garcia@email.com', 'Activo', 'WhatsApp', '2026-06-01', '2026-06-13', 'Consulta inicial', 'doctor', '2026-06-01T00:00:00.000Z', '2026-06-13T00:00:00.000Z'),
-('per-005', 'Juan', 'Martínez', 'Herrera', '+505 8888 1005', 'juan.martinez@email.com', 'Pendiente', 'Web', '2026-06-10', NULL, 'Primer contacto', 'asistente', '2026-06-10T00:00:00.000Z', '2026-06-10T00:00:00.000Z'),
-('per-006', 'Lucía', 'Ramírez', 'Mendoza', '+505 8888 1006', 'lucia.ramirez@email.com', 'Activo', 'Referencia', '2026-04-15', '2026-06-12', 'Taller ansiedad', 'doctor', '2026-04-15T00:00:00.000Z', '2026-06-12T00:00:00.000Z'),
-('per-007', 'Pedro', 'Díaz', 'Vega', '+505 8888 1007', 'pedro.diaz@email.com', 'Inactivo', 'WhatsApp', '2026-03-20', '2026-05-30', 'Sin actividad', NULL, '2026-03-20T00:00:00.000Z', '2026-05-30T00:00:00.000Z');

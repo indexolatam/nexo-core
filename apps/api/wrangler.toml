@@ -1,0 +1,34 @@
+name = "nexo-core-api"
+main = "src/worker.ts"
+compatibility_date = "2026-06-14"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB_CENTRAL"
+database_name = "nexo-central"
+database_id = "REPLACE_WITH_CENTRAL_DB_ID"
+
+# Development allowlist. Replace IDs only when these D1 databases are created.
+# Add a tenant binding deliberately; never derive a D1 binding from client input.
+[[d1_databases]]
+binding = "DB_demo"
+database_name = "nexo-tenant-demo"
+database_id = "REPLACE_WITH_DEMO_DB_ID"
+
+[[d1_databases]]
+binding = "DB_AUDIT_demo"
+database_name = "nexo-audit-demo"
+database_id = "REPLACE_WITH_DEMO_AUDIT_DB_ID"
+
+[[d1_databases]]
+binding = "DB_gmoran"
+database_name = "nexo-tenant-gmoran"
+database_id = "REPLACE_WITH_GMORAN_DB_ID"
+
+[[d1_databases]]
+binding = "DB_AUDIT_gmoran"
+database_name = "nexo-audit-gmoran"
+database_id = "REPLACE_WITH_GMORAN_AUDIT_DB_ID"
+
+[vars]
+ENVIRONMENT = "development"

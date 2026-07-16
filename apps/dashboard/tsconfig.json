@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "paths": {
+      "@nexo-core/contracts": ["../../packages/contracts/src"],
+      "@nexo-core/contracts/*": ["../../packages/contracts/src/*"]
+    }
+  },
+  "include": ["src"]
+}
